@@ -197,7 +197,7 @@
         /* Analog VU Meter */
         .vu-meter-container {
             display: flex;
-            gap: 4px;
+            gap: 2px;
             height: 20px;
             align-items: flex-end;
             margin-top: 10px;
@@ -208,7 +208,7 @@
             flex: 1;
             background: #1a1a1a;
             height: 2px;
-            transition: height 0.05s ease-out; 
+            transition: height 0.08s ease-out; 
         }
         .vu-bar.active {
             background: #555;
@@ -397,17 +397,18 @@
                 source = audioCtx.createMediaElementSource(mainAudio);
                 source.connect(analyser);
                 analyser.connect(audioCtx.destination);
-                // Lower FFT size for a more "chunky" blocky feel with fewer bars
-                analyser.fftSize = 64; 
-                analyser.smoothingTimeConstant = 0.75;
+                
+                // standard FFT size for detailed spread
+                analyser.fftSize = 128; 
+                analyser.smoothingTimeConstant = 0.82; // Smoother movement
                 const bufferLength = analyser.frequencyBinCount;
                 dataArray = new Uint8Array(bufferLength);
                 isAudioContextInitialized = true;
             } catch(e) { console.warn("Audio Context blocked or failed."); }
         }
 
-        // Updated Visualizer: fewer, wider bars focused on a narrower range
-        const numBars = 8;
+        // 16 Bar Layout Reverted
+        const numBars = 16;
         const bars = [];
         for (let i = 0; i < numBars; i++) {
             const bar = document.createElement('div');
@@ -420,22 +421,21 @@
             if (isAudioContextInitialized && !mainAudio.paused) {
                 analyser.getByteFrequencyData(dataArray);
                 
-                // We focus on the first few bins (lower frequencies) for more punchy movement
-                // and skip the high frequency noise that often stays static
                 for (let i = 0; i < numBars; i++) {
                     const bar = bars[i];
-                    // Using a narrowed range of the dataArray (low-to-mid)
-                    const val = dataArray[i + 2] || 0; 
+                    // Pick a broader range of bins to ensure diversity between bars
+                    // Low frequencies (0-4), Mids (5-12), Highs (13+)
+                    // We step through the dataArray to cover more of the audible spectrum
+                    const val = dataArray[i * 2] || 0; 
                     
-                    // Boost sensitivity so movement is more drastic
-                    const boost = 1.25;
-                    const h = Math.max(2, (val / 255) * 20 * boost);
+                    // Dynamic scaling to prevent "maxing out"
+                    const h = Math.max(2, (val / 255) * 18);
                     
-                    bar.style.height = Math.min(20, h) + 'px';
+                    bar.style.height = h + 'px';
                     
-                    if (val > 30) bar.classList.add('active'); else bar.classList.remove('active');
-                    // Peak indicator logic
-                    if (val > 200) bar.classList.add('peak'); else bar.classList.remove('peak');
+                    if (val > 40) bar.classList.add('active'); else bar.classList.remove('active');
+                    // Peak indicator logic - only for very high intensities
+                    if (val > 230) bar.classList.add('peak'); else bar.classList.remove('peak');
                 }
             } else {
                 bars.forEach(bar => {
