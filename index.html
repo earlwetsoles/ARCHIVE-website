@@ -125,8 +125,8 @@
         }
 
         .widget-title { color: var(--crimson); font-weight: bold; }
-        .progress-container { width: 100%; height: 2px; background: #1a1a1a; margin: 8px 0; cursor: pointer; position: relative; }
-        .progress-bar { height: 100%; background: var(--crimson); width: 0%; transition: width 0.1s linear; }
+        .progress-container { width: 100%; height: 4px; background: #1a1a1a; margin: 8px 0; cursor: pointer; position: relative; }
+        .progress-bar { height: 100%; background: var(--crimson); width: 0%; transition: width 0.1s linear; pointer-events: none; }
         .audio-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
         .audio-btn { background: none; border: none; color: #444; cursor: pointer; padding: 0; transition: color 0.2s; }
         .audio-btn:hover { color: var(--terminal-off-white); }
@@ -364,6 +364,7 @@
         const skipBtn = document.getElementById('skip-btn');
         const trackName = document.getElementById('track-name');
         const progressBar = document.getElementById('progress-bar');
+        const progressArea = document.getElementById('progress-area');
         const currentTimeDisplay = document.getElementById('current-time');
         const muteBtn = document.getElementById('mute-btn');
         const audioStatusText = document.getElementById('audio-status-text');
@@ -507,25 +508,23 @@
 
         function runRandomDiag() {
             const msg = diagMessages[Math.floor(Math.random() * diagMessages.length)];
-            
             addLog(msg);
 
-            // FORCE CHAINED EVENT: Heartbeat always followed by Unknown User in Red
+            // MANDATORY CHAINED EVENT (Only this remains crimson)
             if (msg === "HEARTBEAT_SIGNAL_STABLE") {
                 setTimeout(() => {
                     addLog("UNKNOWN_USER_DETECTED", "#991b1b");
                 }, 1500);
             }
             
-            // Random chance for a secondary glitch message
-            if (Math.random() > 0.8) {
+            // Other glitches are grayed out now
+            if (Math.random() > 0.85) {
                 setTimeout(() => {
-                    addLog("ERR_SYSTEM_FATAL_0X000", "#ff0000");
-                }, 800);
+                    addLog("FATAL: BUFFER_OVERFLOW");
+                }, 400);
             }
 
-            // Scheduling next run with more aggressive frequency
-            setTimeout(runRandomDiag, 1500 + Math.random() * 4000);
+            setTimeout(runRandomDiag, 1500 + Math.random() * 3500);
         }
 
         function runPostSequence() {
@@ -598,9 +597,26 @@
             muteBtn.innerText = mainAudio.muted ? "UNMUTE" : "MUTE";
         };
 
+        // ENHANCED PROGRESS BAR SEEKING (Mobile & Desktop)
+        function seek(e) {
+            if (!mainAudio.duration) return;
+            const rect = progressArea.getBoundingClientRect();
+            // Works for both Mouse and Touch events
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const pos = (clientX - rect.left) / rect.width;
+            mainAudio.currentTime = Math.max(0, Math.min(1, pos)) * mainAudio.duration;
+        }
+
+        progressArea.addEventListener('mousedown', seek);
+        progressArea.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevents double-firing and scrolling
+            seek(e);
+        });
+
         mainAudio.ontimeupdate = () => {
             if (!mainAudio.duration) return;
-            progressBar.style.width = `${(mainAudio.currentTime / mainAudio.duration) * 100}%`;
+            const pct = (mainAudio.currentTime / mainAudio.duration) * 100;
+            progressBar.style.width = `${pct}%`;
             const m = Math.floor(mainAudio.currentTime / 60);
             const s = Math.floor(mainAudio.currentTime % 60);
             currentTimeDisplay.innerText = `${m}:${s.toString().padStart(2, '0')}`;
