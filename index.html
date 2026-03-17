@@ -124,6 +124,21 @@
         .audio-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
         .audio-btn { background: none; border: none; color: #444; cursor: pointer; padding: 0; transition: color 0.2s; }
         .audio-btn:hover { color: var(--terminal-off-white); }
+
+        /* Terminal Cursor Styling */
+        .terminal-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background-color: var(--crimson);
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
     </style>
 </head>
 <body class="p-8 md:p-24 pb-72 md:pb-24">
@@ -146,7 +161,7 @@
     <div class="widget-box audio-box" id="audio-widget">
         <div class="widget-header">
             <span class="widget-title">AUDIO_MODULE</span>
-            <span id="track-status">SHUFFLE_MODE</span>
+            <span id="track-status"></span> <!-- Removed shuffle_mode text -->
         </div>
         <div class="mb-1 truncate text-white opacity-80" id="track-name">INITIALIZING...</div>
         <div class="progress-container" id="progress-area">
@@ -166,7 +181,7 @@
                 <button class="audio-btn" id="mute-btn">MUTE</button>
             </div>
         </div>
-        <audio id="main-audio" preload="metadata"></audio>
+        <audio id="main-audio" preload="auto"></audio>
     </div>
 
     <main id="app-content" class="max-w-2xl relative z-20 opacity-0">
@@ -210,9 +225,7 @@
         </section>
 
         <footer class="mt-32 pt-8 border-t border-[#111] typewriter-line" data-delay="4800">
-            <p class="text-[10px] uppercase tracking-widest opacity-20">
-                Connection established. End of line.
-            </p>
+            <div class="terminal-cursor"></div>
         </footer>
     </main>
 
@@ -303,14 +316,10 @@
             currentTrackIndex = nextIndex;
             const track = audioTracks[currentTrackIndex];
             
+            // Ensure URL is relative to where the HTML is served
             mainAudio.src = track.url;
             trackName.innerText = track.name.toUpperCase();
             mainAudio.load();
-            
-            // Only auto-play if the user already started playback or via onended
-            if (playBtn.innerText === "PAUSE") {
-                mainAudio.play().catch(e => console.log("User interaction required"));
-            }
         }
 
         playBtn.onclick = async () => {
@@ -319,7 +328,12 @@
                     await mainAudio.play();
                     playBtn.innerText = "PAUSE";
                 } catch (e) {
-                    console.error("Playback failed:", e);
+                    // Browser likely blocked auto-play; log detail for debugging
+                    console.error("Audio Playback Failed. Details:", e);
+                    // Force a reload of the current src just in case
+                    mainAudio.load();
+                    await mainAudio.play();
+                    playBtn.innerText = "PAUSE";
                 }
             } else {
                 mainAudio.pause();
@@ -345,7 +359,7 @@
 
         mainAudio.onended = () => {
             playRandomTrack();
-            mainAudio.play(); // Auto-play the next random track
+            mainAudio.play().catch(e => console.error("Shuffle transition failed:", e));
         };
 
         document.getElementById('progress-area').onclick = (e) => {
@@ -357,7 +371,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             runPostSequence();
-            // Start with a random track
+            // Start with a random track selection
             playRandomTrack();
 
             // Background Diag simulation
