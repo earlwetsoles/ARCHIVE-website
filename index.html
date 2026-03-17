@@ -18,7 +18,7 @@
             font-family: 'Space Mono', monospace; 
             background-color: #050505;
             color: var(--terminal-gray);
-            overflow-x: hidden;
+            overflow: hidden; /* Locked until boot finishes */
         }
 
         /* CRT Scanline */
@@ -27,11 +27,50 @@
             top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
             background-size: 100% 4px;
-            z-index: 40;
+            z-index: 100;
             pointer-events: none;
             opacity: 0.3;
         }
 
+        /* Rapid POST Sequence Overlay */
+        #boot-screen {
+            position: fixed;
+            inset: 0;
+            background: #050505;
+            z-index: 500;
+            padding: 2rem;
+            font-size: 11px;
+            color: #444;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: opacity 0.4s ease;
+        }
+
+        .post-line {
+            line-height: 1.4;
+            white-space: nowrap;
+        }
+
+        /* Typewriter Animation */
+        .typewriter-line {
+            overflow: hidden;
+            white-space: nowrap;
+            width: 0;
+            opacity: 0;
+        }
+
+        .typing {
+            animation: typing-anim 0.8s steps(30, end) forwards;
+            opacity: 1;
+        }
+
+        @keyframes typing-anim {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        /* Link Styling */
         .link-item {
             border-bottom: 1px solid #1a1a1a;
             transition: all 0.2s ease;
@@ -45,34 +84,7 @@
             padding-left: 8px;
         }
 
-        .link-item-full {
-            width: 100%;
-        }
-
-        ::selection {
-            background: var(--crimson);
-            color: white;
-        }
-
-        /* Typewriter Classes */
-        .typewriter-line {
-            overflow: hidden;
-            white-space: nowrap;
-            width: 0;
-            opacity: 0;
-        }
-
-        .typing {
-            animation: typing-anim 0.8s steps(25, end) forwards;
-            opacity: 1;
-        }
-
-        @keyframes typing-anim {
-            from { width: 0 }
-            to { width: 100% }
-        }
-
-        /* Widget Container Styles */
+        /* Widgets */
         .widget-box {
             position: fixed;
             background: rgba(10, 10, 10, 0.9);
@@ -83,20 +95,16 @@
             color: #444;
             width: calc(100% - 2rem);
             left: 1rem;
+            opacity: 0;
+            transition: opacity 1s ease;
         }
 
-        /* Desktop Positioning */
         @media (min-width: 768px) {
-            .widget-box {
-                width: 240px;
-                left: auto;
-                right: 2rem;
-            }
+            .widget-box { width: 240px; left: auto; right: 2rem; }
             .diag-box { top: 2rem; }
             .audio-box { top: 18rem; }
         }
 
-        /* Mobile Positioning */
         @media (max-width: 767px) {
             .diag-box { bottom: 13rem; }
             .audio-box { bottom: 2rem; }
@@ -110,59 +118,20 @@
             padding-bottom: 0.25rem;
         }
 
-        .widget-title {
-            color: var(--crimson);
-            font-weight: bold;
-        }
-
-        /* Audio Player Specifics */
-        .progress-container {
-            width: 100%;
-            height: 2px;
-            background: #1a1a1a;
-            margin: 8px 0;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: var(--crimson);
-            width: 0%;
-        }
-
-        .audio-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 5px;
-        }
-
-        .audio-btn {
-            background: none;
-            border: none;
-            color: #444;
-            cursor: pointer;
-            padding: 0;
-            transition: color 0.2s;
-        }
-
-        .audio-btn:hover {
-            color: var(--terminal-off-white);
-        }
-
-        .error-text {
-            color: #ef4444;
-            font-size: 8px;
-        }
+        .widget-title { color: var(--crimson); font-weight: bold; }
+        .progress-container { width: 100%; height: 2px; background: #1a1a1a; margin: 8px 0; cursor: pointer; position: relative; }
+        .progress-bar { height: 100%; background: var(--crimson); width: 0%; }
+        .audio-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
+        .audio-btn { background: none; border: none; color: #444; cursor: pointer; padding: 0; transition: color 0.2s; }
+        .audio-btn:hover { color: var(--terminal-off-white); }
     </style>
 </head>
 <body class="p-8 md:p-24 pb-72 md:pb-24">
 
+    <div id="boot-screen"></div>
     <div class="scanline"></div>
 
-    <!-- Diagnostics Terminal -->
-    <div class="widget-box diag-box">
+    <div class="widget-box diag-box" id="diag-widget">
         <div class="widget-header">
             <span class="widget-title">SYS_DIAG</span>
             <span id="uptime">UP: 00:00:00</span>
@@ -174,8 +143,7 @@
         </div>
     </div>
 
-    <!-- Audio Player Module -->
-    <div class="widget-box audio-box">
+    <div class="widget-box audio-box" id="audio-widget">
         <div class="widget-header">
             <span class="widget-title">AUDIO_MODULE</span>
             <span id="track-index">01/01</span>
@@ -198,211 +166,153 @@
         <audio id="main-audio" preload="metadata"></audio>
     </div>
 
-    <main class="max-w-2xl relative z-20">
-        <!-- Header -->
+    <main id="app-content" class="max-w-2xl relative z-20 opacity-0">
         <header class="mb-20">
-            <div class="flex items-center gap-3 mb-4 typewriter-line" data-delay="200">
+            <div class="flex items-center gap-3 mb-4 typewriter-line" data-delay="0">
                 <div class="w-2 h-2 bg-red-800 rounded-full shadow-[0_0_8px_#991b1b] animate-pulse"></div>
                 <h1 class="text-white text-xl tracking-tighter">ARCHIVE_01</h1>
             </div>
-            <p class="text-sm leading-relaxed max-w-md italic typewriter-line" data-delay="1000">
-                A collection of things I've put online.
+            <p class="text-sm leading-relaxed max-w-md italic typewriter-line" data-delay="800">
+                A collection of digital artifacts and logs.
             </p>
         </header>
 
-        <!-- Links Section -->
         <section class="space-y-12">
-            
-            <div class="group typewriter-line" data-delay="2200">
+            <div class="group typewriter-line" data-delay="1600">
                 <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">01 / Utilities</span>
-                <a href="utilities.html" class="link-item link-item-full block py-2 text-lg">Web Tools</a>
+                <a href="utilities.html" target="_blank" rel="noopener noreferrer" class="link-item w-full block py-2 text-lg">Web Tools</a>
+            </div>
+
+            <div class="group typewriter-line" data-delay="2400">
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">02 / Documentation</span>
+                <a href="#" class="link-item w-full block py-2 text-lg">Writings</a>
             </div>
 
             <div class="group typewriter-line" data-delay="3200">
-                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">02 / Text</span>
-                <a href="#" class="link-item link-item-full block py-2 text-lg">Writings</a>
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">03 / Visuals</span>
+                <a href="galleries.html" class="link-item w-full block py-2 text-lg">Gallery</a>
             </div>
 
-            <div class="group typewriter-line" data-delay="4200">
-                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">03 / Media</span>
-                <a href="#" class="link-item link-item-full block py-2 text-lg">Photos</a>
-            </div>
-
-            <div class="group typewriter-line" data-delay="5200">
-                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">04 / LINKS</span>
+            <div class="group typewriter-line" data-delay="4000">
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">04 / Network</span>
                 <div class="flex items-center gap-6">
-                    <a href="https://steamcommunity.com/id/Jiwt/" target="_blank" rel="noopener noreferrer" class="link-item py-2 text-sm hover:text-red-700">Steam</a>
-                    <a href="https://www.twitch.tv/jiwt" target="_blank" rel="noopener noreferrer" class="link-item py-2 text-sm hover:text-red-700">Twitch</a>
+                    <a href="https://steamcommunity.com/id/Jiwt/" target="_blank" class="link-item py-2 text-sm">Steam</a>
+                    <a href="https://www.twitch.tv/jiwt" target="_blank" class="link-item py-2 text-sm">Twitch</a>
                 </div>
             </div>
-
         </section>
 
-        <!-- Footer -->
-        <footer class="mt-32 pt-8 border-t border-[#111] typewriter-line" data-delay="6200">
+        <footer class="mt-32 pt-8 border-t border-[#111] typewriter-line" data-delay="4800">
             <p class="text-[10px] uppercase tracking-widest opacity-20">
-                End of line.
+                Connection established. End of line.
             </p>
         </footer>
     </main>
 
     <script>
-        /**
-         * AUDIO TRACK CONFIGURATION
-         * * TEMPLATE FOR ADDING SONGS (Copy and paste this line into the array):
-         * { name: "DISPLAY NAME", url: "audio/filename-on-github.mp3" },
-         */
-        const audioTracks = [
-            { name: "JFMAMJJASOND", url: "audio/03 JFMAMJJASOND.mp3" },
-            { name: "A PARTRIDGE & A PEAR TREE", url: "audio/02. A Partridge & A Pear Tree (Feat. Tha God Fahim) (Prod. By Sage Elsesser).mp3" },
-            { name: "WINGARIUM LEVIOSA", url: "audio/06 Wingarium Leviosa (Advanced Listening).mp3" },
-            { name: "DNA SWAB", url: "audio/06. DNA Swab (Feat. Tha God Fahim) (Prod. By Earl Sweatshirt).mp3" },
-            { name: "LONG TIME", url: "audio/10. Long Time (Prod. By Alchemist).mp3" },
-            { name: "MARIO LEMIEUXX", url: "audio/01 Mario Lemieuxx.mp3" },
-            { name: "RALE BULGARIAN", url: "audio/01. Rale Bulgarian (Prod. By Sadhu Gold).mp3" },
-            { name: "FROMAJ", url: "audio/02 Fromaj feat. JuJu Gotti.mp3" }
+        const bootData = [
+            "Initializing BIOS...", "Verifying CPU...", "Memory Test: 16384MB OK",
+            "SATA Primary Master: 500GB SSD", "SATA Secondary Master: NONE",
+            "USB Controller Initialized...", "Network Card Found [MAC: 00:1A:2B:3C:4D:5E]",
+            "DHCP Handshake... OK", "Loading Kernel ARCH_OS_01...", "Mounting /dev/sda1...",
+            "Setting up Security Protocols...", "Encryption Layer: AES-256 Enabled",
+            "Checking Archive Integrity...", "Checksum 0xAF43... PASSED",
+            "Loading UI Assets...", "Starting Media Engine...", "Redirecting I/O...",
+            "SUCCESS: System Boot Sequence Complete."
         ];
 
+        function runPostSequence() {
+            const screen = document.getElementById('boot-screen');
+            let count = 0;
+            
+            // Rapid-fire lines every 50ms (Approx 1 second for total list)
+            const interval = setInterval(() => {
+                if (count < bootData.length) {
+                    const line = document.createElement('div');
+                    line.className = 'post-line';
+                    line.innerText = `[ OK ] ${bootData[count]}`;
+                    screen.appendChild(line);
+                    screen.scrollTop = screen.scrollHeight;
+                    count++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(revealSite, 300);
+                }
+            }, 50);
+        }
+
+        function revealSite() {
+            const screen = document.getElementById('boot-screen');
+            const main = document.getElementById('app-content');
+            
+            screen.style.opacity = '0';
+            setTimeout(() => {
+                screen.remove();
+                document.body.style.overflow = 'auto';
+                main.style.opacity = '1';
+                
+                // Trigger Typewriters
+                document.querySelectorAll('.typewriter-line').forEach(line => {
+                    setTimeout(() => line.classList.add('typing'), parseInt(line.getAttribute('data-delay')));
+                });
+
+                // Show Widgets
+                document.getElementById('diag-widget').style.opacity = '1';
+                document.getElementById('audio-widget').style.opacity = '1';
+            }, 400);
+        }
+
+        /** Media & Diag Logic **/
+        const audioTracks = [{ name: "JFMAMJJASOND", url: "audio/03 JFMAMJJASOND.mp3" }, { name: "A PARTRIDGE & A PEAR TREE", url: "audio/02. A Partridge & A Pear Tree.mp3" }, { name: "WINGARIUM LEVIOSA", url: "audio/06 Wingarium Leviosa.mp3" }, { name: "DNA SWAB", url: "audio/06. DNA Swab.mp3" }, { name: "LONG TIME", url: "audio/10. Long Time.mp3" }, { name: "MARIO LEMIEUXX", url: "audio/01 Mario Lemieuxx.mp3" }, { name: "RALE BULGARIAN", url: "audio/01. Rale Bulgarian.mp3" }, { name: "FROMAJ", url: "audio/02 Fromaj.mp3" }];
         let currentTrackIndex = 0;
-        const audio = document.getElementById('main-audio');
+        const mainAudio = document.getElementById('main-audio');
         const playBtn = document.getElementById('play-btn');
-        const muteBtn = document.getElementById('mute-btn');
         const trackName = document.getElementById('track-name');
         const trackIndexDisplay = document.getElementById('track-index');
         const progressBar = document.getElementById('progress-bar');
-        const progressArea = document.getElementById('progress-area');
-        const currentTimeEl = document.getElementById('current-time');
-        const totalDurationEl = document.getElementById('total-duration');
 
         function loadTrack(index) {
-            if(!audioTracks || audioTracks.length === 0 || !audioTracks[index]) {
-                trackName.innerText = "ERR: NO_TRACKS_LOADED";
-                return;
-            }
-            const track = audioTracks[index];
-            
-            // encodeURI handles spaces and special characters in filenames automatically
-            audio.src = encodeURI(track.url);
-            
-            trackName.innerText = track.name.toUpperCase();
+            if(!audioTracks[index]) return;
+            mainAudio.src = encodeURI(audioTracks[index].url);
+            trackName.innerText = audioTracks[index].name.toUpperCase();
             trackIndexDisplay.innerText = `${(index + 1).toString().padStart(2, '0')}/${audioTracks.length.toString().padStart(2, '0')}`;
-            trackName.classList.remove('error-text');
-            audio.load();
+            mainAudio.load();
         }
 
-        async function togglePlay() {
-            if (!audio.src || audio.src === "" || audio.src.includes('undefined')) return;
-            try {
-                if (audio.paused) {
-                    await audio.play();
-                    playBtn.innerText = "PAUSE";
-                } else {
-                    audio.pause();
-                    playBtn.innerText = "PLAY";
-                }
-            } catch (err) {
-                console.error("Playback failed:", err);
-                trackName.innerText = "ERR: SRC_NOT_FOUND";
-                trackName.classList.add('error-text');
-            }
-        }
+        playBtn.onclick = async () => {
+            if (mainAudio.paused) { await mainAudio.play(); playBtn.innerText = "PAUSE"; }
+            else { mainAudio.pause(); playBtn.innerText = "PLAY"; }
+        };
 
-        function updateProgress() {
-            const { duration, currentTime } = audio;
-            if (isNaN(duration)) return;
-            const percent = (currentTime / duration) * 100;
-            progressBar.style.width = `${percent}%`;
-            
-            const formatTime = (time) => {
-                if (isNaN(time)) return "0:00";
-                const mins = Math.floor(time / 60);
-                const secs = Math.floor(time % 60);
-                return `${mins}:${secs.toString().padStart(2, '0')}`;
-            };
-            
-            currentTimeEl.innerText = formatTime(currentTime);
-            totalDurationEl.innerText = formatTime(duration);
-        }
+        mainAudio.ontimeupdate = () => {
+            if (isNaN(mainAudio.duration)) return;
+            progressBar.style.width = `${(mainAudio.currentTime / mainAudio.duration) * 100}%`;
+        };
 
-        playBtn.addEventListener('click', togglePlay);
-        
-        muteBtn.addEventListener('click', () => {
-            audio.muted = !audio.muted;
-            muteBtn.innerText = audio.muted ? "UNMUTE" : "MUTE";
-            muteBtn.style.color = audio.muted ? "var(--crimson)" : "#444";
-        });
+        document.getElementById('next-btn').onclick = () => { currentTrackIndex = (currentTrackIndex + 1) % audioTracks.length; loadTrack(currentTrackIndex); mainAudio.play(); playBtn.innerText = "PAUSE"; };
+        document.getElementById('prev-btn').onclick = () => { currentTrackIndex = (currentTrackIndex - 1 + audioTracks.length) % audioTracks.length; loadTrack(currentTrackIndex); mainAudio.play(); playBtn.innerText = "PAUSE"; };
 
-        document.getElementById('next-btn').addEventListener('click', () => {
-            if (audioTracks.length === 0) return;
-            currentTrackIndex = (currentTrackIndex + 1) % audioTracks.length;
-            loadTrack(currentTrackIndex);
-            togglePlay();
-        });
-
-        document.getElementById('prev-btn').addEventListener('click', () => {
-            if (audioTracks.length === 0) return;
-            currentTrackIndex = (currentTrackIndex - 1 + audioTracks.length) % audioTracks.length;
-            loadTrack(currentTrackIndex);
-            togglePlay();
-        });
-
-        document.getElementById('shuffle-btn').addEventListener('click', () => {
-            if (audioTracks.length <= 1) return;
-            let newIndex;
-            do { newIndex = Math.floor(Math.random() * audioTracks.length); } while (newIndex === currentTrackIndex);
-            currentTrackIndex = newIndex;
-            loadTrack(currentTrackIndex);
-            togglePlay();
-        });
-
-        audio.addEventListener('timeupdate', updateProgress);
-        audio.addEventListener('ended', () => {
-            if (audioTracks.length > 0) document.getElementById('next-btn').click();
-        });
-        
-        audio.addEventListener('error', (e) => {
-            trackName.innerText = "ERR: LOAD_FAILED";
-            trackName.classList.add('error-text');
-        });
-
-        progressArea.addEventListener('click', (e) => {
-            if (!audio.duration) return;
-            const width = progressArea.clientWidth;
-            const clickX = e.offsetX;
-            const duration = audio.duration;
-            audio.currentTime = (clickX / width) * duration;
-        });
-
-        if(audioTracks.length > 0) loadTrack(0);
-
-        // Core Site Animation / Diags
         window.addEventListener('DOMContentLoaded', () => {
-            const lines = document.querySelectorAll('.typewriter-line');
-            lines.forEach(line => {
-                const delay = parseInt(line.getAttribute('data-delay'));
-                setTimeout(() => { line.classList.add('typing'); }, delay);
-            });
+            runPostSequence();
+            loadTrack(0);
 
+            // Background Diag simulation
             let startTime = Date.now();
             setInterval(() => {
                 const elapsed = Math.floor((Date.now() - startTime) / 1000);
                 const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
                 const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
                 const s = String(elapsed % 60).padStart(2, '0');
-                const uptimeEl = document.getElementById('uptime');
-                if(uptimeEl) uptimeEl.innerText = `UP: ${h}:${m}:${s}`;
-                const cpu = document.getElementById('cpu-load');
-                if(cpu) cpu.innerText = `${Math.floor(Math.random() * 15 + 1).toString().padStart(2, '0')}%`;
+                document.getElementById('uptime').innerText = `UP: ${h}:${m}:${s}`;
+                document.getElementById('cpu-load').innerText = `${Math.floor(Math.random() * 8 + 1).toString().padStart(2, '0')}%`;
             }, 1000);
 
-            const logContainer = document.getElementById('diag-logs');
-            const logMessages = ["INIT_PROTOCOL_HUB_01", "QUERYING_DATABASE...", "ACCESS_GRANTED", "SYNC_UTC_LOCAL", "ENCRYPTING_TUNNEL...", "PACKET_RECV: 104b", "CLEANUP_TEMP_FILES", "STATUS: NOMINAL"];
             setInterval(() => {
-                if(!logContainer) return;
                 const log = document.createElement('div');
-                log.innerText = `> ${logMessages[Math.floor(Math.random() * logMessages.length)]}`;
-                logContainer.prepend(log);
-                if (logContainer.children.length > 8) logContainer.removeChild(logContainer.lastChild);
+                log.innerText = `> ${["INIT_CORE", "QUERY_DB", "AUTH_GRNT", "STATUS_OK"][Math.floor(Math.random()*4)]}`;
+                const container = document.getElementById('diag-logs');
+                container.prepend(log);
+                if (container.children.length > 8) container.removeChild(container.lastChild);
             }, 3000);
         });
     </script>
