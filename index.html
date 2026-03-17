@@ -162,6 +162,17 @@
             color: var(--terminal-off-white);
             max-height: 40vh;
         }
+        
+        #console-container.lockdown {
+            animation: lockdown-flash 0.5s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes lockdown-flash {
+            0%, 100% { background: #000; border-top-color: var(--crimson); }
+            50% { background: #300; border-top-color: #ff0000; }
+        }
+
         #console-output {
             overflow-y: auto;
             margin-bottom: 5px;
@@ -214,7 +225,7 @@
 
     <div id="console-container">
         <div id="console-output"></div>
-        <div class="console-input-row">
+        <div class="console-input-row" id="input-row">
             <span>ARCH_OS:</span>
             <input type="text" id="console-input" spellcheck="false" autocomplete="off" placeholder="type 'help'...">
         </div>
@@ -429,8 +440,11 @@
         const virtualFiles = {
             's4_lazar.log': "COORDS: 37.235°N 115.811°W\nSTATUS: REDACTED\nSUBJECT: PROPULSION_SYSTEMS",
             'giza.log': "COORDS: 29.979°N 31.134°E\nSTATUS: ANCIENT_TECH",
-            'secret_projects.dir': "[HIDDEN_FOLDER] - project_icarus, project_looking_glass"
+            'bohemian_grove.log': "REDIRECTING_TO_EXTERNAL_FEED...",
+            'secret_projects.dir': "[HIDDEN_FOLDER] - MK_ULTRA_SUBJECTS, SOCIAL_EXPERIMENT, SHOOTERS_SALOON.zip, LYME_DISEASE_BIOWEAPON"
         };
+
+        const honeypotItems = ["MK_ULTRA_SUBJECTS", "SOCIAL_EXPERIMENT", "SHOOTERS_SALOON.zip", "LYME_DISEASE_BIOWEAPON"];
 
         function writeToConsole(text, color = "#666") {
             const line = document.createElement('div');
@@ -442,7 +456,39 @@
             consoleOutput.scrollTop = consoleOutput.scrollHeight;
         }
 
+        let isLockdown = false;
+
+        function triggerLockdown() {
+            if (isLockdown) return;
+            isLockdown = true;
+            consoleContainer.classList.add('lockdown');
+            document.getElementById('input-row').style.visibility = 'hidden';
+            
+            const messages = [
+                "!!! SECURITY BREACH DETECTED !!!",
+                "UNAUTHORIZED ACCESS TO CLASSIFIED ASSETS",
+                "TRACING LOCATION OF USER...",
+                `LOCAL_IP: 192.168.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`,
+                "GEO_COORDS_LOCKED: [ENCRYPTED]",
+                "UPLINKING TO NEAREST FIELD OFFICE...",
+                "DISPATCHING AGENTS IMMEDIATELY.",
+                "TERMINAL WILL SELF-DESTRUCT IN T-60s",
+                "DO NOT ATTEMPT TO LEAVE YOUR PREMISES."
+            ];
+
+            let i = 0;
+            const msgInterval = setInterval(() => {
+                if (i < messages.length) {
+                    writeToConsole(messages[i], "#ff0000");
+                    i++;
+                } else {
+                    clearInterval(msgInterval);
+                }
+            }, 1000);
+        }
+
         window.addEventListener('keydown', (e) => {
+            if (isLockdown) return;
             if (e.key === '~' || e.key === '`') {
                 e.preventDefault();
                 const isVisible = consoleContainer.style.display === 'flex';
@@ -470,6 +516,11 @@
                 else if(cmd === 'read') {
                     if (!arg) {
                         writeToConsole("ERR: NO FILE SPECIFIED. USAGE: READ [FILENAME]");
+                    } else if (arg === 'bohemian_grove.log') {
+                        writeToConsole("LAUNCHING EXTERNAL LINK...", "var(--crimson)");
+                        window.open("https://youtu.be/_lQGAltQ5Jg?si=5HC7g07gLzcvIDAK&t=4470", "_blank");
+                    } else if (honeypotItems.some(item => arg.toUpperCase().includes(item.toUpperCase()))) {
+                        triggerLockdown();
                     } else if (virtualFiles[arg]) {
                         writeToConsole(`\n--- ${arg.toUpperCase()} ---\n${virtualFiles[arg]}\n`, "var(--crimson)");
                     } else {
@@ -501,23 +552,22 @@
             "KERNEL_SYNC_OK", "IO_PORT_CLEARED", "TEMP_NOMINAL: 34C",
             "PACKET_DUMP_COMPLETE", "CACHE_CLEANUP_SUCESS", "PROXY_ROTATED",
             "ENCRYPTION_LAYER_STABLE", "AUTH_KEY_REGENERATED", "UPLINK_ENCRYPTED",
-            "HEARTBEAT_SIGNAL_STABLE", "MEMORY_LEAK_IN_SECTOR_7", "EYE_TRACKING_ACTIVE",
+            "HEARTBEAT_SIGNAL_STABLE", "EYE_TRACKING_ACTIVE",
             "VOICE_DATA_RECOVERED", "GEOLOCATION_PINNED", "ACCESS_DENIED_BY_ROOT",
             "REMOTE_SHELL_ESTABLISHED"
         ];
 
         function runRandomDiag() {
+            if (isLockdown) return;
             const msg = diagMessages[Math.floor(Math.random() * diagMessages.length)];
             addLog(msg);
 
-            // MANDATORY CHAINED EVENT (Only this remains crimson)
             if (msg === "HEARTBEAT_SIGNAL_STABLE") {
                 setTimeout(() => {
                     addLog("UNKNOWN_USER_DETECTED", "#991b1b");
                 }, 1500);
             }
             
-            // Other glitches are grayed out now
             if (Math.random() > 0.85) {
                 setTimeout(() => {
                     addLog("FATAL: BUFFER_OVERFLOW");
@@ -597,11 +647,9 @@
             muteBtn.innerText = mainAudio.muted ? "UNMUTE" : "MUTE";
         };
 
-        // ENHANCED PROGRESS BAR SEEKING (Mobile & Desktop)
         function seek(e) {
             if (!mainAudio.duration) return;
             const rect = progressArea.getBoundingClientRect();
-            // Works for both Mouse and Touch events
             const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
             const pos = (clientX - rect.left) / rect.width;
             mainAudio.currentTime = Math.max(0, Math.min(1, pos)) * mainAudio.duration;
@@ -609,7 +657,7 @@
 
         progressArea.addEventListener('mousedown', seek);
         progressArea.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Prevents double-firing and scrolling
+            e.preventDefault(); 
             seek(e);
         });
 
@@ -622,7 +670,7 @@
             currentTimeDisplay.innerText = `${m}:${s.toString().padStart(2, '0')}`;
         };
 
-        window.addEventListener('DOMContentLoaded', () => {
+        window.onload = () => {
             runPostSequence();
             loadTrack(currentTrackIndex);
             setInterval(() => {
@@ -630,7 +678,7 @@
                 document.getElementById('uptime').innerText = `UP: ${String(Math.floor(elapsed / 3600)).padStart(2, '0')}:${String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0')}:${String(elapsed % 60).padStart(2, '0')}`;
                 document.getElementById('cpu-load').innerText = `${Math.floor(Math.random() * 15 + 5).toString().padStart(2, '0')}%`;
             }, 1000);
-        });
+        };
     </script>
 </body>
 </html>
