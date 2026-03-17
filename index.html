@@ -441,6 +441,7 @@
             's4_lazar.log': "COORDS: 37.235°N 115.811°W\nSTATUS: REDACTED\nSUBJECT: PROPULSION_SYSTEMS",
             'giza.log': "COORDS: 29.979°N 31.134°E\nSTATUS: ANCIENT_TECH",
             'bohemian_grove.log': "REDIRECTING_TO_EXTERNAL_FEED...",
+            'who_is_he.log': "LOCATING_SUBJECT_DATA...",
             'secret_projects.dir': "[HIDDEN_FOLDER] - MK_ULTRA_SUBJECTS, SOCIAL_EXPERIMENT, SHOOTERS_SALOON.zip, LYME_DISEASE_BIOWEAPON"
         };
 
@@ -519,6 +520,9 @@
                     } else if (arg === 'bohemian_grove.log') {
                         writeToConsole("LAUNCHING EXTERNAL LINK...", "var(--crimson)");
                         window.open("https://youtu.be/_lQGAltQ5Jg?si=5HC7g07gLzcvIDAK&t=4470", "_blank");
+                    } else if (arg === 'who_is_he.log') {
+                        writeToConsole("REDIRECTING TO EXTERNAL ARCHIVE...", "var(--crimson)");
+                        window.open("https://www.youtube.com/watch?v=qTjjcyg1POk", "_blank");
                     } else if (honeypotItems.some(item => arg.toUpperCase().includes(item.toUpperCase()))) {
                         triggerLockdown();
                     } else if (virtualFiles[arg]) {
