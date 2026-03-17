@@ -272,22 +272,25 @@
             }, 400);
         }
 
-        /** * MUSIC ADDITION TEMPLATE (COPY AND PASTE TO AI):
-         * "Add these songs to the player:
-         * 1. [Song Title] - [filename.mp3]
-         * 2. [Song Title] - [filename.mp3]"
-         **/
-        
         const audioTracks = [
             { name: "MARIO LEMIEUXX", url: "audio/01 Mario Lemieuxx.mp3" },
-            { name: "RALE BULGARIAN", url: "audio/01. Rale Bulgarian.mp3" },
-            { name: "A PARTRIDGE & A PEAR TREE", url: "audio/02. A Partridge & A Pear Tree.mp3" },
-            { name: "FROMAJ", url: "audio/02 Fromaj.mp3" },
-            { name: "JFMAMJJASOND", url: "audio/03 JFMAMJJASOND.mp3" },
-            { name: "WINGARIUM LEVIOSA", url: "audio/06 Wingarium Leviosa.mp3" },
-            { name: "DNA SWAB", url: "audio/06. DNA Swab.mp3" },
-            { name: "LONG TIME", url: "audio/10. Long Time.mp3" },
+            { name: "RALE BULGARIAN", url: "audio/01. Rale Bulgarian (Prod. By Sadhu Gold).mp3" },
+            { name: "A PARTRIDGE & A PEAR TREE", url: "audio/02. A Partridge & A Pear Tree (Feat. Tha God Fahim) (Prod. By Sage Elsesser).mp3" },
+            { name: "FROMAJ", url: "audio/02. Fromaj.mp3" },
+            { name: "JFMAMJJASOND", url: "audio/03. JFMAMJJASOND.mp3" },
+            { name: "SO MUCH MORE", url: "audio/03. So Much More (Prod. By Alchemist).mp3" },
             { name: "ALLEN IVERSON", url: "audio/04. Allen Iverson (Feat. Heem Stogied) (Prod. By Earl Sweatshirt).mp3" },
+            { name: "WINGARIUM LEVIOSA", url: "audio/06 Wingarium Leviosa.mp3" },
+            { name: "DNA SWAB", url: "audio/06 DNA Swab.mp3" },
+            { name: "MAC FLURRIES", url: "audio/08. Mac Flurries (Feat. Heem Stogied) (Prod. By Sage Elsesser).mp3" },
+            { name: "LONG TIME", url: "audio/10. Long Time (Prod. By Alchemist).mp3" },
+            { name: "RORSHACH'S", url: "audio/11. Rorshach's (Feat. Tha God Fahim) (Prod. By Sage Elsesser).mp3" },
+            { name: "AIRWORKS", url: "audio/12 Airworks.mp3" },
+            { name: "DON'T CRY", url: "audio/18 Don't Cry.mp3" },
+            { name: "GOBSTOPPER", url: "audio/22 Gobstopper.mp3" },
+            { name: "BYE..", url: "audio/29 Bye...mp3" },
+            { name: "LAST DONUT OF THE NIGHT", url: "audio/30 Last Donut of the Night.mp3" },
+            { name: "DONUTS (INTRO)", url: "audio/31 Donuts (Intro).mp3" }
         ];
 
         let currentTrackIndex = Math.floor(Math.random() * audioTracks.length);
@@ -310,6 +313,11 @@
         function loadTrack(index) {
             const track = audioTracks[index];
             if (!track) return;
+            
+            mainAudio.pause();
+            mainAudio.currentTime = 0;
+            progressBar.style.width = '0%';
+            
             mainAudio.src = track.url;
             trackName.innerText = track.name.toUpperCase();
             mainAudio.load();
@@ -317,7 +325,6 @@
 
         async function skipToRandom() {
             let nextIndex;
-            // Prevent same song twice in a row if possible
             if (audioTracks.length > 1) {
                 do {
                     nextIndex = Math.floor(Math.random() * audioTracks.length);
@@ -325,15 +332,18 @@
             } else {
                 nextIndex = 0;
             }
+            
             currentTrackIndex = nextIndex;
             loadTrack(currentTrackIndex);
+            
             try {
                 await mainAudio.play();
                 playBtn.innerText = "PAUSE";
                 audioStatusText.innerText = "Streaming";
             } catch (e) {
-                console.error("Skip blocked by browser:", e);
+                console.warn("Playback prevented or interrupted during skip:", e);
                 playBtn.innerText = "PLAY";
+                audioStatusText.innerText = "Ready";
             }
         }
 
@@ -365,16 +375,21 @@
         };
 
         mainAudio.ontimeupdate = () => {
-            if (isNaN(mainAudio.duration)) return;
+            if (isNaN(mainAudio.duration) || mainAudio.duration === 0) return;
             const progress = (mainAudio.currentTime / mainAudio.duration) * 100;
             progressBar.style.width = `${progress}%`;
             currentTimeDisplay.innerText = formatTime(mainAudio.currentTime);
         };
 
+        mainAudio.onerror = () => {
+            console.error("Error loading audio track:", audioTracks[currentTrackIndex].url);
+            audioStatusText.innerText = "Error Loading";
+        };
+
         mainAudio.onended = () => skipToRandom();
 
         document.getElementById('progress-area').onclick = (e) => {
-            if (isNaN(mainAudio.duration)) return;
+            if (isNaN(mainAudio.duration) || mainAudio.duration === 0) return;
             const rect = e.currentTarget.getBoundingClientRect();
             const pos = (e.clientX - rect.left) / rect.width;
             mainAudio.currentTime = pos * mainAudio.duration;
@@ -384,7 +399,6 @@
             runPostSequence();
             loadTrack(currentTrackIndex);
 
-            // Diag simulation
             let startTime = Date.now();
             setInterval(() => {
                 const elapsed = Math.floor((Date.now() - startTime) / 1000);
