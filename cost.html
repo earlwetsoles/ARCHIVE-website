@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Much Your Parents Spent Raising You</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        midnight: '#0a0a1a',
+                        dreamy: '#16162d',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        input[type=range] {
+            height: 6px;
+            -webkit-appearance: none;
+            margin: 10px 0;
+            width: 100%;
+            background: #e2e8f0;
+            border-radius: 5px;
+        }
+        .dark input[type=range] {
+            background: #2d2d4d;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #4f46e5;
+            cursor: pointer;
+            -webkit-appearance: none;
+        }
+        .dark input[type=range]::-webkit-slider-thumb {
+            background: #818cf8;
+            box-shadow: 0 0 10px rgba(129, 140, 248, 0.4);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid #e2e8f0;
+        }
+        .dark .glass-card {
+            background: rgba(22, 22, 45, 0.8);
+            border: 1px solid #333355;
+            backdrop-filter: blur(8px);
+        }
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .dark .cost-item {
+            border-bottom: 1px solid #2d2d4d;
+        }
+        details > summary {
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+        .theme-transition {
+            transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-midnight text-slate-900 dark:text-slate-100 min-h-screen pb-20 font-sans theme-transition">
+
+    <div class="max-w-5xl mx-auto px-4 py-12">
+        <div class="flex justify-end mb-4">
+            <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-white dark:bg-dreamy border border-slate-200 dark:border-indigo-900 shadow-sm hover:scale-110 transition-transform">
+                <svg id="sun-icon" class="w-5 h-5 text-yellow-500 hidden dark:block" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path></svg>
+                <svg id="moon-icon" class="w-5 h-5 text-indigo-600 block dark:hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            </button>
+        </div>
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-extrabold text-indigo-900 dark:text-indigo-300 mb-2 tracking-tight">How Much Your Parents Spent Raising You</h1>
+            <p class="text-slate-600 dark:text-slate-400 font-medium">A realistic breakdown of the costs from your birth until you turned 18.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Left Side: Inputs -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- Section 1: Background -->
+                <section class="glass-card p-6 rounded-2xl shadow-sm">
+                    <h2 class="text-lg font-bold mb-4 text-indigo-800 dark:text-indigo-300 flex items-center">
+                        <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 w-6 h-6 rounded-full inline-flex items-center justify-center text-xs mr-2">1</span>
+                        The Basics
+                    </h2>
+                    <div class="grid grid-cols-1 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Birth Year</label>
+                            <input type="number" id="birthYear" value="2000" min="1970" max="2024" 
+                                class="w-full rounded-lg border-slate-300 dark:border-indigo-900 shadow-sm p-3 bg-white dark:bg-dreamy focus:ring-2 focus:ring-indigo-500 border outline-none">
+                            <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">This helps us adjust for how much things cost while you were growing up.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: Lifestyle -->
+                <section class="glass-card p-6 rounded-2xl shadow-sm">
+                    <h2 class="text-lg font-bold mb-4 text-indigo-800 dark:text-indigo-300 flex items-center">
+                        <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 w-6 h-6 rounded-full inline-flex items-center justify-center text-xs mr-2">2</span>
+                        Lifestyle & Food
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <div class="flex justify-between items-end">
+                                <label class="text-sm font-semibold dark:text-slate-300">Housing & Utilities Quality</label>
+                                <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400" id="housingLabel">Standard</span>
+                            </div>
+                            <input type="range" id="housingTier" min="1" max="5" step="1" value="3">
+                            <div class="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold">
+                                <span>Modest</span>
+                                <span>Comfortable</span>
+                                <span>Spacious</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-end">
+                                <label class="text-sm font-semibold dark:text-slate-300">Food Budget</label>
+                                <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 rounded" id="foodPlanLabel">Moderate</span>
+                            </div>
+                            <input type="range" id="foodPlan" min="1" max="4" step="1" value="3">
+                            <div class="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold">
+                                <span>Thrifty</span>
+                                <span>Low-Cost</span>
+                                <span>Moderate</span>
+                                <span>Liberal</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-end">
+                                <label class="text-sm font-semibold dark:text-slate-300">Clothing & Apparel</label>
+                                <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400" id="clothingLabel">Standard</span>
+                            </div>
+                            <input type="range" id="clothingTier" min="1" max="5" step="1" value="3">
+                            <div class="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold">
+                                <span>Hand-me-downs</span>
+                                <span>Standard</span>
+                                <span>Designer</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-end">
+                                <label class="text-sm font-semibold dark:text-slate-300">Eating Out Frequency</label>
+                                <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400" id="diningLabel">Occasional</span>
+                            </div>
+                            <input type="range" id="diningFreq" min="0" max="100" step="5" value="30">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: School & Health -->
+                <section class="glass-card p-6 rounded-2xl shadow-sm">
+                    <h2 class="text-lg font-bold mb-4 text-indigo-800 dark:text-indigo-300 flex items-center">
+                        <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 w-6 h-6 rounded-full inline-flex items-center justify-center text-xs mr-2">3</span>
+                        School, Hobbies & Health
+                    </h2>
+                    <div class="space-y-6">
+                        <div>
+                            <div class="flex justify-between items-end">
+                                <label class="text-sm font-semibold dark:text-slate-300">School Supplies & Tech</label>
+                                <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400" id="schoolLabel">Standard</span>
+                            </div>
+                            <input type="range" id="schoolTier" min="1" max="5" step="1" value="3">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-end">
+                                <label class="text-sm font-semibold dark:text-slate-300">Sports & Extracurriculars</label>
+                                <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400" id="activityLabel">None/Basic</span>
+                            </div>
+                            <input type="range" id="activityTier" min="0" max="100" step="5" value="20">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-end">
+                                <label class="text-sm font-semibold dark:text-slate-300">Doctor & Dentist (Out-of-pocket)</label>
+                                <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400" id="healthLabel">Average</span>
+                            </div>
+                            <input type="range" id="healthTier" min="1" max="5" step="1" value="2">
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Side: The Bill -->
+            <div class="lg:col-span-5">
+                <div class="sticky top-6 space-y-4">
+                    <div class="bg-slate-900 dark:bg-dreamy dark:border dark:border-indigo-900 text-white p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10">
+                            <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <h2 class="text-slate-400 dark:text-indigo-400/60 text-xs font-bold uppercase tracking-widest mb-2">Total Estimated Cost</h2>
+                        <div class="text-6xl font-black mb-8 font-mono dark:text-indigo-200" id="totalDisplay">$0</div>
+                        
+                        <div class="space-y-3 text-sm font-medium">
+                            <div class="cost-item">
+                                <span class="text-slate-400 dark:text-indigo-400/50">Housing & Bills (18yrs):</span>
+                                <span id="outHousing">$0</span>
+                            </div>
+                            <div class="cost-item">
+                                <span class="text-slate-400 dark:text-indigo-400/50">Groceries & Food:</span>
+                                <span id="outFood">$0</span>
+                            </div>
+                            <div class="cost-item">
+                                <span class="text-slate-400 dark:text-indigo-400/50">Clothes & Hygiene:</span>
+                                <span id="outClothing">$0</span>
+                            </div>
+                            <div class="cost-item">
+                                <span class="text-slate-400 dark:text-indigo-400/50">School & Activities:</span>
+                                <span id="outEdu">$0</span>
+                            </div>
+                            <div class="cost-item">
+                                <span class="text-slate-400 dark:text-indigo-400/50">Health & Dental:</span>
+                                <span id="outHealth">$0</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-slate-700 dark:border-indigo-900/50">
+                            <p class="text-[10px] text-slate-500 dark:text-indigo-400 italic">
+                                *Adjusted for the cost of living during the years you were a child.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Accuracy & Sources -->
+        <div class="mt-12">
+            <details class="group bg-white dark:bg-dreamy rounded-2xl border border-slate-200 dark:border-indigo-900 overflow-hidden shadow-sm">
+                <summary class="flex items-center justify-between p-6 cursor-pointer hover:bg-slate-50 dark:hover:bg-indigo-900/20 transition-colors">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <h3 class="font-bold text-slate-800 dark:text-indigo-200">The Math: How we calculate this</h3>
+                    </div>
+                    <span class="text-indigo-500 group-open:rotate-180 transition-transform">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </span>
+                </summary>
+                
+                <div class="p-8 border-t border-slate-100 dark:border-indigo-900/30 bg-slate-50/50 dark:bg-midnight/50 space-y-10">
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-400 dark:text-indigo-400/40 uppercase tracking-widest mb-4">I. Inflation & Historical Costs</h4>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">We take modern prices and use historical data from the Bureau of Labor Statistics to figure out what those things actually cost when you were a kid.</p>
+                        <div class="bg-white dark:bg-dreamy p-4 rounded-xl border border-slate-200 dark:border-indigo-900 font-mono text-[11px] leading-relaxed text-slate-700 dark:text-indigo-200">
+                            <p><strong>Factor Calculation:</strong> We average the cost of living between your birth year and your 18th year.</p>
+                            <p class="mt-2 text-indigo-500 dark:text-indigo-400 italic" id="math-inf-example">For Year 2000: (0.567 + 0.785) / 2 = 0.676 (multiplier)</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-400 dark:text-indigo-400/40 uppercase tracking-widest mb-4">II. Annual Baselines</h4>
+                            <div class="space-y-4 text-xs text-slate-600 dark:text-slate-400">
+                                <div>
+                                    <strong class="text-slate-800 dark:text-indigo-200">Housing & Utils</strong>
+                                    <p>Covers the extra space, electricity, and water a child adds to a household budget.</p>
+                                </div>
+                                <div>
+                                    <strong class="text-slate-800 dark:text-indigo-200">Food & Dining</strong>
+                                    <p>Based on USDA official food plans ranging from "thrifty" to "liberal."</p>
+                                </div>
+                                <div>
+                                    <strong class="text-slate-800 dark:text-indigo-200">Clothing & Hygiene</strong>
+                                    <p>Covers everything from diapers and baby clothes to high school gear.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-400 dark:text-indigo-400/40 uppercase tracking-widest mb-4">III. Extra Costs</h4>
+                            <div class="space-y-4 text-xs text-slate-600 dark:text-slate-400">
+                                <div>
+                                    <strong class="text-slate-800 dark:text-indigo-200">Education & Tech</strong>
+                                    <p>Includes computers, school trips, stationery, and graduation costs.</p>
+                                </div>
+                                <div>
+                                    <strong class="text-slate-800 dark:text-indigo-200">Hobbies</strong>
+                                    <p>Fees for sports, music lessons, summer camps, and recreational equipment.</p>
+                                </div>
+                                <div>
+                                    <strong class="text-slate-800 dark:text-indigo-200">Healthcare</strong>
+                                    <p>Out-of-pocket medical bills, dental checkups, and items like braces or glasses.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-200 dark:border-indigo-900/40">
+                        <p class="text-[10px] text-slate-400 dark:text-indigo-400/30 uppercase font-bold mb-2">Sources:</p>
+                        <p class="text-[10px] text-slate-500 dark:text-indigo-400/40 italic">USDA Expenditures on Children by Families Report; BLS Consumer Price Index Tables; USDA Official Food Plans.</p>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <script>
+        const CPI_DATA = {
+            1970: 0.126, 1975: 0.176, 1980: 0.269, 1985: 0.354, 1990: 0.431, 
+            1995: 0.501, 2000: 0.567, 2005: 0.643, 2010: 0.718, 2015: 0.785, 
+            2020: 0.852, 2024: 1.0
+        };
+
+        const FOOD_PLANS = { 1: 220, 2: 280, 3: 350, 4: 430 };
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        function getInflation(year) {
+            const keys = Object.keys(CPI_DATA).map(Number).sort((a,b) => a-b);
+            if (CPI_DATA[year]) return CPI_DATA[year];
+            for (let i = 0; i < keys.length - 1; i++) {
+                if (year >= keys[i] && year <= keys[i+1]) {
+                    const t = (year - keys[i]) / (keys[i+1] - keys[i]);
+                    return CPI_DATA[keys[i]] + t * (CPI_DATA[keys[i+1]] - CPI_DATA[keys[i]]);
+                }
+            }
+            return 1.0;
+        }
+
+        const ui = {
+            birthYear: document.getElementById('birthYear'),
+            housingTier: document.getElementById('housingTier'),
+            foodPlan: document.getElementById('foodPlan'),
+            clothingTier: document.getElementById('clothingTier'),
+            diningFreq: document.getElementById('diningFreq'),
+            schoolTier: document.getElementById('schoolTier'),
+            activityTier: document.getElementById('activityTier'),
+            healthTier: document.getElementById('healthTier'),
+            total: document.getElementById('totalDisplay'),
+            outHousing: document.getElementById('outHousing'),
+            outFood: document.getElementById('outFood'),
+            outClothing: document.getElementById('outClothing'),
+            outEdu: document.getElementById('outEdu'),
+            outHealth: document.getElementById('outHealth'),
+            housingLabel: document.getElementById('housingLabel'),
+            foodPlanLabel: document.getElementById('foodPlanLabel'),
+            clothingLabel: document.getElementById('clothingLabel'),
+            diningLabel: document.getElementById('diningLabel'),
+            schoolLabel: document.getElementById('schoolLabel'),
+            activityLabel: document.getElementById('activityLabel'),
+            healthLabel: document.getElementById('healthLabel'),
+            mathInfExample: document.getElementById('math-inf-example')
+        };
+
+        function calculate() {
+            const birth = parseInt(ui.birthYear.value) || 2000;
+            const startFactor = getInflation(birth);
+            const endFactor = getInflation(Math.min(birth + 18, 2024));
+            const avgInf = (startFactor + endFactor) / 2;
+
+            ui.mathInfExample.innerText = `For Year ${birth}: (${startFactor.toFixed(3)} + ${endFactor.toFixed(3)}) / 2 = ${avgInf.toFixed(3)} (multiplier)`;
+
+            const totalHousing = (3500 + (ui.housingTier.value * 1800)) * 18 * avgInf;
+            const totalFood = (FOOD_PLANS[ui.foodPlan.value] + ((ui.diningFreq.value / 100) * 250)) * 12 * 18 * avgInf;
+            const totalClothing = { 1: 300, 2: 550, 3: 900, 4: 1500, 5: 2500 }[ui.clothingTier.value] * 18 * avgInf;
+            const totalEdu = ({ 1: 150, 2: 300, 3: 550, 4: 900, 5: 1600 }[ui.schoolTier.value] + ((ui.activityTier.value / 100) * 4500)) * 18 * avgInf;
+            const totalHealth = (1000 + ((ui.healthTier.value - 1) * 600)) * 18 * avgInf;
+
+            const grandTotal = totalHousing + totalFood + totalClothing + totalEdu + totalHealth;
+            const fmt = (num) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
+            
+            ui.total.innerText = fmt(grandTotal);
+            ui.outHousing.innerText = fmt(totalHousing);
+            ui.outFood.innerText = fmt(totalFood);
+            ui.outClothing.innerText = fmt(totalClothing);
+            ui.outEdu.innerText = fmt(totalEdu);
+            ui.outHealth.innerText = fmt(totalHealth);
+
+            ui.housingLabel.innerText = ["Modest", "Functional", "Standard", "Premium", "Luxury"][ui.housingTier.value - 1];
+            ui.foodPlanLabel.innerText = ["Thrifty", "Low-Cost", "Moderate", "Liberal"][ui.foodPlan.value - 1];
+            ui.clothingLabel.innerText = ["Thrifted", "Essentials", "Standard", "Brand Name", "Boutique/Designer"][ui.clothingTier.value - 1];
+            ui.diningLabel.innerText = ui.diningFreq.value < 20 ? "Rarely" : ui.diningFreq.value < 50 ? "Occasional" : "Frequent";
+            ui.schoolLabel.innerText = ["Minimal", "Basic", "Standard", "High Tech", "Elite"][ui.schoolTier.value - 1];
+            ui.activityLabel.innerText = ui.activityTier.value < 10 ? "None" : ui.activityTier.value < 40 ? "School Clubs" : "Competitive Sports";
+            ui.healthLabel.innerText = ["Essential", "Average", "Moderate (Braces)", "Extensive", "Specialized"][ui.healthTier.value - 1];
+        }
+
+        document.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+        
+        window.onload = () => {
+            calculate();
+        };
+    </script>
+</body>
+</html>
