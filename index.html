@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono&display=swap');
+        
+        body { 
+            font-family: 'Space Mono', monospace; 
+            background-color: #050505;
+            color: #666;
+        }
+
+        .link-item {
+            border-bottom: 1px solid #1a1a1a;
+            transition: all 0.2s ease;
+        }
+
+        .link-item:hover {
+            color: #eee;
+            border-bottom-color: #991b1b; /* Crimson Red */
+            padding-left: 8px;
+        }
+
+        /* Subtle scanline overlay */
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0.2;
+        }
+
+        /* Red Accent for Selection */
+        ::selection {
+            background: #991b1b;
+            color: white;
+        }
+    </style>
+</head>
+<body class="p-8 md:p-24">
+
+    <div class="scanline"></div>
+
+    <main class="max-w-2xl relative z-20">
+        <!-- Header -->
+        <header class="mb-20">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-2 h-2 bg-red-800 rounded-full shadow-[0_0_8px_#991b1b]"></div>
+                <h1 class="text-white text-xl tracking-tighter">ARCHIVE_01</h1>
+            </div>
+            <p class="text-sm leading-relaxed max-w-md italic">
+                A collection of things I've put online.
+            </p>
+        </header>
+
+        <!-- Links Section -->
+        <section class="space-y-12">
+            
+            <div class="group">
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">01 / Utilities</span>
+                <a href="utilities.html" class="link-item block py-2 text-lg">Web Tools</a>
+            </div>
+
+            <div class="group">
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">02 / Text</span>
+                <a href="#" class="link-item block py-2 text-lg">Writings</a>
+            </div>
+
+            <div class="group">
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">03 / Media</span>
+                <a href="#" class="link-item block py-2 text-lg">Photos</a>
+            </div>
+
+            <div class="group">
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">04 / Contact</span>
+                <div class="flex gap-6">
+                    <a href="#" class="link-item py-2 text-sm hover:text-red-700">GitHub</a>
+                    <a href="#" class="link-item py-2 text-sm hover:text-red-700">Email</a>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-32 pt-8 border-t border-[#111]">
+            <p class="text-[10px] uppercase tracking-widest opacity-20">
+                End of line.
+            </p>
+        </footer>
+    </main>
+
+</body>
+</html>
