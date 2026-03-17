@@ -161,23 +161,21 @@
     <div class="widget-box audio-box" id="audio-widget">
         <div class="widget-header">
             <span class="widget-title">AUDIO_MODULE</span>
-            <span id="track-status" class="text-[7px] opacity-30"></span> 
+            <span id="current-time" class="text-white opacity-60">0:00</span> 
         </div>
         <div class="mb-1 truncate text-white opacity-80" id="track-name">READY_TO_BOOT</div>
         <div class="progress-container" id="progress-area">
             <div class="progress-bar" id="progress-bar"></div>
         </div>
-        <div class="flex justify-between items-center text-[8px] opacity-40">
-            <span id="current-time">0:00</span>
-            <span id="total-duration">0:00</span>
-        </div>
+        
         <div class="audio-controls">
             <div class="flex items-center gap-2">
                 <div id="audio-status-dot" class="w-1.5 h-1.5 bg-red-800 rounded-full animate-pulse"></div>
-                <span id="audio-status-text" class="text-[7px] uppercase tracking-tighter opacity-50">Safe Mode Loaded</span>
+                <span id="audio-status-text" class="text-[7px] uppercase tracking-tighter opacity-50">Safe Mode</span>
             </div>
             <div class="flex gap-4">
                 <button class="audio-btn font-bold text-white" id="play-btn">PLAY</button>
+                <button class="audio-btn font-bold" id="skip-btn">SKIP</button>
                 <button class="audio-btn" id="mute-btn">MUTE</button>
             </div>
         </div>
@@ -289,16 +287,16 @@
             { name: "WINGARIUM LEVIOSA", url: "audio/06 Wingarium Leviosa.mp3" },
             { name: "DNA SWAB", url: "audio/06. DNA Swab.mp3" },
             { name: "LONG TIME", url: "audio/10. Long Time.mp3" },
-            { name: "Allen Iverson", url: "audio/04. Allen Iverson (Feat. Heem Stogied) (Prod. By Earl Sweatshirt).mp3" },
+            { name: "ALLEN IVERSON", url: "audio/04. Allen Iverson (Feat. Heem Stogied) (Prod. By Earl Sweatshirt).mp3" },
         ];
 
         let currentTrackIndex = Math.floor(Math.random() * audioTracks.length);
         const mainAudio = document.getElementById('main-audio');
         const playBtn = document.getElementById('play-btn');
+        const skipBtn = document.getElementById('skip-btn');
         const trackName = document.getElementById('track-name');
         const progressBar = document.getElementById('progress-bar');
         const currentTimeDisplay = document.getElementById('current-time');
-        const durationDisplay = document.getElementById('total-duration');
         const muteBtn = document.getElementById('mute-btn');
         const audioStatusText = document.getElementById('audio-status-text');
 
@@ -315,7 +313,28 @@
             mainAudio.src = track.url;
             trackName.innerText = track.name.toUpperCase();
             mainAudio.load();
-            audioStatusText.innerText = "Syncing...";
+        }
+
+        async function skipToRandom() {
+            let nextIndex;
+            // Prevent same song twice in a row if possible
+            if (audioTracks.length > 1) {
+                do {
+                    nextIndex = Math.floor(Math.random() * audioTracks.length);
+                } while (nextIndex === currentTrackIndex);
+            } else {
+                nextIndex = 0;
+            }
+            currentTrackIndex = nextIndex;
+            loadTrack(currentTrackIndex);
+            try {
+                await mainAudio.play();
+                playBtn.innerText = "PAUSE";
+                audioStatusText.innerText = "Streaming";
+            } catch (e) {
+                console.error("Skip blocked by browser:", e);
+                playBtn.innerText = "PLAY";
+            }
         }
 
         playBtn.onclick = async () => {
@@ -329,7 +348,7 @@
                     audioStatusText.innerText = "Streaming";
                 } catch (e) {
                     console.error("Playback block:", e);
-                    audioStatusText.innerText = "Error: Click Play";
+                    audioStatusText.innerText = "Click Play";
                 }
             } else {
                 mainAudio.pause();
@@ -337,6 +356,8 @@
                 audioStatusText.innerText = "Paused";
             }
         };
+
+        skipBtn.onclick = () => skipToRandom();
 
         muteBtn.onclick = () => {
             mainAudio.muted = !mainAudio.muted;
@@ -348,17 +369,9 @@
             const progress = (mainAudio.currentTime / mainAudio.duration) * 100;
             progressBar.style.width = `${progress}%`;
             currentTimeDisplay.innerText = formatTime(mainAudio.currentTime);
-            durationDisplay.innerText = formatTime(mainAudio.duration);
         };
 
-        mainAudio.onended = () => {
-            currentTrackIndex = (currentTrackIndex + 1) % audioTracks.length;
-            loadTrack(currentTrackIndex);
-            mainAudio.play().catch(() => {
-                playBtn.innerText = "PLAY";
-                audioStatusText.innerText = "Queue Halted";
-            });
-        };
+        mainAudio.onended = () => skipToRandom();
 
         document.getElementById('progress-area').onclick = (e) => {
             if (isNaN(mainAudio.duration)) return;
