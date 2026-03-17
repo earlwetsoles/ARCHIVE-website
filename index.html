@@ -12,6 +12,7 @@
             --crimson: #991b1b;
             --terminal-gray: #666;
             --terminal-off-white: #eee;
+            --glitch-color: #ff0000;
         }
 
         body { 
@@ -19,7 +20,6 @@
             background-color: #050505;
             color: var(--terminal-gray);
             overflow-x: hidden;
-            /* overflow-y hidden until boot finishes */
         }
 
         /* CRT Scanline */
@@ -31,6 +31,7 @@
             z-index: 100;
             pointer-events: none;
             opacity: 0.3;
+            transition: opacity 0.1s ease; /* For audio reactivity */
         }
 
         /* Rapid POST Sequence Overlay */
@@ -98,14 +99,12 @@
             transition: opacity 1s ease;
         }
 
-        /* Desktop Positioning */
         @media (min-width: 768px) {
             .widget-box { width: 240px; right: 2rem; }
             .diag-box { top: 2rem; }
             .audio-box { top: 18rem; }
         }
 
-        /* Mobile Positioning: Tucked in the corners at the bottom to stay out of center */
         @media (max-width: 767px) {
             .widget-box { 
                 width: 45%; 
@@ -115,8 +114,6 @@
             }
             .diag-box { left: 1rem; height: 110px; }
             .audio-box { right: 1rem; height: 110px; }
-            
-            /* Hide non-essential logs on small screens to save space */
             #diag-logs { height: 40px !important; }
         }
 
@@ -149,12 +146,49 @@
             from, to { opacity: 1; }
             50% { opacity: 0; }
         }
+
+        /* Glitch styles */
+        .glitch-text {
+            color: var(--glitch-color);
+            text-shadow: 1px 0px 4px rgba(255,0,0,0.5);
+        }
+
+        /* Hidden Terminal Console */
+        #console-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #000;
+            border-top: 1px solid var(--crimson);
+            padding: 10px 20px;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            font-size: 12px;
+            color: var(--terminal-off-white);
+        }
+        #console-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--terminal-off-white);
+            flex-grow: 1;
+            margin-left: 10px;
+            font-family: 'Space Mono', monospace;
+        }
     </style>
 </head>
 <body class="p-8 md:p-24 pb-48 md:pb-24">
 
     <div id="boot-screen"></div>
-    <div class="scanline"></div>
+    <div class="scanline" id="scanline"></div>
+
+    <!-- Hidden Terminal -->
+    <div id="console-container">
+        <span>ARCH_OS:</span>
+        <input type="text" id="console-input" spellcheck="false" autocomplete="off" placeholder="type 'help'...">
+    </div>
 
     <div class="widget-box diag-box" id="diag-widget">
         <div class="widget-header">
@@ -189,18 +223,15 @@
                 <button class="audio-btn hidden md:block" id="mute-btn">MUTE</button>
             </div>
         </div>
-        <audio id="main-audio" preload="auto"></audio>
+        <audio id="main-audio" preload="auto" crossOrigin="anonymous"></audio>
     </div>
 
     <main id="app-content" class="max-w-2xl relative z-20 opacity-0">
         <header class="mb-12 md:mb-20">
             <div class="flex items-center gap-3 mb-4 typewriter-line" data-delay="0">
-                <div class="w-2 h-2 bg-red-800 rounded-full shadow-[0_0_8px_#991b1b] animate-pulse"></div>
-                <h1 class="text-white text-xl tracking-tighter">ARCHIVE_01</h1>
+                <div id="header-pulse" class="w-2 h-2 bg-red-800 rounded-full shadow-[0_0_8px_#991b1b] animate-pulse"></div>
+                <h1 class="text-white text-xl tracking-tighter" id="site-title">ARCHIVE_01</h1>
             </div>
-            <p class="text-sm leading-relaxed max-w-md italic typewriter-line" data-delay="800">
-                A collection of digital artifacts and logs.
-            </p>
         </header>
 
         <section class="space-y-8 md:space-y-12">
@@ -234,10 +265,12 @@
 
         <footer class="mt-24 md:mt-32 pt-8 border-t border-[#111] typewriter-line" data-delay="4800">
             <div class="terminal-cursor"></div>
+            <p class="text-[8px] mt-4 opacity-20">PRESS '~' FOR COMMAND INTERFACE</p>
         </footer>
     </main>
 
     <script>
+        // ================= CONFIG & ASSETS =================
         const bootData = [
             "Initializing BIOS...", "Verifying CPU...", "Memory Test: 16384MB OK",
             "SATA Primary Master: 500GB SSD", "USB Controller Initialized...",
@@ -249,6 +282,193 @@
             "SUCCESS: System Boot Sequence Complete."
         ];
 
+        const audioTracks = [
+            { name: "MARIO LEMIEUXX", url: "audio/01 Mario Lemieuxx.mp3" },
+            { name: "A PARTRIDGE & A PEAR TREE", url: "audio/02. A Partridge & A Pear Tree (Feat. Tha God Fahim) (Prod. By Sage Elsesser).mp3" },
+            { name: "FROMAJ", url: "audio/02 Fromaj feat. JuJu Gotti.mp3" },
+            { name: "JFMAMJJASOND", url: "audio/03 JFMAMJJASOND.mp3" },
+            { name: "SO MUCH MORE", url: "audio/03. So Much More (Prod. By Alchemist).mp3" },
+            { name: "ALLEN IVERSON", url: "audio/04. Allen Iverson (Feat. Heem Stogied) (Prod. By Earl Sweatshirt).mp3" },
+            { name: "WINGARIUM LEVIOSA (ADVANCED LISTENING)", url: "audio/06 Wingarium Leviosa (Advanced Listening).mp3" },
+            { name: "DNA SWAB", url: "audio/06. DNA Swab (Feat. Tha God Fahim) (Prod. By Earl Sweatshirt).mp3" },
+            { name: "MAC FLURRIES", url: "audio/08. Mac Flurries (Feat. Heem Stogied) (Prod. By Sage Elsesser).mp3" },
+            { name: "LONG TIME", url: "audio/10. Long Time (Prod. By Alchemist).mp3" },
+            { name: "AIRWORKS", url: "audio/12 Airworks.mp3" },
+            { name: "DON'T CRY", url: "audio/18 Don't Cry.mp3" },
+            { name: "GOBSTOPPER", url: "audio/22 Gobstopper.mp3" },
+            { name: "BYE..", url: "audio/29 Bye..mp3" },
+            { name: "LAST DONUT OF THE NIGHT", url: "audio/30 Last Donut of the Night.mp3" },
+            { name: "DONUTS (INTRO)", url: "audio/31 Donuts (Intro).mp3" },
+            { name: "I PROMISE YA", url: "audio/I Promise Ya.mp3" },
+            { name: "SPRAY 4 ME", url: "audio/Gucci Mane - Spray 4 Me (Prod By DPBEATS).mp3" },
+            { name: "IT JUST DOESNT MATTER", url: "audio/07 - It Just Doesnt Matter.mp3" },
+            { name: "INSIDE OUTSIDE", url: "audio/01 - Inside Outside.wav.mp3" },
+            { name: "SWITCHIN LANES", url: "audio/switchin lanes.mp3" },
+            { name: "12 BARS", url: "audio/01 - 12 Bars (DatPiff Exclusive).mp3" },
+            { name: "MORGAN TRACY", url: "audio/03 - Morgan Tracy (DatPiff Exclusive).mp3" },
+            { name: "FUCK ME", url: "audio/06 - Fuck Me (DatPiff Exclusive).mp3" },
+            { name: "IN CASE YOU FORGOT", url: "audio/Roc Marciano - In Case You Forgot.mp3" },
+            { name: "RUN-INS", url: "audio/04 - Run-Ins.mp3" },
+            { name: "WILLIE LLOYD (INST)", url: "audio/07 Willie Lloyd (Instrumental).mp3" },
+            { name: "NO WINDOW TINTS (INST)", url: "audio/06 No Window Tints (Instrumental).mp3" },
+            { name: "GAMEBREAKER", url: "audio/Domo Genesis - Gamebreaker ft. Earl Sweatshirt.mp3" },
+            { name: "RANDY THE MUSICAL", url: "audio/Action Bronson - Randy The Musical.mp3" },
+            { name: "DA COLDEST", url: "audio/01 Da Coldest-HHB.mp3" },
+            { name: "HOOVER STREET (OG VERSION)", url: "audio/Schoolboy Q - Hoover Street (Original Version).mp3" },
+            { name: "MASSACURES", url: "audio/06. Massacures.mp3" },
+            { name: "KNIFE CONFRONTATION", url: "audio/13 - Knife Confrontation.mp3" },
+            { name: "$111.11", url: "audio/02. $111.11 feat. Mach-Hommy [Prod. Camoflauge Monk].mp3" },
+            { name: "NO MORE TIME", url: "audio/09 No More Time_ (The Change).m4a" },
+            { name: "DO YOU KNOW", url: "audio/10 Do You Know_ (Transition).m4a" },
+            { name: "JULANI", url: "audio/02 Julani.mp3" },
+            { name: "HAPPYNESS (SKIT)", url: "audio/04. Happyness (Skit).mp3" },
+            { name: "FUBAR", url: "audio/08. fubar.mp3" },
+            { name: "NIGGAS SOOOOO GOOD", url: "audio/05. Niggas Sooooo Good.mp3" },
+            { name: "SHERWIN WILLIAMS", url: "audio/Mach-Hommy - DUMPMEISTER - 05 Sherwin Williams feat. Koncept Jack$on (beats by NAVY BLUE).mp3" }
+        ];
+
+        // ================= ELEMENTS =================
+        const mainAudio = document.getElementById('main-audio');
+        const playBtn = document.getElementById('play-btn');
+        const skipBtn = document.getElementById('skip-btn');
+        const trackName = document.getElementById('track-name');
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeDisplay = document.getElementById('current-time');
+        const muteBtn = document.getElementById('mute-btn');
+        const audioStatusText = document.getElementById('audio-status-text');
+        const diagLogs = document.getElementById('diag-logs');
+        const scanline = document.getElementById('scanline');
+        const headerPulse = document.getElementById('header-pulse');
+
+        let currentTrackIndex = Math.floor(Math.random() * audioTracks.length);
+        let audioCtx, analyser, dataArray;
+        let isReactivityInitialized = false;
+
+        // ================= GLITCH ENGINE (Idea 1) =================
+        const glitchChars = "█▓▒░$%#@!&*<>/?";
+        
+        function triggerFakeCrash() {
+            // Find a random text element in the main content
+            const elements = document.querySelectorAll('#app-content a, #app-content h1, #app-content span');
+            const target = elements[Math.floor(Math.random() * elements.length)];
+            if (!target || target.classList.contains('glitch-active')) return;
+
+            const originalText = target.innerText;
+            target.classList.add('glitch-active');
+            
+            let iterations = 0;
+            const maxIterations = 5;
+            
+            const interval = setInterval(() => {
+                target.innerText = originalText.split('').map((char, i) => {
+                    if (char === ' ') return char;
+                    return Math.random() > 0.7 ? glitchChars[Math.floor(Math.random() * glitchChars.length)] : char;
+                }).join('');
+                
+                target.style.color = 'var(--glitch-color)';
+
+                if (iterations >= maxIterations) {
+                    clearInterval(interval);
+                    target.innerText = originalText;
+                    target.style.color = '';
+                    target.classList.remove('glitch-active');
+                }
+                iterations++;
+            }, 80);
+        }
+
+        // Run glitch periodically
+        setInterval(() => {
+            if (Math.random() > 0.8) triggerFakeCrash();
+        }, 4000);
+
+        // ================= AUDIO REACTIVITY (Idea 3) =================
+        function initAudioReactivity() {
+            if (isReactivityInitialized) return;
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                const source = audioCtx.createMediaElementSource(mainAudio);
+                source.connect(analyser);
+                analyser.connect(audioCtx.destination);
+                analyser.fftSize = 64;
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                isReactivityInitialized = true;
+                requestAnimationFrame(updateReactivity);
+            } catch (e) {
+                console.warn("Audio Reactivity blocked by browser or cross-origin policy.");
+            }
+        }
+
+        function updateReactivity() {
+            if (!isReactivityInitialized) return;
+            analyser.getByteFrequencyData(dataArray);
+            
+            // Get average volume
+            let sum = 0;
+            for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
+            const avg = sum / dataArray.length;
+            const intensity = avg / 255;
+
+            // React scanlines
+            scanline.style.opacity = 0.3 + (intensity * 0.4);
+            
+            // React pulse dot
+            if (intensity > 0.1) {
+                headerPulse.style.transform = `scale(${1 + intensity * 1.5})`;
+                headerPulse.style.boxShadow = `0 0 ${10 + intensity * 20}px var(--crimson)`;
+            } else {
+                headerPulse.style.transform = `scale(1)`;
+            }
+
+            requestAnimationFrame(updateReactivity);
+        }
+
+        // ================= TERMINAL SHELL (Idea 5 - Base) =================
+        const consoleContainer = document.getElementById('console-container');
+        const consoleInput = document.getElementById('console-input');
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === '~' || e.key === '`') {
+                e.preventDefault();
+                const isVisible = consoleContainer.style.display === 'flex';
+                consoleContainer.style.display = isVisible ? 'none' : 'flex';
+                if (!isVisible) consoleInput.focus();
+            }
+        });
+
+        consoleInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const cmd = consoleInput.value.toLowerCase().trim();
+                consoleInput.value = '';
+                
+                // Add your custom logic here later
+                if (cmd === 'help') {
+                    addLog("SYS: HELP - CMDS LOCKED IN SAFE MODE");
+                } else if (cmd === 'exit' || cmd === 'logout') {
+                    consoleContainer.style.display = 'none';
+                } else if (cmd !== '') {
+                    addLog(`ERR: CMD '${cmd.toUpperCase()}' NOT FOUND`);
+                }
+            }
+        });
+
+        // ================= LOG SYSTEM (Idea 2) =================
+        const eerieLogs = [
+            "WARNING: UNKNOWN_USER_DETECTED",
+            "ERR: HEARTBEAT_FOUND_IN_BUFFER",
+            "VOID_SECTOR_ACCESS_DENIED",
+            "WHY_ARE_YOU_HERE?"
+        ];
+
+        function addLog(text) {
+            const log = document.createElement('div');
+            log.innerText = `> ${text}`;
+            diagLogs.prepend(log);
+            if (diagLogs.children.length > 8) diagLogs.removeChild(diagLogs.lastChild);
+        }
+
+        // ================= SITE CORE =================
         function runPostSequence() {
             const screen = document.getElementById('boot-screen');
             if (!screen) return;
@@ -284,61 +504,6 @@
             }, 400);
         }
 
-        const audioTracks = [
-            { name: "MARIO LEMIEUXX", url: "audio/01 Mario Lemieuxx.mp3" },
-            { name: "A PARTRIDGE & A PEAR TREE", url: "audio/02. A Partridge & A Pear Tree (Feat. Tha God Fahim) (Prod. By Sage Elsesser).mp3" },
-            { name: "FROMAJ", url: "audio/02 Fromaj feat. JuJu Gotti.mp3" },
-            { name: "JFMAMJJASOND", url: "audio/03 JFMAMJJASOND.mp3" },
-            { name: "SO MUCH MORE", url: "audio/03. So Much More (Prod. By Alchemist).mp3" },
-            { name: "ALLEN IVERSON", url: "audio/04. Allen Iverson (Feat. Heem Stogied) (Prod. By Earl Sweatshirt).mp3" },
-            { name: "WINGARIUM LEVIOSA (ADVANCED LISTENING)", url: "audio/06 Wingarium Leviosa (Advanced Listening).mp3" },
-            { name: "DNA SWAB", url: "audio/06. DNA Swab (Feat. Tha God Fahim) (Prod. By Earl Sweatshirt).mp3" },
-            { name: "MAC FLURRIES", url: "audio/08. Mac Flurries (Feat. Heem Stogied) (Prod. By Sage Elsesser).mp3" },
-            { name: "LONG TIME", url: "audio/10. Long Time (Prod. By Alchemist).mp3" },
-            { name: "AIRWORKS", url: "audio/12 Airworks.mp3" },
-            { name: "DON'T CRY", url: "audio/18 Don't Cry.mp3" },
-            { name: "GOBSTOPPER", url: "audio/22 Gobstopper.mp3" },
-            { name: "BYE..", url: "audio/29 Bye..mp3" },
-            { name: "LAST DONUT OF THE NIGHT", url: "audio/30 Last Donut of the Night.mp3" },
-            { name: "DONUTS (INTRO)", url: "audio/31 Donuts (Intro).mp3" },
-            { name: "I PROMISE YA", url: "audio/I Promise Ya.mp3" },
-            { name: "SPRAY 4 ME", url: "audio/Gucci Mane - Spray 4 Me (Prod By DPBEATS).mp3" },
-            { name: "IT JUST DOESNT MATTER", url: "audio/07 - It Just Doesnt Matter.mp3" },
-            { name: "INSIDE OUTSIDE", url: "audio/01 - Inside Outside.wav.mp3" },
-            { name: "SWITCHIN LANES", url: "audio/switchin lanes.mp3" },
-            { name: "12 BARS", url: "audio/01 - 12 Bars (DatPiff Exclusive).mp3" },
-            { name: "MORGAN TRACY", url: "audio/03 - Morgan Tracy (DatPiff Exclusive).mp3" },
-            { name: "FUCK ME", url: "audio/06 - Fuck Me (DatPiff Exclusive).mp3" },
-            { name: "IN CASE YOU FORGOT", url: "audio/Roc Marciano - In Case You Forgot.mp3" },
-            { name: "RUN-INS", url: "audio/04 - Run-Ins.mp3" },
-            { name: "WILLIE LLOYD (INST)", url: "audio/07. Willie Lloyd (Instrumental).mp3" },
-            { name: "NO WINDOW TINTS (INST)", url: "audio/06 No Window Tints (Instrumental).mp3" },
-            { name: "GAMEBREAKER", url: "audio/Domo Genesis - Gamebreaker ft. Earl Sweatshirt.mp3" },
-            { name: "RANDY THE MUSICAL", url: "audio/Action Bronson - Randy The Musical.mp3" },
-            { name: "DA COLDEST", url: "audio/01 Da Coldest-HHB.mp3" },
-            { name: "HOOVER STREET (OG VERSION)", url: "audio/Schoolboy Q - Hoover Street (Original Version).mp3" },
-            { name: "MASSACURES", url: "audio/06. Massacures.mp3" },
-            { name: "KNIFE CONFRONTATION", url: "audio/13 - Knife Confrontation.mp3" },
-            { name: "$111.11", url: "audio/02. $111.11 feat. Mach-Hommy [Prod. Camoflauge Monk].mp3" },
-            { name: "NO MORE TIME", url: "audio/09 No More Time_ (The Change).m4a" },
-            { name: "DO YOU KNOW", url: "audio/10 Do You Know_ (Transition).m4a" },
-            { name: "JULANI", url: "audio/02 Julani.mp3" },
-            { name: "HAPPYNESS (SKIT)", url: "audio/04. Happyness (Skit).mp3" },
-            { name: "FUBAR", url: "audio/08. fubar.mp3" },
-            { name: "NIGGAS SOOOOO GOOD", url: "audio/05. Niggas Sooooo Good.mp3" },
-            { name: "SHERWIN WILLIAMS", url: "audio/Mach-Hommy - DUMPMEISTER - 05 Sherwin Williams feat. Koncept Jack$on (beats by NAVY BLUE).mp3" }
-        ];
-
-        let currentTrackIndex = Math.floor(Math.random() * audioTracks.length);
-        const mainAudio = document.getElementById('main-audio');
-        const playBtn = document.getElementById('play-btn');
-        const skipBtn = document.getElementById('skip-btn');
-        const trackName = document.getElementById('track-name');
-        const progressBar = document.getElementById('progress-bar');
-        const currentTimeDisplay = document.getElementById('current-time');
-        const muteBtn = document.getElementById('mute-btn');
-        const audioStatusText = document.getElementById('audio-status-text');
-
         function formatTime(seconds) {
             if (isNaN(seconds)) return "0:00";
             const mins = Math.floor(seconds / 60);
@@ -349,62 +514,47 @@
         function loadTrack(index) {
             const track = audioTracks[index];
             if (!track) return;
-            
             mainAudio.pause();
             mainAudio.currentTime = 0;
             progressBar.style.width = '0%';
-            
             mainAudio.src = track.url;
             trackName.innerText = track.name.toUpperCase();
             mainAudio.load();
         }
 
         async function skipToRandom() {
-            let nextIndex;
-            if (audioTracks.length > 1) {
-                do {
-                    nextIndex = Math.floor(Math.random() * audioTracks.length);
-                } while (nextIndex === currentTrackIndex);
-            } else {
-                nextIndex = 0;
-            }
-            
-            currentTrackIndex = nextIndex;
+            currentTrackIndex = Math.floor(Math.random() * audioTracks.length);
             loadTrack(currentTrackIndex);
-            
             try {
+                initAudioReactivity();
                 await mainAudio.play();
                 playBtn.innerText = "PAUSE";
-                if (audioStatusText) audioStatusText.innerText = "Streaming";
+                audioStatusText.innerText = "Streaming";
             } catch (e) {
-                console.warn("Playback prevented:", e);
                 playBtn.innerText = "PLAY";
-                if (audioStatusText) audioStatusText.innerText = "Ready";
             }
         }
 
         playBtn.onclick = async () => {
             if (mainAudio.paused) {
                 try {
-                    if (!mainAudio.src || mainAudio.src === window.location.href) {
-                        loadTrack(currentTrackIndex);
-                    }
+                    initAudioReactivity();
+                    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                    if (!mainAudio.src || mainAudio.src === window.location.href) loadTrack(currentTrackIndex);
                     await mainAudio.play();
                     playBtn.innerText = "PAUSE";
-                    if (audioStatusText) audioStatusText.innerText = "Streaming";
+                    audioStatusText.innerText = "Streaming";
                 } catch (e) {
-                    console.error("Playback block:", e);
-                    if (audioStatusText) audioStatusText.innerText = "Click Play";
+                    audioStatusText.innerText = "Click Play";
                 }
             } else {
                 mainAudio.pause();
                 playBtn.innerText = "PLAY";
-                if (audioStatusText) audioStatusText.innerText = "Paused";
+                audioStatusText.innerText = "Paused";
             }
         };
 
         skipBtn.onclick = () => skipToRandom();
-
         muteBtn.onclick = () => {
             mainAudio.muted = !mainAudio.muted;
             muteBtn.innerText = mainAudio.muted ? "UNMUTE" : "MUTE";
@@ -415,12 +565,6 @@
             const progress = (mainAudio.currentTime / mainAudio.duration) * 100;
             progressBar.style.width = `${progress}%`;
             currentTimeDisplay.innerText = formatTime(mainAudio.currentTime);
-        };
-
-        mainAudio.onerror = () => {
-            const currentTrack = audioTracks[currentTrackIndex];
-            console.error(`AUDIO ERROR: Failed to load "${currentTrack.name}" at path: ${currentTrack.url}`);
-            if (audioStatusText) audioStatusText.innerText = "Error Loading";
         };
 
         mainAudio.onended = () => skipToRandom();
@@ -447,11 +591,11 @@
             }, 1000);
 
             setInterval(() => {
-                const log = document.createElement('div');
-                log.innerText = `> ${["INIT_CORE", "QUERY_DB", "AUTH_GRNT", "STATUS_OK"][Math.floor(Math.random()*4)]}`;
-                const container = document.getElementById('diag-logs');
-                container.prepend(log);
-                if (container.children.length > 8) container.removeChild(container.lastChild);
+                if (Math.random() > 0.85) {
+                    addLog(eerieLogs[Math.floor(Math.random() * eerieLogs.length)]);
+                } else {
+                    addLog(["INIT_CORE", "QUERY_DB", "AUTH_GRNT", "STATUS_OK", "PING_GATEWAY"][Math.floor(Math.random()*5)]);
+                }
             }, 3000);
         });
     </script>
