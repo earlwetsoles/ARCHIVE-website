@@ -287,12 +287,12 @@
 
             <div class="group typewriter-line" data-delay="2400">
                 <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">02 / Documentation</span>
-                <a href="#" class="link-item w-full block py-2 text-lg glitch-target">Writings</a>
+                <a href="#" target="_blank" rel="noopener noreferrer" class="link-item w-full block py-2 text-lg glitch-target">Writings</a>
             </div>
 
             <div class="group typewriter-line" data-delay="3200">
                 <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">03 / Visuals</span>
-                <a href="galleries.html" class="link-item w-full block py-2 text-lg glitch-target">Gallery</a>
+                <a href="galleries.html" target="_blank" rel="noopener noreferrer" class="link-item w-full block py-2 text-lg glitch-target">Gallery</a>
             </div>
 
             <div class="group typewriter-line" data-delay="4000">
@@ -468,22 +468,18 @@
                 const target = targets[Math.floor(Math.random() * targets.length)];
                 glitchElement(target);
             }
-            // Random interval between 4 and 10 seconds
             setTimeout(triggerRandomGlitch, 4000 + Math.random() * 6000);
         }
 
-        // Initialize glitch loop after boot
         setTimeout(triggerRandomGlitch, 6000);
-
 
         const consoleContainer = document.getElementById('console-container');
         const consoleInput = document.getElementById('console-input');
         const consoleOutput = document.getElementById('console-output');
 
         const virtualFiles = {
-            's4_lazar.log': "COORDS: 37.235°N 115.811°W\nSTATUS: REDACTED\nSUBJECT: PROPULSION_SYSTEMS",
-            'giza.log': "COORDS: 29.979°N 31.134°E\nSTATUS: ANCIENT_TECH",
-            'bohemian_grove.log': "REDIRECTING_TO_EXTERNAL_FEED...",
+            'begotten_1989.log': "LINKING_TO_EXTERNAL_ARCHIVE...",
+            'bohemian_grove.log': "REDIRECTING_TO_EXTERNAL_ARCHIVE...",
             'who_is_he.log': "LOCATING_SUBJECT_DATA...",
             'secret_projects.dir': "[HIDDEN_FOLDER] - MK_ULTRA_SUBJECTS, SOCIAL_EXPERIMENT, SHOOTERS_SALOON.zip, LYME_DISEASE_BIOWEAPON"
         };
@@ -552,14 +548,20 @@
                 writeToConsole(`> ${rawInput.toUpperCase()}`, "#aaa");
 
                 if(cmd === 'help') {
-                    writeToConsole("AVAILABLE CMDS: LS, READ [FILE], WHOAMI, EXIT");
+                    writeToConsole("AVAILABLE COMMANDS:");
+                    writeToConsole(" - LIST");
+                    writeToConsole(" - READ [FILE]");
+                    writeToConsole(" - WHOAMI");
                 }
-                else if(cmd === 'ls') {
+                else if(cmd === 'list') {
                     Object.keys(virtualFiles).forEach(f => writeToConsole(` - ${f}`, "#888"));
                 }
                 else if(cmd === 'read') {
                     if (!arg) {
                         writeToConsole("ERR: NO FILE SPECIFIED. USAGE: READ [FILENAME]");
+                    } else if (arg === 'begotten_1989.log') {
+                        writeToConsole("LAUNCHING EXTERNAL LINK...", "var(--crimson)");
+                        window.open("https://youtu.be/vvwGtlzTKYQ?si=TgJbAZ8xg-pnXRG8&t=75", "_blank");
                     } else if (arg === 'bohemian_grove.log') {
                         writeToConsole("LAUNCHING EXTERNAL LINK...", "var(--crimson)");
                         window.open("https://youtu.be/_lQGAltQ5Jg?si=5HC7g07gLzcvIDAK&t=4470", "_blank");
@@ -577,9 +579,6 @@
                 else if(cmd === 'whoami') {
                     writeToConsole("SESSION_ID: " + Math.random().toString(16).substring(2, 10).toUpperCase());
                     writeToConsole("IDENTITY: UNKNOWN_GUEST_01\nAUTH_LEVEL: RESTRICTED\nWARNING: YOU ARE BEING WATCHED.");
-                }
-                else if(cmd === 'exit') {
-                    consoleContainer.style.display = 'none';
                 }
                 else {
                     writeToConsole("ERR: CMD NOT FOUND. TYPE 'HELP' FOR LIST.");
@@ -599,7 +598,7 @@
             "KERNEL_SYNC_OK", "IO_PORT_CLEARED", "TEMP_NOMINAL: 34C",
             "PACKET_DUMP_COMPLETE", "CACHE_CLEANUP_SUCESS", "PROXY_ROTATED",
             "ENCRYPTION_LAYER_STABLE", "AUTH_KEY_REGENERATED", "UPLINK_ENCRYPTED",
-            "HEARTBEAT_SIGNAL_STABLE", "EYE_TRACKING_ACTIVE",
+            "HEARTBEAT_FOUND", "EYE_TRACKING_ACTIVE",
             "VOICE_DATA_RECOVERED", "GEOLOCATION_PINNED", "ACCESS_DENIED_BY_ROOT",
             "REMOTE_SHELL_ESTABLISHED"
         ];
@@ -609,7 +608,7 @@
             const msg = diagMessages[Math.floor(Math.random() * diagMessages.length)];
             addLog(msg);
 
-            if (msg === "HEARTBEAT_SIGNAL_STABLE") {
+            if (msg === "HEARTBEAT_FOUND") {
                 setTimeout(() => {
                     addLog("UNKNOWN_USER_DETECTED", "#991b1b");
                 }, 1500);
