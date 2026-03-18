@@ -226,14 +226,6 @@
             font-weight: bold;
         }
 
-        /* Subheading Custom Styling to match Header */
-        .sub-header-style {
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: -0.025em;
-            color: var(--terminal-off-white);
-        }
-
         /* --- CLIPPY WIDGET STYLES --- */
         #clippy-container {
             position: fixed;
@@ -302,8 +294,7 @@
         <div id="clippy-bubble">
             Press '~' to access the terminal.
         </div>
-        <!-- Pointing to local asset Clippy.webp -->
-        <img src="Clippy.webp" id="clippy-img" alt="Clippy" onerror="this.src='https://static.wikia.nocookie.net/joke-battles/images/c/cb/Clippy.png/revision/latest?cb=20151209031540';">
+        <img src="https://static.wikia.nocookie.net/joke-battles/images/c/cb/Clippy.png/revision/latest?cb=20151209031540" id="clippy-img" alt="Clippy">
     </div>
 
     <div id="console-container">
@@ -357,28 +348,28 @@
         <header class="mb-12 md:mb-20">
             <div class="flex items-center gap-3 mb-4 typewriter-line" data-delay="0">
                 <div id="header-pulse" class="w-2 h-2 bg-red-800 rounded-full shadow-[0_0_8px_#991b1b] animate-pulse"></div>
-                <h1 class="text-white text-xl tracking-tighter font-bold uppercase glitch-target" id="site-title">ARCHIVE_01</h1>
+                <h1 class="text-white text-xl tracking-tighter glitch-target" id="site-title">ARCHIVE_01</h1>
             </div>
         </header>
 
         <section class="space-y-8 md:space-y-12">
             <div class="group typewriter-line" data-delay="1600">
-                <span class="text-[10px] block mb-2 opacity-40 sub-header-style">01 / Utilities</span>
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">01 / Utilities</span>
                 <a href="utilities.html" target="_blank" rel="noopener noreferrer" class="link-item w-full block py-2 text-lg glitch-target">Web Tools</a>
             </div>
 
             <div class="group typewriter-line" data-delay="2400">
-                <span class="text-[10px] block mb-2 opacity-40 sub-header-style">02 / Visuals</span>
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">02 / Visuals</span>
                 <a href="galleries.html" target="_blank" rel="noopener noreferrer" class="link-item w-full block py-2 text-lg glitch-target">Gallery</a>
             </div>
 
             <div class="group typewriter-line" data-delay="3200">
-                <span class="text-[10px] block mb-2 opacity-40 sub-header-style">03 / Documentation</span>
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">03 / Documentation</span>
                 <a href="#" target="_blank" rel="noopener noreferrer" class="link-item w-full block py-2 text-lg glitch-target">Writings</a>
             </div>
 
             <div class="group typewriter-line" data-delay="4000">
-                <span class="text-[10px] block mb-2 opacity-40 sub-header-style">04 / Network</span>
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">04 / Network</span>
                 <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
                     <a href="https://csfloat.com/stall/76561198136225158" target="_blank" class="link-item py-2 text-sm glitch-target">CSFloat</a>
                     <a href="https://www.inaturalist.org/observations?user_id=jiwt&verifiable=any" target="_blank" class="link-item py-2 text-sm glitch-target">iNaturalist</a>
@@ -704,6 +695,7 @@
 
         skipBtn.onclick = () => {
             let nextIndex;
+            // Always pick a new random index that isn't the current one for immediate change
             do {
                 nextIndex = Math.floor(Math.random() * audioTracks.length);
             } while (nextIndex === currentTrackIndex && audioTracks.length > 1);
