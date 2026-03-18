@@ -225,77 +225,12 @@
             color: var(--crimson) !important;
             font-weight: bold;
         }
-
-        /* --- CLIPPY WIDGET STYLES --- */
-        #clippy-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 100;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            opacity: 0.3;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        #clippy-container:hover {
-            opacity: 0.9;
-            transform: scale(1.05);
-        }
-
-        #clippy-img {
-            width: 45px;
-            height: auto;
-            filter: grayscale(100%) brightness(0.6);
-            transition: filter 0.3s ease;
-        }
-
-        #clippy-container:hover #clippy-img {
-            filter: grayscale(0%) brightness(1);
-        }
-
-        #clippy-bubble {
-            background: #0a0a0a;
-            border: 1px solid var(--crimson);
-            color: var(--terminal-off-white);
-            padding: 8px 12px;
-            font-size: 9px;
-            border-radius: 2px;
-            margin-bottom: 8px;
-            width: 160px;
-            position: relative;
-            display: none; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.9);
-        }
-
-        #clippy-bubble::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            right: 15px;
-            width: 8px;
-            height: 8px;
-            background: #0a0a0a;
-            border-right: 1px solid var(--crimson);
-            border-bottom: 1px solid var(--crimson);
-            transform: rotate(45deg);
-        }
     </style>
 </head>
 <body class="p-8 md:p-24 pb-48 md:pb-24">
 
     <div id="boot-screen"></div>
     <div class="scanline" id="scanline"></div>
-
-    <!-- Clippy Widget -->
-    <div id="clippy-container">
-        <div id="clippy-bubble">
-            Press '~' to access the terminal.
-        </div>
-        <img src="https://static.wikia.nocookie.net/joke-battles/images/c/cb/Clippy.png/revision/latest?cb=20151209031540" id="clippy-img" alt="Clippy">
-    </div>
 
     <div id="console-container">
         <div id="console-output"></div>
@@ -695,7 +630,6 @@
 
         skipBtn.onclick = () => {
             let nextIndex;
-            // Always pick a new random index that isn't the current one for immediate change
             do {
                 nextIndex = Math.floor(Math.random() * audioTracks.length);
             } while (nextIndex === currentTrackIndex && audioTracks.length > 1);
@@ -724,12 +658,6 @@
             const m = Math.floor(mainAudio.currentTime / 60);
             const s = Math.floor(mainAudio.currentTime % 60);
             currentTimeDisplay.innerText = `${m}:${s.toString().padStart(2, '0')}`;
-        };
-
-        const clippyContainer = document.getElementById('clippy-container');
-        const clippyBubble = document.getElementById('clippy-bubble');
-        clippyContainer.onclick = () => {
-            clippyBubble.style.display = clippyBubble.style.display === 'block' ? 'none' : 'block';
         };
 
         window.onload = () => {
