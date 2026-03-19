@@ -375,7 +375,22 @@
             { name: "HAPPYNESS (SKIT)", url: "audio/04. Happyness (Skit).mp3" },
             { name: "FUBAR", url: "audio/08. fubar.mp3" },
             { name: "NIGGAS SOOOOO GOOD", url: "audio/05. Niggas Sooooo Good.mp3" },
-            { name: "SHERWIN WILLIAMS", url: "audio/Mach-Hommy - DUMPMEISTER - 05 Sherwin Williams feat. Koncept Jack$on (beats by NAVY BLUE).mp3" }
+            { name: "SHERWIN WILLIAMS", url: "audio/Mach-Hommy - DUMPMEISTER - 05 Sherwin Williams feat. Koncept Jack$on (beats by NAVY BLUE).mp3" },
+            { name: "FREESTYLE IN FERRAGAMO", url: "audio/05 - Freestyle in Ferragamo feat. Chase Deniro [Prod. CamoflaugeMonk].mp3" },
+            { name: "OIL BASE", url: "audio/11 - Oil Base [Prod. CamoflaugeMonk].mp3" },
+            { name: "OD", url: "audio/4 - OD.mp3" },
+            { name: "THE MAN", url: "audio/15 - The Man.mp3" },
+            { name: "LONG LIVE JULIO", url: "audio/06 - Long Live Julio.flac" },
+            { name: "NIAGARA CAFE", url: "audio/04. Niagara Cafe.mp3" },
+            { name: "BUBBA CHUCK", url: "audio/10. Bubba Chuck feat. Stove God Cooks.mp3" },
+            { name: "PETE SAKE", url: "audio/8 - Pete Sake.mp3" },
+            { name: "FERRAGAMO FUNERAL", url: "audio/5 - Ferragamo Funeral.mp3" },
+            { name: "LUNCHIN", url: "audio/4 - Lunchin.mp3" },
+            { name: "OSCAR DE LA RENTA", url: "audio/02. Oscar De La Renta.mp3" },
+            { name: "BURT & STATE", url: "audio/7 - Burt & State.mp3" },
+            { name: "SURVIVAL TACTICS", url: "audio/04. Survival Tactics feat. Capital STEEZ [Prod. Vin Skully].mp3" },
+            { name: "#YRN", url: "audio/14. #YRN.mp3" },
+            { name: "PRONTO", url: "audio/11. Pronto.mp3" }
         ];
 
         const mainAudio = document.getElementById('main-audio');
@@ -478,7 +493,8 @@
             'bohemian_grove.log': "REDIRECTING_TO_EXTERNAL_ARCHIVE...",
             'come_with.log': "REDIRECTING_TO_EXTERNAL_ARCHIVE...",
             'who_is_he.log': "LOCATING_SUBJECT_DATA...",
-            'secret_peptides.log': "CONNECTING_TO_LIVE_FEED...",
+            'peptides.log': "CONNECTING_TO_LIVE_FEED...",
+            'gravedigger_mountain.log': "INDEXING_AUDIO_BURIAL...",
             'secret_projects.dir': "[HIDDEN_FOLDER] - MK_ULTRA_SUBJECTS, SOCIAL_EXPERIMENT, SHOOTERS_SALOON.zip, LYME_DISEASE_BIOWEAPON"
         };
 
@@ -550,7 +566,8 @@
                     else if (arg === 'bohemian_grove.log') window.open("https://youtu.be/_lQGAltQ5Jg?si=5HC7g07gLzcvIDAK&t=4470", "_blank");
                     else if (arg === 'come_with.log') window.open("https://youtu.be/2e5nibpOLwo?si=53hnYt2zh1DkD0KX&t=282", "_blank");
                     else if (arg === 'who_is_he.log') window.open("https://www.youtube.com/watch?v=qTjjcyg1POk", "_blank");
-                    else if (arg === 'secret_peptides.log') window.open("https://www.youtube.com/live/-ncjnYkkCmo?si=j298dVo9jOXjmZrS&t=6280", "_blank");
+                    else if (arg === 'peptides.log') window.open("https://www.youtube.com/live/-ncjnYkkCmo?si=j298dVo9jOXjmZrS&t=6280", "_blank");
+                    else if (arg === 'gravedigger_mountain.log') window.open("https://www.youtube.com/watch?v=DPD_zSh6B1s&list=FLl-rijlbCE87N7NJ-mAhxDw&index=51", "_blank");
                     else if (honeypotItems.some(item => arg.toUpperCase().includes(item.toUpperCase()))) triggerLockdown();
                     else if (virtualFiles[arg]) writeToConsole(`\n--- ${arg.toUpperCase()} ---\n${virtualFiles[arg]}\n`, "var(--crimson)");
                     else writeToConsole(`ERR: FILE '${arg}' NOT FOUND.`);
