@@ -196,11 +196,11 @@
             font-family: 'Space Mono', monospace;
         }
 
-        /* Windowed Video Overlay for SKIP_YEAR */
+        /* Windowed Video Overlay */
         #video-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.85); /* Dark transparent background */
+            background: rgba(0, 0, 0, 0.85);
             z-index: 2000;
             display: none;
             justify-content: center;
@@ -232,6 +232,14 @@
             height: auto;
             display: block;
         }
+        .close-video {
+            cursor: pointer;
+            color: var(--crimson);
+            font-weight: bold;
+        }
+        .close-video:hover {
+            color: #ff0000;
+        }
 
         /* Analog VU Meter */
         .vu-meter-container {
@@ -260,17 +268,20 @@
     <div id="boot-screen"></div>
     <div class="scanline" id="scanline"></div>
 
-    <!-- Windowed Video Overlay for SKIP_YEAR -->
+    <!-- Windowed Video Overlay -->
     <div id="video-overlay">
         <div class="video-window">
             <div class="video-window-header">
                 <div class="flex items-center gap-2">
                     <div class="w-1.5 h-1.5 bg-red-800 rounded-full shadow-[0_0_8px_#991b1b] animate-pulse"></div>
-                    <span class="opacity-60">UPLINK_STREAM_ACTIVE</span>
+                    <span id="video-status-text" class="opacity-60">UPLINK_STREAM_ACTIVE</span>
                 </div>
-                <span>STATUS: ARCHIVING_TIME</span>
+                <div class="flex gap-4">
+                    <span id="video-title">STATUS: ARCHIVING_TIME</span>
+                    <span class="close-video" onclick="closeVideoPlayer()">[X] CLOSE</span>
+                </div>
             </div>
-            <video id="video-player" src="oneyear.mp4"></video>
+            <video id="video-player"></video>
         </div>
     </div>
 
@@ -447,6 +458,7 @@
         const vuContainer = document.getElementById('vu-meter');
         const videoOverlay = document.getElementById('video-overlay');
         const videoPlayer = document.getElementById('video-player');
+        const videoTitle = document.getElementById('video-title');
 
         let currentTrackIndex = Math.floor(Math.random() * audioTracks.length);
         let siteBootTime = Date.now();
@@ -520,19 +532,42 @@
         const consoleInput = document.getElementById('console-input');
         const consoleOutput = document.getElementById('console-output');
 
+        // UPDATED FILE SYSTEM: Converted External YouTube links to Internal local .mp4 files
         const virtualFiles = {
-            'begotten_1989.log': "LINKING_TO_EXTERNAL_ARCHIVE...",
-            'bohemian_grove.log': "REDIRECTING_TO_EXTERNAL_ARCHIVE...",
-            'come_with.log': "REDIRECTING_TO_EXTERNAL_ARCHIVE...",
-            'who_is_he.log': "LOCATING_SUBJECT_DATA...",
-            'peptides.log': "CONNECTING_TO_LIVE_FEED...",
-            'gravedigger_mountain.log': "INDEXING_AUDIO_BURIAL...",
-            'woody_allen.log': "REDIRECTING_TO_EXTERNAL_ARCHIVE...",
-            'secret_projects.dir': "[HIDDEN_FOLDER] - MK_ULTRA_SUBJECTS, SOCIAL_EXPERIMENT, SHOOTERS_SALOON.zip, LYME_DISEASE_BIOWEAPON"
+            'begotten_1989.log': { type: 'external', source: "https://youtu.be/vvwGtlzTKYQ?si=TgJbAZ8xg-pnXRG8&t=75" },
+            'bohemian_grove.log': { type: 'external', source: "https://youtu.be/_lQGAltQ5Jg?si=5HC7g07gLzcvIDAK&t=4470" },
+            'come_with.log': { type: 'internal', source: "log clips/come%20with.mp4" },
+            'who_is_he.log': { type: 'internal', source: "log clips/who%20is%20he.mp4" },
+            'peptides.log': { type: 'external', source: "https://www.youtube.com/live/-ncjnYkkCmo?si=j298dVo9jOXjmZrS&t=6280" },
+            'gravedigger_mountain.log': { type: 'internal', source: "log clips/gravedigger%20mountain.mp4" },
+            'woody_allen.log': { type: 'internal', source: "log clips/Woody%20Allen.mp4" },
+            'secret_projects.dir': { type: 'text', source: "[HIDDEN_FOLDER] - MK_ULTRA_SUBJECTS, SOCIAL_EXPERIMENT, SHOOTERS_SALOON.zip, LYME_DISEASE_BIOWEAPON" }
         };
 
         const honeypotItems = ["MK_ULTRA_SUBJECTS", "SOCIAL_EXPERIMENT", "SHOOTERS_SALOON.zip", "LYME_DISEASE_BIOWEAPON"];
         let isLockdown = false;
+
+        function openInternalVideo(url, title = "ARCHIVE_LOG_FEED") {
+            if (!mainAudio.paused) {
+                mainAudio.pause();
+                playBtn.innerText = "PLAY";
+            }
+            
+            videoTitle.innerText = `STATUS: ${title.toUpperCase()}`;
+            videoPlayer.src = url;
+            videoOverlay.style.display = 'flex';
+            videoPlayer.play();
+            
+            videoPlayer.onended = () => {
+                videoOverlay.style.display = 'none';
+            };
+        }
+
+        function closeVideoPlayer() {
+            videoPlayer.pause();
+            videoOverlay.style.display = 'none';
+            videoPlayer.src = "";
+        }
 
         function writeToConsole(text, color = "#666") {
             const line = document.createElement('div');
@@ -582,15 +617,10 @@
                     setTimeout(() => {
                         writeToConsole("SKIPPING_TIME, 1 YEAR", "var(--crimson)");
                         setTimeout(() => {
-                            videoOverlay.style.display = 'flex';
-                            videoPlayer.play();
+                            // Assuming you moved oneyear.mp4 into the new folder as well
+                            openInternalVideo("log clips/oneyear.mp4", "ARCHIVING_TIME");
                         }, 1000);
                     }, 800);
-                    
-                    videoPlayer.onended = () => { 
-                        videoOverlay.style.display = 'none'; 
-                        writeToConsole("TIME_WARP_COMPLETE. TARGET_YEAR: 2027.", "#00ff00");
-                    };
                     return;
                 }
 
@@ -601,23 +631,33 @@
                     Object.keys(virtualFiles).forEach(f => writeToConsole(` - ${f}`, "#888"));
                 }
                 else if(cmd === 'read') {
-                    if (!arg) writeToConsole("ERR: NO FILE SPECIFIED.");
-                    else if (arg === 'begotten_1989.log') window.open("https://youtu.be/vvwGtlzTKYQ?si=TgJbAZ8xg-pnXRG8&t=75", "_blank");
-                    else if (arg === 'bohemian_grove.log') window.open("https://youtu.be/_lQGAltQ5Jg?si=5HC7g07gLzcvIDAK&t=4470", "_blank");
-                    else if (arg === 'come_with.log') window.open("https://youtu.be/2e5nibpOLwo?si=53hnYt2zh1DkD0KX&t=282", "_blank");
-                    else if (arg === 'who_is_he.log') window.open("https://www.youtube.com/watch?v=qTjjcyg1POk", "_blank");
-                    else if (arg === 'peptides.log') window.open("https://www.youtube.com/live/-ncjnYkkCmo?si=j298dVo9jOXjmZrS&t=6280", "_blank");
-                    else if (arg === 'gravedigger_mountain.log') window.open("https://www.youtube.com/watch?v=DPD_zSh6B1s&list=FLl-rijlbCE87N7NJ-mAhxDw&index=51", "_blank");
-                    else if (arg === 'woody_allen.log') window.open("https://youtu.be/7hcDZCKxRiA?si=pEKqFebii5f_HyJY&t=1005", "_blank");
-                    else if (honeypotItems.some(item => arg.toUpperCase().includes(item.toUpperCase()))) triggerLockdown();
-                    else if (virtualFiles[arg]) writeToConsole(`\n--- ${arg.toUpperCase()} ---\n${virtualFiles[arg]}\n`, "var(--crimson)");
-                    else writeToConsole(`ERR: FILE '${arg}' NOT FOUND.`);
+                    if (!arg) {
+                        writeToConsole("ERR: NO FILE SPECIFIED.");
+                        return;
+                    }
+                    
+                    const file = virtualFiles[arg];
+                    
+                    if (honeypotItems.some(item => arg.toUpperCase().includes(item.toUpperCase()))) {
+                        triggerLockdown();
+                    } else if (file) {
+                        if (file.type === 'external') {
+                            writeToConsole(`UPLINKING TO EXTERNAL SOURCE...`, "var(--crimson)");
+                            window.open(file.source, "_blank");
+                        } else if (file.type === 'internal') {
+                            writeToConsole(`DECRYPTING MEDIA FEED: ${arg.toUpperCase()}`, "var(--crimson)");
+                            setTimeout(() => openInternalVideo(file.source, arg), 500);
+                        } else {
+                            writeToConsole(`\n--- ${arg.toUpperCase()} ---\n${file.source}\n`, "var(--crimson)");
+                        }
+                    } else {
+                        writeToConsole(`ERR: FILE '${arg}' NOT FOUND.`);
+                    }
                 }
                 else if(cmd === 'whoami') {
                     writeToConsole("SESSION_ID: " + Math.random().toString(16).substring(2, 10).toUpperCase());
                     const identityLine = writeToConsole("IDENTITY: UNKNOWN_GUEST_01");
                     
-                    // Constantly flicker the identity text
                     const baseText = "IDENTITY: ";
                     const target = "UNKNOWN_GUEST_01";
                     setInterval(() => {
