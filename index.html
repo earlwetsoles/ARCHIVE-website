@@ -148,7 +148,7 @@
             50% { opacity: 0; }
         }
 
-        /* Hidden Terminal Console */
+        /* Hidden Terminal Console - Made Taller */
         #console-container {
             position: fixed;
             bottom: 0;
@@ -162,7 +162,7 @@
             flex-direction: column;
             font-size: 12px;
             color: var(--terminal-off-white);
-            max-height: 40vh;
+            max-height: 50vh; /* Taller */
         }
         
         #console-container.lockdown {
@@ -180,7 +180,7 @@
             margin-bottom: 5px;
             font-size: 10px;
             color: #666;
-            max-height: 150px;
+            max-height: 250px; /* Increased scroll area */
         }
         .console-input-row {
             display: flex;
@@ -240,6 +240,9 @@
         .close-video:hover {
             color: #ff0000;
         }
+        .close-video.hidden {
+            display: none !important;
+        }
 
         /* Analog VU Meter */
         .vu-meter-container {
@@ -278,7 +281,7 @@
                 </div>
                 <div class="flex gap-4">
                     <span id="video-title">STATUS: ARCHIVING_TIME</span>
-                    <span class="close-video" onclick="closeVideoPlayer()">[X] CLOSE</span>
+                    <span class="close-video" id="video-close-btn" onclick="closeVideoPlayer()">[X] CLOSE</span>
                 </div>
             </div>
             <video id="video-player"></video>
@@ -362,7 +365,6 @@
                     <a href="https://www.inaturalist.org/observations?user_id=jiwt&verifiable=any" target="_blank" class="link-item py-2 text-sm glitch-target">iNaturalist</a>
                     <a href="https://letterboxd.com/Jiwt" target="_blank" class="link-item py-2 text-sm glitch-target">Letterboxd</a>
                     <a href="https://lighterpack.com/r/lim3hg" target="_blank" class="link-item py-2 text-sm glitch-target">LighterPack</a>
-                    <a href="https://steamcommunity.com/id/Jiwt/" target="_blank" class="link-item py-2 text-sm glitch-target">Steam</a>
                     <a href="https://www.twitch.tv/jiwt" target="_blank" class="link-item py-2 text-sm glitch-target">Twitch</a>
                 </div>
             </div>
@@ -462,6 +464,7 @@
         const videoOverlay = document.getElementById('video-overlay');
         const videoPlayer = document.getElementById('video-player');
         const videoTitle = document.getElementById('video-title');
+        const videoCloseBtn = document.getElementById('video-close-btn');
 
         let currentTrackIndex = Math.floor(Math.random() * audioTracks.length);
         let siteBootTime = Date.now();
@@ -564,7 +567,7 @@
         const honeypotItems = ["MK_ULTRA_SUBJECTS", "SOCIAL_EXPERIMENT", "SHOOTERS_SALOON.zip", "LYME_DISEASE_BIOWEAPON"];
         let isLockdown = false;
 
-        function openInternalVideo(url, title = "ARCHIVE_LOG_FEED") {
+        function openInternalVideo(url, title = "ARCHIVE_LOG_FEED", canClose = true) {
             if (!mainAudio.paused) {
                 mainAudio.pause();
                 playBtn.innerText = "PLAY";
@@ -573,14 +576,23 @@
             videoTitle.innerText = `STATUS: ${title.toUpperCase()}`;
             videoPlayer.src = url;
             videoOverlay.style.display = 'flex';
+            
+            if (!canClose) {
+                videoCloseBtn.classList.add('hidden');
+            } else {
+                videoCloseBtn.classList.remove('hidden');
+            }
+
             videoPlayer.play();
             
             videoPlayer.onended = () => {
-                videoOverlay.style.display = 'none';
+                closeVideoPlayer();
             };
         }
 
         function closeVideoPlayer() {
+            // Check if close is even allowed currently
+            if (videoCloseBtn.classList.contains('hidden')) return;
             videoPlayer.pause();
             videoOverlay.style.display = 'none';
             videoPlayer.src = "";
@@ -629,24 +641,25 @@
                 consoleInput.value = '';
                 writeToConsole(`> ${rawInput.toUpperCase()}`, "#aaa");
 
-                if (rawInput.toUpperCase() === 'SKIP_YEAR') {
+                if (rawInput.toUpperCase() === 'TIMEWARP') {
                     writeToConsole("ACTIVATING TIME_WARP", "var(--crimson)");
                     setTimeout(() => {
                         writeToConsole("SKIPPING_TIME, 1 YEAR", "var(--crimson)");
                         setTimeout(() => {
-                            openInternalVideo("log clips/oneyear.mp4", "ARCHIVING_TIME");
+                            // Unclosable video player
+                            openInternalVideo("log clips/oneyear.mp4", "ARCHIVING_TIME", false);
                         }, 1000);
                     }, 800);
                     return;
                 }
 
                 if(cmd === 'help') {
-                    writeToConsole("AVAILABLE COMMANDS: LIST, READ [FILE], WHOAMI, SKIP_YEAR");
+                    writeToConsole("AVAILABLE COMMANDS: LIST, OPEN [FILE], WHOAMI, TIMEWARP");
                 }
                 else if(cmd === 'list') {
                     Object.keys(virtualFiles).forEach(f => writeToConsole(` - ${f}`, "#888"));
                 }
-                else if(cmd === 'read') {
+                else if(cmd === 'open') { // Changed from 'read'
                     if (!arg) {
                         writeToConsole("ERR: NO FILE SPECIFIED.");
                         return;
@@ -669,10 +682,10 @@
                     }
                 }
                 else if(cmd === 'whoami') {
-                    writeToConsole("SESSION_ID: " + Math.random().toString(16).substring(2, 10).toUpperCase());
                     writeToConsole(`REMOTE_IP: ${userData.ip}`);
                     writeToConsole(`LOCATION: ${userData.city.toUpperCase()}, ${userData.region.toUpperCase()}`);
                     writeToConsole(`UPLINK: ${userData.isp.toUpperCase()}`);
+                    // Removed SESSION_ID line
                     
                     const identityLine = writeToConsole("IDENTITY: UNKNOWN_GUEST_01");
                     const baseText = "IDENTITY: ";
@@ -685,21 +698,52 @@
                         }
                     }, 80);
 
-                    writeToConsole("AUTH_LEVEL: RESTRICTED");
                     writeToConsole("STATUS: BEING_WATCHED", "var(--crimson)");
                 }
                 else writeToConsole("ERR: CMD NOT FOUND.");
             }
         });
 
-        const diagMessages = ["KERNEL_SYNC_OK", "IO_PORT_CLEARED", "TEMP_NOMINAL: 34C", "PACKET_DUMP_COMPLETE", "PROXY_ROTATED", "ENCRYPTION_LAYER_STABLE", "UPLINK_ENCRYPTED", "EYE_TRACKING_ACTIVE"];
-        function runRandomDiag() {
-            if (isLockdown) return;
+        // New Logic for Sys_Diag logs
+        const diagPool = [
+            "KERNEL_SYNC_OK", 
+            "PACKET_DUMP_COMPLETE", 
+            "PROXY_ROTATED", 
+            "ENCRYPTION_LAYER_STABLE",
+            "YOURSCREEN_IS_DIRTY"
+        ];
+        
+        function addDiagLine(text, color = null) {
             const log = document.createElement('div');
-            log.innerText = `> ${diagMessages[Math.floor(Math.random() * diagMessages.length)]}`;
+            log.innerText = `> ${text}`;
+            if (color) log.style.color = color;
             diagLogs.prepend(log);
             if (diagLogs.children.length > 8) diagLogs.removeChild(diagLogs.lastChild);
-            setTimeout(runRandomDiag, 1500 + Math.random() * 3500);
+        }
+
+        function runRandomDiag() {
+            if (isLockdown) return;
+            
+            // Random chance for the heartbeat sequence
+            if (Math.random() > 0.8) {
+                addDiagLine("HEARTBEAT DETECTED IN DIRECTORY");
+                setTimeout(() => addDiagLine("UNKNOWN_USER DETECTED", "var(--crimson)"), 800);
+            } else {
+                const msg = diagPool[Math.floor(Math.random() * diagPool.length)];
+                addDiagLine(msg);
+            }
+            
+            setTimeout(runRandomDiag, 2000 + Math.random() * 4000);
+        }
+
+        function initDiagSequence() {
+            // First lines as requested
+            setTimeout(() => addDiagLine("FACECAM_ON", "var(--crimson)"), 500);
+            setTimeout(() => addDiagLine("EYE_TRACKING_ACTIVE", "var(--crimson)"), 1500);
+            setTimeout(() => addDiagLine("PING_LOCATION..."), 3500);
+            
+            // Start the regular random noise after initial clues
+            setTimeout(runRandomDiag, 6000);
         }
 
         function runPostSequence() {
@@ -724,7 +768,7 @@
                             });
                             document.getElementById('diag-widget').style.opacity = '1';
                             document.getElementById('audio-widget').style.opacity = '1';
-                            runRandomDiag();
+                            initDiagSequence();
                         }, 400);
                     }, 300);
                 }
