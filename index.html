@@ -593,19 +593,23 @@
             
             if (!canClose) {
                 videoCloseBtn.classList.add('hidden');
+                // Force automatic closure on end if the user can't close it manually
+                videoPlayer.onended = () => {
+                    videoCloseBtn.classList.remove('hidden'); // Unlock logical state
+                    closeVideoPlayer();
+                };
             } else {
                 videoCloseBtn.classList.remove('hidden');
+                videoPlayer.onended = () => {
+                    closeVideoPlayer();
+                };
             }
 
             videoPlayer.play();
-            
-            videoPlayer.onended = () => {
-                closeVideoPlayer();
-            };
         }
 
         function closeVideoPlayer() {
-            // Check if close is even allowed currently
+            // Check if close is even allowed currently (prevent manual close during unclosable feeds)
             if (videoCloseBtn.classList.contains('hidden')) return;
             videoPlayer.pause();
             videoOverlay.style.display = 'none';
@@ -674,7 +678,7 @@
                     setTimeout(() => {
                         writeToConsole("SKIPPING_TIME, 1 YEAR", "var(--crimson)");
                         setTimeout(() => {
-                            // Unclosable video player
+                            // Unclosable video player - will auto-close on finish via openInternalVideo logic
                             openInternalVideo("log clips/oneyear.mp4", "ARCHIVING_TIME", false);
                         }, 1000);
                     }, 800);
