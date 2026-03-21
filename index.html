@@ -43,7 +43,7 @@
             background: #050505;
             z-index: 500;
             padding: 2rem;
-            font-size: 10px;
+            font-size: 11px;
             color: #444;
             display: flex;
             flex-direction: column;
@@ -52,7 +52,7 @@
         }
 
         .post-line {
-            line-height: 1.2;
+            line-height: 1.4;
             white-space: nowrap;
             font-family: 'Space Mono', monospace;
         }
@@ -215,7 +215,7 @@
         .vu-meter-container {
             display: flex;
             gap: 2px;
-            height: 24px;
+            height: 20px;
             align-items: flex-end;
             margin-top: 10px;
             padding-top: 6px;
@@ -301,7 +301,6 @@
             <button class="audio-btn font-bold" id="skip-btn">SKIP</button>
         </div>
         <div class="vu-meter-container" id="vu-meter"></div>
-        <!-- PRELOAD=AUTO is key for snappiness -->
         <audio id="main-audio" crossorigin="anonymous" preload="auto"></audio>
     </div>
 
@@ -349,9 +348,9 @@
     </main>
 
     <script>
-        // Use relative paths to ensure it works on GitHub Pages or local servers
-        const TRACKS_JSON_URL = "data/tracks.json";
-        const FILES_JSON_URL = "data/terminal_files.json";
+        const REPO_BASE = "./data/"; 
+        const TRACKS_JSON_URL = REPO_BASE + "tracks.json";
+        const FILES_JSON_URL = REPO_BASE + "terminal_files.json";
 
         let audioTracks = [];
         let virtualFiles = {};
@@ -374,22 +373,11 @@
         const consoleOutput = document.getElementById('console-output');
 
         const bootData = [
-            "ROM_VER: 1.0.4-LOCKED",
-            "CPU_CHECK: [ OK ]",
-            "MEM_CHECK: 16384KB [ OK ]",
-            "I/O_SUBSYSTEM: READY",
-            "MOUNTING_VFS: /dev/null",
             "ESTABLISHING_VIRTUAL_NETWORK_INTERFACE...",
             "MAC_ADDR: 00:1A:2B:3C:4D:5E [ MAPPED ]",
             "INITIALIZING_TCP_IP_STACK_V6...",
             "GATEWAY_HANDSHAKE: 192.168.1.1 [ OK ]",
-            "DNS_RESOLVE: archive_nodes.relay [ OK ]",
-            "LOADING_UI_FRAMEWORK: TAILWIND_3.x",
-            "DECRYPTING_ASSETS: AES-256-CBC",
-            "SYN_FLOOD_PROTECTION: ACTIVE",
-            "ENCRYPTING_USER_SESSION...",
-            "HANDSHAKE: CLOUDFLARE_EDGE [ SUCCESS ]",
-            "KERNEL: BOOT_COMPLETE",
+            "ESTABLISHING_GITHUB_UPLINK_TLS_1.3...", 
             "SUCCESS: ARCHIVE_OS_ONLINE"
         ];
 
@@ -408,15 +396,24 @@
         ];
 
         function runSystemLog() {
+            let logStep = 0;
             setInterval(() => {
-                if (Math.random() > 0.92) {
-                    addDiagLine("HEARTBEAT_DETECTED", "var(--crimson)");
-                    setTimeout(() => addDiagLine("USER_DETECTED", "var(--crimson)"), 500);
+                if (logStep === 0) {
+                    addDiagLine("FACECAM_ON");
+                    logStep++;
+                } else if (logStep === 1) {
+                    addDiagLine("EYE_TRACKING ENABLED");
+                    logStep++;
                 } else {
-                    const msg = systemMessages[Math.floor(Math.random() * systemMessages.length)];
-                    addDiagLine(msg);
+                    if (Math.random() > 0.9) {
+                        addDiagLine("HEARTBEAT_DETECTED", "var(--crimson)");
+                        setTimeout(() => addDiagLine("USER_DETECTED BEHIND YOU", "var(--crimson)"), 500);
+                    } else {
+                        const msg = systemMessages[Math.floor(Math.random() * systemMessages.length)];
+                        addDiagLine(msg);
+                    }
                 }
-            }, 3500);
+            }, 3000);
         }
 
         const glitchChars = "!@#$%^&*()_+{}:<>?|[]-=/";
@@ -437,14 +434,14 @@
 
         function runSiteCorruption() {
             setInterval(() => {
-                if (Math.random() > 0.85) {
+                if (Math.random() > 0.7) {
                     const targets = document.querySelectorAll('.glitch-target');
                     if (targets.length > 0) {
                         const target = targets[Math.floor(Math.random() * targets.length)];
                         glitchEffect(target, target.innerText);
                     }
                 }
-            }, 800);
+            }, 500);
         }
 
         async function fetchUserLocation() {
@@ -452,64 +449,44 @@
                 const response = await fetch('https://ipapi.co/json/');
                 const data = await response.json();
                 if (data && !data.error) {
-                    userData = {
-                        ip: data.ip || 'CONNECTION_REFUSED',
-                        city: data.city || 'REDACTED',
-                        region: data.region || 'REDACTED',
-                        isp: data.org || 'REDACTED'
-                    };
+                    userData = { ip: data.ip || 'REFUSED', city: data.city || 'REDACTED', region: data.region || 'REDACTED', isp: data.org || 'REDACTED' };
                 }
             } catch (e) {}
         }
 
         async function initializeData() {
             addDiagLine("SYNCING_REMOTE_ASSETS...");
-            
-            // Attempt to load JSON with no-cache to avoid staleness
-            const fetchOptions = { cache: "no-store" };
-
             try {
-                // Fetch Tracks
-                const tracksRes = await fetch(TRACKS_JSON_URL, fetchOptions);
-                if (!tracksRes.ok) throw new Error(`HTTP_${tracksRes.status}`);
-                audioTracks = await tracksRes.json();
-                addDiagLine("TRACKS_SYNC: [ OK ]");
+                // Defensive fetch wrapper
+                const safeFetch = async (url) => {
+                    const res = await fetch(url, { cache: "no-store" });
+                    if (!res.ok) throw new Error(`HTTP_${res.status}`);
+                    const contentType = res.headers.get("content-type");
+                    if (!contentType || !contentType.includes("application/json")) throw new Error("INVALID_TYPE");
+                    return await res.json();
+                };
 
-                // Fetch Virtual Files
-                const filesRes = await fetch(FILES_JSON_URL, fetchOptions);
-                if (!filesRes.ok) throw new Error(`HTTP_${filesRes.status}`);
-                virtualFiles = await filesRes.json();
-                addDiagLine("FILES_SYNC: [ OK ]");
+                const [tracks, files] = await Promise.all([
+                    safeFetch(TRACKS_JSON_URL).catch(() => []),
+                    safeFetch(FILES_JSON_URL).catch(() => ({}))
+                ]);
 
-                if (audioTracks && audioTracks.length > 0) {
-                    loadTrack(0);
-                    addDiagLine("REMOTE_SYNC: [ SUCCESS ]");
-                } else {
-                    throw new Error("EMPTY_TRACKLIST");
-                }
+                audioTracks = tracks;
+                virtualFiles = files;
+                if (audioTracks.length > 0) loadTrack(Math.floor(Math.random() * audioTracks.length));
+                addDiagLine("NETWORK_BUFFERS_READY");
             } catch (e) { 
-                console.error("Initialization error:", e);
                 addDiagLine(`SYNC_ERR: ${e.message.toUpperCase()}`, "var(--crimson)");
-                trackName.innerText = "SYNC ERROR";
-                
-                // Fallback UI indication if data folders are missing
-                if (e.message.includes("404")) {
-                    addDiagLine("CHECK: DATA/ FOLDER EXISTS?", "var(--crimson)");
-                }
+                trackName.innerText = "OFFLINE";
             }
         }
 
         function loadTrack(index) {
-            if (!audioTracks || audioTracks.length === 0) return;
             currentTrackIndex = index;
             const track = audioTracks[index];
             if (!track) return;
-            
-            // Ensure URL is relative to the root if not absolute
             mainAudio.src = track.url;
-            mainAudio.load(); 
             trackName.innerText = track.name.toUpperCase();
-            progressBar.style.width = '0%';
         }
 
         function writeToConsole(text, color = "#666") {
@@ -528,27 +505,26 @@
                 const [cmd, arg] = raw.toLowerCase().split(' ');
                 consoleInput.value = '';
                 writeToConsole(`> ${raw.toUpperCase()}`, "#aaa");
-
                 if (cmd === 'help') writeToConsole("COMMANDS: LIST, OPEN [FILE], WHOAMI, TIMEWARP");
                 else if (cmd === 'list') Object.keys(virtualFiles).forEach(f => writeToConsole(` - ${f}`));
                 else if (cmd === 'whoami') {
                     writeToConsole(`REMOTE_IP: ${userData.ip}`, "var(--crimson)");
-                    writeToConsole(`CITY: ${userData.city.toUpperCase()}`);
-                    writeToConsole(`STATUS: TRACKED`);
+                    writeToConsole(`LOCATION: ${userData.city.toUpperCase()}, ${userData.region.toUpperCase()}`);
+                    writeToConsole(`STATUS: BEING_WATCHED`, "var(--crimson)");
                 }
                 else if (cmd === 'timewarp') {
-                    writeToConsole("ACTIVATING_TIMEWARP...", "var(--crimson)");
-                    setTimeout(() => { openVideo("log clips/oneyear.mp4", "TIMEWARP", true); }, 2000);
+                    writeToConsole("ACTIVATING_TIMEWARP", "var(--crimson)");
+                    setTimeout(() => openVideo("log clips/oneyear.mp4", "TIMEWARP", true), 2000);
                 }
                 else if (cmd === 'open' && virtualFiles[arg]) {
                     if (virtualFiles[arg].type === 'video') openVideo(virtualFiles[arg].url, arg);
-                    else if (virtualFiles[arg].type === 'external') window.open(virtualFiles[arg].url, '_blank');
-                    else writeToConsole(`\n${virtualFiles[arg].content}\n`, "var(--terminal-off-white)");
+                    else writeToConsole(`\n${virtualFiles[arg].content}\n`);
                 }
-                else writeToConsole("ERR: ACCESS_DENIED");
+                else writeToConsole("ERR: COMMAND NOT FOUND");
             }
         });
 
+        // --- Audio Context & VU Logic (from DAY 4 stable) ---
         function initAudioContext() {
             if (isAudioContextInitialized) return;
             try {
@@ -557,18 +533,16 @@
                 source = audioCtx.createMediaElementSource(mainAudio);
                 source.connect(analyser);
                 analyser.connect(audioCtx.destination);
-                analyser.fftSize = 64; 
-                analyser.smoothingTimeConstant = 0.8;
+                analyser.fftSize = 128;
                 dataArray = new Uint8Array(analyser.frequencyBinCount);
                 isAudioContextInitialized = true;
                 updateVUMeter();
             } catch (e) {
-                console.error("AudioContext blocked:", e);
-                addDiagLine("AUDIO_CTX: BLOCKED", "var(--crimson)");
+                addDiagLine("AUDIO_CTX_BLOCKED", "var(--crimson)");
             }
         }
 
-        const bars = Array.from({length: 12}, () => {
+        const bars = Array.from({length: 16}, () => {
             const b = document.createElement('div');
             b.className = 'vu-bar';
             vuContainer.appendChild(b);
@@ -579,13 +553,10 @@
             if (isAudioContextInitialized && !mainAudio.paused) {
                 analyser.getByteFrequencyData(dataArray);
                 bars.forEach((bar, i) => {
-                    let val = dataArray[i] / 255;
-                    val = Math.pow(val, 1.5);
-                    const height = Math.max(2, val * 22);
-                    bar.style.height = height + 'px';
-                    
-                    if (val > 0.8) bar.classList.add('peak');
-                    else if (val > 0.2) { bar.classList.add('active'); bar.classList.remove('peak'); }
+                    const val = dataArray[i * 2] || 0;
+                    bar.style.height = Math.max(2, (val/255)*18) + 'px';
+                    if (val > 180) bar.classList.add('peak');
+                    else if (val > 40) { bar.classList.add('active'); bar.classList.remove('peak'); }
                     else bar.classList.remove('active', 'peak');
                 });
             } else {
@@ -595,19 +566,11 @@
         }
 
         playBtn.onclick = async () => {
-            if (!audioTracks || audioTracks.length === 0) {
-                addDiagLine("ERR: NO_MEDIA_LOADED", "var(--crimson)");
-                return;
-            }
             initAudioContext();
             if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
-            
             if (mainAudio.paused) {
-                mainAudio.play().then(() => {
-                    playBtn.innerText = "PAUSE";
-                }).catch(err => {
-                    addDiagLine("PLAY_ERR: " + err.message.toUpperCase(), "var(--crimson)");
-                });
+                mainAudio.play().then(() => playBtn.innerText = "PAUSE")
+                    .catch(e => addDiagLine("PLAY_DENIED", "var(--crimson)"));
             } else {
                 mainAudio.pause();
                 playBtn.innerText = "PLAY";
@@ -615,12 +578,8 @@
         };
 
         skipBtn.onclick = () => {
-            if (!audioTracks || audioTracks.length <= 1) return;
-            let nextIndex;
-            do {
-                nextIndex = Math.floor(Math.random() * audioTracks.length);
-            } while (nextIndex === currentTrackIndex);
-            loadTrack(nextIndex);
+            if (!audioTracks.length) return;
+            loadTrack((currentTrackIndex + 1) % audioTracks.length);
             mainAudio.play().then(() => playBtn.innerText = "PAUSE");
         };
 
@@ -632,15 +591,12 @@
 
         function openVideo(url, title, forced = false) {
             document.getElementById('video-title').innerText = `STREAM: ${title.toUpperCase()}`;
-            const player = document.getElementById('video-player');
-            player.src = url;
+            document.getElementById('video-player').src = url;
             document.getElementById('video-overlay').style.display = 'flex';
             document.getElementById('video-close-btn').style.display = forced ? 'none' : 'inline';
-            player.play();
-            if (!mainAudio.paused) {
-                mainAudio.pause();
-                playBtn.innerText = "PLAY";
-            }
+            document.getElementById('video-player').play();
+            mainAudio.pause();
+            playBtn.innerText = "PLAY";
         }
 
         function closeVideoPlayer() {
@@ -653,7 +609,7 @@
             log.innerText = `> ${text}`;
             if (color) log.style.color = color;
             diagLogs.prepend(log);
-            if (diagLogs.children.length > 8) diagLogs.removeChild(diagLogs.lastChild);
+            if (diagLogs.children.length > 10) diagLogs.removeChild(diagLogs.lastChild);
         }
 
         function runBoot() {
@@ -680,19 +636,19 @@
                             runSiteCorruption();
                             runSystemLog();
                         }, 400);
-                    }, 400);
+                    }, 300);
                 }
-            }, 45); 
+            }, 80);
         }
 
-        function toggleTerminal() {
-            const visible = consoleContainer.style.display === 'flex';
-            consoleContainer.style.display = visible ? 'none' : 'flex';
-            if (!visible) setTimeout(() => consoleInput.focus(), 10);
-        }
-
-        window.addEventListener('keydown', (e) => { if (e.key === '~' || e.key === '`') { e.preventDefault(); toggleTerminal(); } });
-        document.getElementById('terminal-trigger').onclick = toggleTerminal;
+        window.addEventListener('keydown', (e) => { 
+            if (e.key === '~' || e.key === '`') { 
+                e.preventDefault(); 
+                const visible = consoleContainer.style.display === 'flex';
+                consoleContainer.style.display = visible ? 'none' : 'flex';
+                if (!visible) setTimeout(() => consoleInput.focus(), 10);
+            } 
+        });
 
         window.onload = () => {
             fetchUserLocation();
@@ -701,7 +657,7 @@
             setInterval(() => {
                 const elapsed = Math.floor((Date.now() - siteBootTime) / 1000);
                 document.getElementById('uptime').innerText = `UP: ${String(Math.floor(elapsed / 3600)).padStart(2, '0')}:${String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0')}:${String(elapsed % 60).padStart(2, '0')}`;
-                document.getElementById('cpu-load').innerText = `${Math.floor(Math.random() * 4 + 1)}%`;
+                document.getElementById('cpu-load').innerText = `${Math.floor(Math.random() * 5 + 1)}%`;
             }, 1000);
         };
 
@@ -712,7 +668,6 @@
             const s = Math.floor(mainAudio.currentTime % 60);
             currentTimeDisplay.innerText = `${m}:${s.toString().padStart(2, '0')}`;
         };
-
         mainAudio.onended = () => skipBtn.click();
     </script>
 </body>
