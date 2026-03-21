@@ -22,6 +22,7 @@
             overflow-x: hidden;
             margin: 0;
             padding: 0;
+            user-select: none;
         }
 
         /* CRT Scanline Overlay */
@@ -133,8 +134,9 @@
         .progress-container { width: 100%; height: 4px; background: #1a1a1a; margin: 8px 0; cursor: pointer; position: relative; }
         .progress-bar { height: 100%; background: var(--crimson); width: 0%; transition: width 0.1s linear; pointer-events: none; }
         .audio-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
-        .audio-btn { background: none; border: none; color: #444; cursor: pointer; padding: 0; transition: color 0.2s; }
+        .audio-btn { background: none; border: none; color: #444; cursor: pointer; padding: 0; transition: color 0.2s; outline: none; }
         .audio-btn:hover { color: var(--terminal-off-white); }
+        .audio-btn:active { color: var(--crimson); }
 
         /* Terminal UI Components */
         .terminal-cursor {
@@ -299,7 +301,8 @@
             <button class="audio-btn font-bold" id="skip-btn">SKIP</button>
         </div>
         <div class="vu-meter-container" id="vu-meter"></div>
-        <audio id="main-audio" crossorigin="anonymous"></audio>
+        <!-- PRELOAD=AUTO is key for snappiness -->
+        <audio id="main-audio" crossorigin="anonymous" preload="auto"></audio>
     </div>
 
     <!-- Main Navigation Content -->
@@ -346,23 +349,15 @@
     </main>
 
     <script>
-        // Use relative paths and include fallback data in case fetching fails
-        const TRACKS_JSON_URL = "./data/tracks.json";
-        const FILES_JSON_URL = "./data/terminal_files.json";
-
-        // Hardcoded Fallback tracks if JSON loading fails
-        const FALLBACK_TRACKS = [
-            { "name": "MARIO LEMIEUXX", "url": "audio/01 Mario Lemieuxx.mp3" },
-            { "name": "A PARTRIDGE & A PEAR TREE", "url": "audio/02. A Partridge & A Pear Tree.mp3" },
-            { "name": "FROMAJ", "url": "audio/02 Fromaj.mp3" }
-        ];
+        // Use relative paths for local development or full URLs for GitHub
+        const TRACKS_JSON_URL = "data/tracks.json";
+        const FILES_JSON_URL = "data/terminal_files.json";
 
         let audioTracks = [];
         let virtualFiles = {};
         let currentTrackIndex = 0;
         let siteBootTime = Date.now();
         let audioCtx, analyser, source, dataArray, isAudioContextInitialized = false;
-        
         let userData = { ip: 'CONNECTION_REFUSED', city: 'REDACTED', region: 'REDACTED', isp: 'REDACTED' };
 
         const mainAudio = document.getElementById('main-audio');
@@ -392,10 +387,8 @@
             "LOADING_UI_FRAMEWORK: TAILWIND_3.x",
             "DECRYPTING_ASSETS: AES-256-CBC",
             "SYN_FLOOD_PROTECTION: ACTIVE",
-            "ESTABLISHING_GITHUB_UPLINK_TLS_1.3...", 
             "ENCRYPTING_USER_SESSION...",
             "HANDSHAKE: CLOUDFLARE_EDGE [ SUCCESS ]",
-            "CACHE_LOAD: 98% [ SYNCED ]",
             "KERNEL: BOOT_COMPLETE",
             "SUCCESS: ARCHIVE_OS_ONLINE"
         ];
@@ -415,26 +408,15 @@
         ];
 
         function runSystemLog() {
-            let logStep = 0;
             setInterval(() => {
-                if (logStep === 0) {
-                    addDiagLine("FACECAM_ON");
-                    logStep++;
-                } else if (logStep === 1) {
-                    addDiagLine("EYE_TRACKING ENABLED");
-                    logStep++;
+                if (Math.random() > 0.92) {
+                    addDiagLine("HEARTBEAT_DETECTED", "var(--crimson)");
+                    setTimeout(() => addDiagLine("USER_DETECTED", "var(--crimson)"), 500);
                 } else {
-                    if (Math.random() > 0.9) {
-                        addDiagLine("HEARTBEAT_DETECTED", "var(--crimson)");
-                        setTimeout(() => {
-                            addDiagLine("USER_DETECTED BEHIND YOU", "var(--crimson)");
-                        }, 500);
-                    } else {
-                        const msg = systemMessages[Math.floor(Math.random() * systemMessages.length)];
-                        addDiagLine(msg);
-                    }
+                    const msg = systemMessages[Math.floor(Math.random() * systemMessages.length)];
+                    addDiagLine(msg);
                 }
-            }, 2000);
+            }, 3500);
         }
 
         const glitchChars = "!@#$%^&*()_+{}:<>?|[]-=/";
@@ -453,24 +435,16 @@
             }, 30);
         }
 
-        function getMatrixString(length) {
-            let result = '';
-            for (let i = 0; i < length; i++) {
-                result += glitchChars.charAt(Math.floor(Math.random() * glitchChars.length));
-            }
-            return result;
-        }
-
         function runSiteCorruption() {
             setInterval(() => {
-                if (Math.random() > 0.7) {
+                if (Math.random() > 0.85) {
                     const targets = document.querySelectorAll('.glitch-target');
                     if (targets.length > 0) {
                         const target = targets[Math.floor(Math.random() * targets.length)];
                         glitchEffect(target, target.innerText);
                     }
                 }
-            }, 500);
+            }, 800);
         }
 
         async function fetchUserLocation() {
@@ -485,42 +459,49 @@
                         isp: data.org || 'REDACTED'
                     };
                 }
-            } catch (e) { console.warn("Location lookup blocked."); }
+            } catch (e) {}
         }
 
         async function initializeData() {
+            addDiagLine("SYNCING_REMOTE_ASSETS...");
             try {
-                // Attempt to fetch tracks from JSON
-                const tracksRes = await fetch(TRACKS_JSON_URL).then(res => res.json()).catch(err => {
-                    console.error("Failed to fetch tracks.json, using fallbacks.");
-                    return FALLBACK_TRACKS;
-                });
-                
-                const filesRes = await fetch(FILES_JSON_URL).then(res => res.json()).catch(() => ({}));
+                // Parallel fetch to reduce load time
+                const [tracksRes, filesRes] = await Promise.all([
+                    fetch(TRACKS_JSON_URL).then(res => {
+                        if (!res.ok) throw new Error(`Tracks load failed: ${res.status}`);
+                        return res.json();
+                    }),
+                    fetch(FILES_JSON_URL).then(res => {
+                        if (!res.ok) throw new Error(`Files load failed: ${res.status}`);
+                        return res.json();
+                    })
+                ]);
 
-                audioTracks = tracksRes && tracksRes.length > 0 ? tracksRes : FALLBACK_TRACKS;
+                audioTracks = tracksRes;
                 virtualFiles = filesRes;
 
-                if (audioTracks.length > 0) {
-                    loadTrack(Math.floor(Math.random() * audioTracks.length));
-                    addDiagLine("AUDIO_BUFFER_LOADED");
+                if (audioTracks && audioTracks.length > 0) {
+                    loadTrack(0);
+                    addDiagLine("REMOTE_SYNC: [ SUCCESS ]");
                 } else {
-                    trackName.innerText = "NO_TRACKS_FOUND";
+                    addDiagLine("SYNC_ERR: TRACKLIST_EMPTY", "var(--crimson)");
+                    trackName.innerText = "NO TRACKS FOUND";
                 }
-                
-                addDiagLine("NETWORK_BUFFERS_READY");
             } catch (e) { 
-                addDiagLine("SYNC_ERROR: USING_FALLBACK", "var(--crimson)"); 
-                audioTracks = FALLBACK_TRACKS;
-                loadTrack(0);
+                console.error("Initialization error:", e);
+                addDiagLine("SYNC_ERR: " + e.message.toUpperCase(), "var(--crimson)");
+                trackName.innerText = "SYNC ERROR";
             }
         }
 
         function loadTrack(index) {
+            if (!audioTracks || audioTracks.length === 0) return;
             currentTrackIndex = index;
             const track = audioTracks[index];
             if (!track) return;
+            
             mainAudio.src = track.url;
+            mainAudio.load(); 
             trackName.innerText = track.name.toUpperCase();
             progressBar.style.width = '0%';
         }
@@ -545,25 +526,19 @@
                 if (cmd === 'help') writeToConsole("COMMANDS: LIST, OPEN [FILE], WHOAMI, TIMEWARP");
                 else if (cmd === 'list') Object.keys(virtualFiles).forEach(f => writeToConsole(` - ${f}`));
                 else if (cmd === 'whoami') {
-                    const userLine = writeToConsole("USER: ", "var(--crimson)");
-                    const guestSpan = document.createElement('span');
-                    userLine.appendChild(guestSpan);
-                    setInterval(() => { guestSpan.innerText = getMatrixString(13); }, 50);
-                    writeToConsole(`REMOTE_IP: ${userData.ip}`);
-                    writeToConsole(`CITY: ${userData.city.toUpperCase()}, ${userData.region.toUpperCase()}`);
-                    writeToConsole(`STATUS: BEING_WATCHED`, "var(--crimson)");
+                    writeToConsole(`REMOTE_IP: ${userData.ip}`, "var(--crimson)");
+                    writeToConsole(`CITY: ${userData.city.toUpperCase()}`);
+                    writeToConsole(`STATUS: TRACKED`);
                 }
                 else if (cmd === 'timewarp') {
-                    writeToConsole("ACTIVATING_TIMEWARP", "var(--crimson)");
-                    writeToConsole("SKIPPING 1 YEAR...", "var(--crimson)");
-                    setTimeout(() => { openVideo("log clips/oneyear.mp4", "TIMEWARP", true); }, 3000);
+                    writeToConsole("ACTIVATING_TIMEWARP...", "var(--crimson)");
+                    setTimeout(() => { openVideo("log clips/oneyear.mp4", "TIMEWARP", true); }, 2000);
                 }
                 else if (cmd === 'open' && virtualFiles[arg]) {
-                    writeToConsole(`ACCESSING: ${arg.toUpperCase()}`, "var(--crimson)");
                     if (virtualFiles[arg].type === 'video') openVideo(virtualFiles[arg].url, arg);
-                    else writeToConsole(`\n${virtualFiles[arg].content}\n`);
+                    else writeToConsole(`\n${virtualFiles[arg].content}\n`, "var(--terminal-off-white)");
                 }
-                else writeToConsole("ERR: COMMAND NOT FOUND");
+                else writeToConsole("ERR: ACCESS_DENIED");
             }
         });
 
@@ -575,18 +550,16 @@
                 source = audioCtx.createMediaElementSource(mainAudio);
                 source.connect(analyser);
                 analyser.connect(audioCtx.destination);
-                analyser.fftSize = 256;
-                analyser.smoothingTimeConstant = 0.7;
+                analyser.fftSize = 128;
                 dataArray = new Uint8Array(analyser.frequencyBinCount);
                 isAudioContextInitialized = true;
                 updateVUMeter();
             } catch (e) {
-                console.error("AudioContext blocked or failed:", e);
-                addDiagLine("AUDIO_CRITICAL_ERR", "var(--crimson)");
+                console.error("AudioContext blocked:", e);
             }
         }
 
-        const bars = Array.from({length: 16}, () => {
+        const bars = Array.from({length: 12}, () => {
             const b = document.createElement('div');
             b.className = 'vu-bar';
             vuContainer.appendChild(b);
@@ -596,42 +569,23 @@
         function updateVUMeter() {
             if (isAudioContextInitialized && !mainAudio.paused) {
                 analyser.getByteFrequencyData(dataArray);
-                const startOffset = 10;
-                const sampleWidth = 2;
-
                 bars.forEach((bar, i) => {
-                    let sum = 0;
-                    for(let j = 0; j < sampleWidth; j++) {
-                        sum += dataArray[startOffset + (i * sampleWidth) + j] || 0;
-                    }
-                    let val = sum / sampleWidth;
-                    val = val * 1.4; 
-                    if (val > 255) val = 255;
-
+                    const val = dataArray[i * 2] || 0;
                     const height = Math.max(2, (val/255)*22);
                     bar.style.height = height + 'px';
-                    
-                    if (val > 180) {
-                        bar.classList.add('peak');
-                        bar.classList.remove('active');
-                    } else if (val > 40) {
-                        bar.classList.add('active');
-                        bar.classList.remove('peak');
-                    } else {
-                        bar.classList.remove('active', 'peak');
-                    }
+                    if (val > 200) bar.classList.add('peak');
+                    else if (val > 50) { bar.classList.add('active'); bar.classList.remove('peak'); }
+                    else bar.classList.remove('active', 'peak');
                 });
-            } else if (mainAudio.paused) {
-                bars.forEach(bar => {
-                    bar.style.height = '2px';
-                    bar.classList.remove('active', 'peak');
-                });
+            } else {
+                bars.forEach(bar => bar.style.height = '2px');
             }
             requestAnimationFrame(updateVUMeter);
         }
 
         playBtn.onclick = async () => {
-            if (audioTracks.length === 0) return;
+            if (!audioTracks || audioTracks.length === 0) return;
+            
             initAudioContext();
             if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
             
@@ -639,8 +593,7 @@
                 mainAudio.play().then(() => {
                     playBtn.innerText = "PAUSE";
                 }).catch(err => {
-                    console.error("Playback failed:", err);
-                    addDiagLine("PLAYBACK_BLOCKED", "var(--crimson)");
+                    addDiagLine("STREAM_INTERRUPTED");
                 });
             } else {
                 mainAudio.pause();
@@ -649,36 +602,33 @@
         };
 
         skipBtn.onclick = () => {
-            if (audioTracks.length <= 1) return;
+            if (!audioTracks || audioTracks.length <= 1) return;
             let nextIndex;
             do {
                 nextIndex = Math.floor(Math.random() * audioTracks.length);
             } while (nextIndex === currentTrackIndex);
             
             loadTrack(nextIndex);
-            mainAudio.play().then(() => {
-                playBtn.innerText = "PAUSE";
-                initAudioContext();
-            });
+            mainAudio.play().then(() => playBtn.innerText = "PAUSE");
         };
 
         progressArea.onclick = (e) => {
             if (!mainAudio.duration) return;
             const rect = progressArea.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const percentage = x / rect.width;
-            mainAudio.currentTime = percentage * mainAudio.duration;
+            mainAudio.currentTime = ((e.clientX - rect.left) / rect.width) * mainAudio.duration;
         };
 
         function openVideo(url, title, forced = false) {
             document.getElementById('video-title').innerText = `STREAM: ${title.toUpperCase()}`;
-            document.getElementById('video-player').src = url;
+            const player = document.getElementById('video-player');
+            player.src = url;
             document.getElementById('video-overlay').style.display = 'flex';
-            const closeBtn = document.getElementById('video-close-btn');
-            forced ? closeBtn.style.display = 'none' : closeBtn.style.display = 'inline';
-            document.getElementById('video-player').play();
-            mainAudio.pause();
-            playBtn.innerText = "PLAY";
+            document.getElementById('video-close-btn').style.display = forced ? 'none' : 'inline';
+            player.play();
+            if (!mainAudio.paused) {
+                mainAudio.pause();
+                playBtn.innerText = "PLAY";
+            }
         }
 
         function closeVideoPlayer() {
@@ -691,7 +641,7 @@
             log.innerText = `> ${text}`;
             if (color) log.style.color = color;
             diagLogs.prepend(log);
-            if (diagLogs.children.length > 10) diagLogs.removeChild(diagLogs.lastChild);
+            if (diagLogs.children.length > 8) diagLogs.removeChild(diagLogs.lastChild);
         }
 
         function runBoot() {
@@ -718,9 +668,9 @@
                             runSiteCorruption();
                             runSystemLog();
                         }, 400);
-                    }, 500);
+                    }, 400);
                 }
-            }, 55); 
+            }, 45); 
         }
 
         function toggleTerminal() {
@@ -739,7 +689,7 @@
             setInterval(() => {
                 const elapsed = Math.floor((Date.now() - siteBootTime) / 1000);
                 document.getElementById('uptime').innerText = `UP: ${String(Math.floor(elapsed / 3600)).padStart(2, '0')}:${String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0')}:${String(elapsed % 60).padStart(2, '0')}`;
-                document.getElementById('cpu-load').innerText = `${Math.floor(Math.random() * 5 + 1)}%`;
+                document.getElementById('cpu-load').innerText = `${Math.floor(Math.random() * 4 + 1)}%`;
             }, 1000);
         };
 
@@ -750,6 +700,8 @@
             const s = Math.floor(mainAudio.currentTime % 60);
             currentTimeDisplay.innerText = `${m}:${s.toString().padStart(2, '0')}`;
         };
+
+        mainAudio.onended = () => skipBtn.click();
     </script>
 </body>
 </html>
