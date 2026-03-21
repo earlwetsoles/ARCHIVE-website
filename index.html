@@ -24,7 +24,7 @@
             padding: 0;
         }
 
-        /* NEW Scanline Effect using pseudo-element */
+        /* Scanline Effect using pseudo-element */
         body::before {
             content: " ";
             display: block;
@@ -33,12 +33,11 @@
             left: 0; 
             bottom: 0; 
             right: 0;
-            /* Create horizontal black lines every 2px + subtle RGB vertical bars */
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
                         linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             z-index: 9999;
             background-size: 100% 2px, 3px 100%;
-            pointer-events: none; /* Crucial so you can still click things underneath */
+            pointer-events: none;
         }
 
         /* RGB Fuzz Hover Effect */
@@ -48,8 +47,7 @@
         }
 
         .glitch-text:hover {
-            color: #ff3e3e; /* Turns the text red */
-            /* Adds the green and blue "fuzz" offsets */
+            color: #ff3e3e;
             text-shadow: 2px 0 #00ff41, -2px 0 blue; 
         }
 
@@ -142,14 +140,12 @@
 
         .widget-title { color: var(--crimson); font-weight: bold; }
         
-        /* Audio Player Styling */
         .progress-container { width: 100%; height: 4px; background: #1a1a1a; margin: 8px 0; cursor: pointer; position: relative; }
         .progress-bar { height: 100%; background: var(--crimson); width: 0%; transition: width 0.1s linear; pointer-events: none; }
         .audio-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
         .audio-btn { background: none; border: none; color: #444; cursor: pointer; padding: 0; transition: color 0.2s; }
         .audio-btn:hover { color: var(--terminal-off-white); }
 
-        /* Terminal UI Components */
         .terminal-cursor {
             display: inline-block;
             width: 8px;
@@ -201,7 +197,6 @@
             font-family: 'Space Mono', monospace;
         }
 
-        /* Video Player Layer */
         #video-overlay {
             position: fixed;
             inset: 0;
@@ -217,12 +212,10 @@
             max-width: 900px;
             background: #000;
             border: 1px solid #333;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
             position: relative;
             padding: 4px;
         }
 
-        /* Audio Visualization */
         .vu-meter-container {
             display: flex;
             gap: 2px;
@@ -241,7 +234,6 @@
         .vu-bar.active { background: #555; }
         .vu-bar.peak { background: var(--crimson); box-shadow: 0 0 4px var(--crimson); }
         
-        /* Pulse Dot class to reuse */
         .status-dot {
             width: 8px;
             height: 8px;
@@ -261,7 +253,6 @@
 
     <div id="boot-screen"></div>
 
-    <!-- Hidden Video Player -->
     <div id="video-overlay">
         <div class="video-window">
             <div class="flex justify-between items-center p-2 text-[10px] bg-zinc-900 border-b border-zinc-800 text-zinc-500">
@@ -272,7 +263,6 @@
         </div>
     </div>
 
-    <!-- Terminal Container -->
     <div id="console-container">
         <div id="console-output"></div>
         <div class="console-input-row">
@@ -281,7 +271,6 @@
         </div>
     </div>
 
-    <!-- Widgets -->
     <div class="widget-box diag-box" id="diag-widget">
         <div class="widget-header">
             <span class="widget-title">SYS_DIAG</span>
@@ -314,7 +303,6 @@
         <audio id="main-audio" crossorigin="anonymous"></audio>
     </div>
 
-    <!-- Main Navigation Content -->
     <main id="app-content" class="max-w-2xl relative z-20 opacity-0">
         <header class="mb-12 md:mb-20">
             <div class="flex items-center gap-3 mb-4 typewriter-line" data-delay="0">
@@ -359,14 +347,13 @@
 
     <script>
         /**
-         * PATH HANDLING LOGIC
-         * Adjusts the REPO_BASE if we are in a GitHub repository subpath.
+         * CLEAN PATH LOGIC (EXCLUSIVELY FOR jiwt.online)
+         * - JSONs are in /data/
+         * - Audio files are in /audio/
          */
-        const isGithubRepo = window.location.pathname.includes('ARCHIVE-website');
-        const REPO_BASE = isGithubRepo ? '/ARCHIVE-website/' : './';
-        
-        const TRACKS_JSON_URL = REPO_BASE + "tracks.json";
-        const FILES_JSON_URL = REPO_BASE + "terminal_files.json";
+        const TRACKS_JSON_URL = "data/tracks.json";
+        const FILES_JSON_URL = "data/terminal_files.json";
+        const AUDIO_DIR = "audio/";
 
         let audioTracks = [];
         let virtualFiles = {};
@@ -375,7 +362,6 @@
         let siteBootTime = Date.now();
         let audioCtx, analyser, source, dataArray, isAudioContextInitialized = false;
 
-        // DOM References
         const mainAudio = document.getElementById('main-audio');
         const playBtn = document.getElementById('play-btn');
         const skipBtn = document.getElementById('skip-btn');
@@ -406,9 +392,6 @@
             "CACHE_PURGED: 12.4MB",
             "HANDSHAKE_COMPLETE: NODE_04",
             "MEMORY_CLEANUP_SUCCESSFUL",
-            "SENSORS_CALIBRATED",
-            "PACKET_LOSS: 0.00%",
-            "FILE_SYSTEM: READ_ONLY",
             "PORT_8080: LISTENING..."
         ];
 
@@ -449,33 +432,13 @@
 
         async function initializeData() {
             try {
-                const tracksPromise = fetch(TRACKS_JSON_URL)
-                    .then(res => {
-                        if(!res.ok) throw new Error(`HTTP ${res.status} fetching tracks from ${TRACKS_JSON_URL}`);
-                        return res.json();
-                    });
-
-                const filesPromise = fetch(FILES_JSON_URL)
-                    .then(res => {
-                        if(!res.ok) throw new Error(`HTTP ${res.status} fetching files from ${FILES_JSON_URL}`);
-                        return res.json();
-                    });
-
-                const [tracksRes, filesRes] = await Promise.all([
-                    tracksPromise.catch(err => {
-                        console.error("Tracks load failed:", err);
-                        addDiagLine(`FAIL: TRACKS_JSON [${err.message}]`, "var(--crimson)");
-                        return [];
-                    }),
-                    filesPromise.catch(err => {
-                        console.error("Files load failed:", err);
-                        addDiagLine(`FAIL: FILES_JSON [${err.message}]`, "var(--crimson)");
-                        return {};
-                    })
+                const [tRes, fRes] = await Promise.all([
+                    fetch(TRACKS_JSON_URL).then(res => res.ok ? res.json() : []),
+                    fetch(FILES_JSON_URL).then(res => res.ok ? res.json() : {})
                 ]);
 
-                audioTracks = tracksRes;
-                virtualFiles = filesRes;
+                audioTracks = tRes;
+                virtualFiles = fRes;
                 
                 if (audioTracks.length > 0) {
                     loadTrack(0);
@@ -485,8 +448,7 @@
                     addDiagLine("WARN: EMPTY_TRACKLIST", "orange");
                 }
             } catch (e) { 
-                console.error("Critical Init Error:", e);
-                addDiagLine("CRITICAL_BOOT_ERROR", "var(--crimson)"); 
+                addDiagLine("CRITICAL_BOOT_ERROR: CHECK /DATA/ FOLDER", "var(--crimson)"); 
             }
         }
 
@@ -494,8 +456,7 @@
             currentTrackIndex = index;
             const track = audioTracks[index];
             if (!track) return;
-            // Resolve track URL relative to REPO_BASE
-            mainAudio.src = track.url.startsWith('http') ? track.url : (REPO_BASE + track.url);
+            mainAudio.src = track.url.startsWith('http') ? track.url : (AUDIO_DIR + track.url);
             trackName.innerText = track.name.toUpperCase();
         }
 
@@ -506,25 +467,19 @@
             line.innerText = text;
             consoleOutput.appendChild(line);
             consoleOutput.scrollTop = consoleOutput.scrollHeight;
-            return line;
         }
 
         function openVideoPlayer(src, title, lockClose = false) {
             videoTitle.innerText = `STREAM: ${title.toUpperCase()}`;
-            // Resolve video src relative to REPO_BASE
-            videoPlayer.src = src.startsWith('http') ? src : (REPO_BASE + src);
+            videoPlayer.src = src;
             videoOverlay.style.display = 'flex';
-            
             if (lockClose) {
                 videoCloseBtn.style.display = 'none';
-                videoPlayer.onended = () => {
-                    closeVideoPlayer();
-                };
+                videoPlayer.onended = closeVideoPlayer;
             } else {
                 videoCloseBtn.style.display = 'block';
                 videoPlayer.onended = null;
             }
-            
             videoPlayer.play();
         }
 
@@ -543,16 +498,12 @@
                 writeToConsole(`> ${raw.toUpperCase()}`, "#aaa");
 
                 if (cmd === 'help') {
-                    // Help menu matches your requirement (no "clear")
                     writeToConsole("COMMANDS: LIST, OPEN [FILE], TIMEWARP");
                 }
                 else if (cmd === 'list') {
                     const files = Object.keys(virtualFiles);
                     if (files.length === 0) writeToConsole("NO FILES FOUND.");
                     else files.forEach(f => writeToConsole(` - ${f}`));
-                }
-                else if (cmd === 'clear') {
-                    consoleOutput.innerHTML = '';
                 }
                 else if (cmd === 'timewarp') {
                     writeToConsole("ACTIVATE_TIMEWARP", "var(--crimson)");
@@ -562,10 +513,7 @@
                 else if (cmd === 'open' && virtualFiles[arg]) {
                     writeToConsole(`ACCESSING: ${arg.toUpperCase()}`, "var(--crimson)");
                     writeToConsole(`\n${virtualFiles[arg].content}\n`);
-                    // Check if file has an associated video clip
-                    if (virtualFiles[arg].clip) {
-                        openVideoPlayer(virtualFiles[arg].clip, arg);
-                    }
+                    if (virtualFiles[arg].clip) openVideoPlayer(virtualFiles[arg].clip, arg);
                 }
                 else if (raw.length > 0) {
                     writeToConsole("ERR: COMMAND NOT FOUND");
@@ -608,10 +556,7 @@
         }
 
         playBtn.onclick = async () => {
-            if (audioTracks.length === 0) {
-                addDiagLine("ERR: NO_AUDIO_LOADED", "var(--crimson)");
-                return;
-            }
+            if (audioTracks.length === 0) return;
             initAudioContext();
             if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
             mainAudio.paused ? mainAudio.play() : mainAudio.pause();
@@ -627,10 +572,7 @@
 
         progressArea.onclick = (e) => {
             if (!mainAudio.duration) return;
-            const rect = progressArea.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const width = rect.width;
-            const percentage = x / width;
+            const percentage = (e.clientX - progressArea.getBoundingClientRect().left) / progressArea.offsetWidth;
             mainAudio.currentTime = percentage * mainAudio.duration;
         };
 
