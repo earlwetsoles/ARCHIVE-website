@@ -33,27 +33,23 @@
             left: 0; 
             bottom: 0; 
             right: 0;
-            /* Create horizontal black lines every 2px + subtle RGB vertical bars */
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
                         linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             z-index: 9999;
             background-size: 100% 2px, 3px 100%;
-            pointer-events: none; /* Crucial so you can still click things underneath */
+            pointer-events: none;
         }
 
-        /* 2. The RGB "Fuzz" Hover (CSS) */
         .glitch-text {
             display: inline-block;
             transition: color 0.2s, text-shadow 0.2s;
         }
 
         .glitch-text:hover {
-            color: #ff3e3e !important; /* Turns the text red */
-            /* Adds the green and blue "fuzz" offsets */
+            color: #ff3e3e !important;
             text-shadow: 2px 0 #00ff41, -2px 0 blue; 
         }
 
-        /* 3. The Red Border/Text Transition (CSS) */
         .red-hover {
             transition: all 0.2s ease;
         }
@@ -65,7 +61,6 @@
             text-shadow: 2px 0 #00ff41, -2px 0 blue;
         }
 
-        /* Boot Screen Sequence */
         #boot-screen {
             position: fixed;
             inset: 0;
@@ -85,7 +80,6 @@
             white-space: nowrap;
         }
 
-        /* Animation Classes */
         .typewriter-line {
             overflow: hidden;
             white-space: nowrap;
@@ -103,7 +97,6 @@
             to { width: 100% }
         }
 
-        /* Sidebar Widgets */
         .widget-box {
             position: fixed;
             background: rgba(10, 10, 10, 0.9);
@@ -143,14 +136,12 @@
 
         .widget-title { color: var(--crimson); font-weight: bold; }
         
-        /* Audio Player Styling */
         .progress-container { width: 100%; height: 4px; background: #1a1a1a; margin: 8px 0; cursor: pointer; position: relative; }
         .progress-bar { height: 100%; background: var(--crimson); width: 0%; transition: width 0.1s linear; pointer-events: none; }
         .audio-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
         .audio-btn { background: none; border: none; color: #444; cursor: pointer; padding: 0; transition: color 0.2s; }
         .audio-btn:hover { color: var(--terminal-off-white); }
 
-        /* Terminal UI Components */
         .terminal-cursor {
             display: inline-block;
             width: 8px;
@@ -174,7 +165,7 @@
             background: #000;
             border-top: 1px solid var(--crimson);
             padding: 10px 20px;
-            z-index: 10000; /* Above scanlines for interaction */
+            z-index: 10000;
             display: none;
             flex-direction: column;
             font-size: 12px;
@@ -202,7 +193,6 @@
             font-family: 'Space Mono', monospace;
         }
 
-        /* Video Player Layer */
         #video-overlay {
             position: fixed;
             inset: 0;
@@ -223,7 +213,6 @@
             padding: 4px;
         }
 
-        /* Audio Visualization */
         .vu-meter-container {
             display: flex;
             gap: 2px;
@@ -242,7 +231,6 @@
         .vu-bar.active { background: #555; }
         .vu-bar.peak { background: var(--crimson); box-shadow: 0 0 4px var(--crimson); }
         
-        /* Pulse Dot class to reuse */
         .status-dot {
             width: 8px;
             height: 8px;
@@ -257,7 +245,6 @@
             50% { opacity: .5; }
         }
 
-        /* Baseline Link Styles */
         .link-item {
             border-bottom: 1px solid #1a1a1a;
             display: inline-block;
@@ -269,7 +256,6 @@
 
     <div id="boot-screen"></div>
 
-    <!-- Hidden Video Player -->
     <div id="video-overlay">
         <div class="video-window">
             <div class="flex justify-between items-center p-2 text-[10px] bg-zinc-900 border-b border-zinc-800 text-zinc-500">
@@ -280,7 +266,6 @@
         </div>
     </div>
 
-    <!-- Terminal Container -->
     <div id="console-container">
         <div id="console-output"></div>
         <div class="console-input-row">
@@ -289,7 +274,6 @@
         </div>
     </div>
 
-    <!-- Widgets -->
     <div class="widget-box diag-box" id="diag-widget">
         <div class="widget-header">
             <span class="widget-title">SYS_DIAG</span>
@@ -322,7 +306,6 @@
         <audio id="main-audio" crossorigin="anonymous"></audio>
     </div>
 
-    <!-- Main Navigation Content -->
     <main id="app-content" class="max-w-2xl relative z-20 opacity-0">
         <header class="mb-12 md:mb-20">
             <div class="flex items-center gap-3 mb-4 typewriter-line" data-delay="0">
@@ -366,9 +349,10 @@
     </main>
 
     <script>
-        const REPO_BASE = "./data/"; 
-        const TRACKS_JSON_URL = REPO_BASE + "tracks.json";
-        const FILES_JSON_URL = REPO_BASE + "terminal_files.json";
+        // Use relative paths to find audio if it's in the root-level 'audio' folder
+        const DATA_URL_PREFIX = "./data/"; 
+        const TRACKS_JSON_URL = DATA_URL_PREFIX + "tracks.json";
+        const FILES_JSON_URL = DATA_URL_PREFIX + "terminal_files.json";
 
         let audioTracks = [];
         let virtualFiles = {};
@@ -376,10 +360,8 @@
         let siteBootTime = Date.now();
         let audioCtx, analyser, source, dataArray, isAudioContextInitialized = false;
         
-        // Initial state for IP data
         let userData = { ip: 'CONNECTION_REFUSED', city: 'REDACTED', region: 'REDACTED', isp: 'REDACTED' };
 
-        // DOM References
         const mainAudio = document.getElementById('main-audio');
         const playBtn = document.getElementById('play-btn');
         const skipBtn = document.getElementById('skip-btn');
@@ -402,7 +384,6 @@
             "SUCCESS: ARCHIVE_OS_ONLINE"
         ];
 
-        // System Log Generation Logic
         const systemMessages = [
             "PING_LATENCY: 14ms",
             "SYN_FLOOD_DETECTED: BLOCKED",
@@ -427,7 +408,6 @@
                     addDiagLine("EYE_TRACKING ENABLED");
                     logStep++;
                 } else {
-                    // Random chance for spooky sequence
                     if (Math.random() > 0.9) {
                         addDiagLine("HEARTBEAT_DETECTED", "var(--crimson)");
                         setTimeout(() => {
@@ -441,7 +421,6 @@
             }, 2000);
         }
 
-        // --- Glitch Engine ---
         const glitchChars = "!@#$%^&*()_+{}:<>?|[]-=/";
         function glitchEffect(element, originalText) {
             let iterations = 0;
@@ -458,7 +437,6 @@
             }, 30);
         }
 
-        // Helper for matrix-style corruption
         function getMatrixString(length) {
             let result = '';
             for (let i = 0; i < length; i++) {
@@ -469,7 +447,7 @@
 
         function runSiteCorruption() {
             setInterval(() => {
-                if (Math.random() > 0.7) { // 0.7 Threshold for stability
+                if (Math.random() > 0.7) {
                     const targets = document.querySelectorAll('.glitch-target');
                     if (targets.length > 0) {
                         const target = targets[Math.floor(Math.random() * targets.length)];
@@ -479,7 +457,6 @@
             }, 500);
         }
 
-        // --- Data Fetching ---
         async function fetchUserLocation() {
             try {
                 const response = await fetch('https://ipapi.co/json/');
@@ -512,11 +489,12 @@
             currentTrackIndex = index;
             const track = audioTracks[index];
             if (!track) return;
-            mainAudio.src = track.url;
+            // Removed DATA_URL_PREFIX from here because track.url already contains 'audio/'
+            // and audio/ is at the root next to index.html
+            mainAudio.src = track.url; 
             trackName.innerText = track.name.toUpperCase();
         }
 
-        // --- Terminal Functions ---
         function writeToConsole(text, color = "#666") {
             const line = document.createElement('div');
             line.style.color = color;
@@ -537,17 +515,10 @@
                 if (cmd === 'help') writeToConsole("COMMANDS: LIST, OPEN [FILE], WHOAMI, TIMEWARP");
                 else if (cmd === 'list') Object.keys(virtualFiles).forEach(f => writeToConsole(` - ${f}`));
                 else if (cmd === 'whoami') {
-                    // Constant Glitch Line for identity
                     const userLine = writeToConsole("USER: ", "var(--crimson)");
                     const guestSpan = document.createElement('span');
                     userLine.appendChild(guestSpan);
-                    
-                    // Perpetual glitch effect
-                    setInterval(() => {
-                        guestSpan.innerText = getMatrixString(13);
-                    }, 50);
-
-                    // Rest of the info
+                    setInterval(() => { guestSpan.innerText = getMatrixString(13); }, 50);
                     writeToConsole(`REMOTE_IP: ${userData.ip}`);
                     writeToConsole(`CITY: ${userData.city.toUpperCase()}, ${userData.region.toUpperCase()}`);
                     writeToConsole(`STATUS: BEING_WATCHED`, "var(--crimson)");
@@ -555,9 +526,7 @@
                 else if (cmd === 'timewarp') {
                     writeToConsole("ACTIVATING_TIMEWARP", "var(--crimson)");
                     writeToConsole("SKIPPING 1 YEAR...", "var(--crimson)");
-                    setTimeout(() => {
-                        openVideo("log clips/oneyear.mp4", "TIMEWARP", true);
-                    }, 3000);
+                    setTimeout(() => { openVideo("log clips/oneyear.mp4", "TIMEWARP", true); }, 3000);
                 }
                 else if (cmd === 'open' && virtualFiles[arg]) {
                     writeToConsole(`ACCESSING: ${arg.toUpperCase()}`, "var(--crimson)");
@@ -568,7 +537,6 @@
             }
         });
 
-        // --- Audio Logic ---
         function initAudioContext() {
             if (isAudioContextInitialized) return;
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -614,7 +582,6 @@
             playBtn.innerText = "PAUSE";
         };
 
-        // Seek Bar Functionality
         progressArea.onclick = (e) => {
             if (!mainAudio.duration) return;
             const rect = progressArea.getBoundingClientRect();
@@ -624,20 +591,13 @@
             mainAudio.currentTime = percentage * mainAudio.duration;
         };
 
-        // --- Video Player ---
         function openVideo(url, title, forced = false) {
             document.getElementById('video-title').innerText = `STREAM: ${title.toUpperCase()}`;
             document.getElementById('video-player').src = url;
             document.getElementById('video-overlay').style.display = 'flex';
-            
-            // Handle forced state (no close button)
             const closeBtn = document.getElementById('video-close-btn');
-            if (forced) {
-                closeBtn.style.display = 'none';
-            } else {
-                closeBtn.style.display = 'inline';
-            }
-
+            if (forced) closeBtn.style.display = 'none';
+            else closeBtn.style.display = 'inline';
             document.getElementById('video-player').play();
             mainAudio.pause();
             playBtn.innerText = "PLAY";
@@ -648,7 +608,6 @@
             document.getElementById('video-overlay').style.display = 'none';
         }
 
-        // --- Diagnostics & Boot ---
         function addDiagLine(text, color = null) {
             const log = document.createElement('div');
             log.innerText = `> ${text}`;
