@@ -346,9 +346,16 @@
     </main>
 
     <script>
-        const REPO_BASE = "./data/"; 
-        const TRACKS_JSON_URL = REPO_BASE + "tracks.json";
-        const FILES_JSON_URL = REPO_BASE + "terminal_files.json";
+        // Use relative paths and include fallback data in case fetching fails
+        const TRACKS_JSON_URL = "./data/tracks.json";
+        const FILES_JSON_URL = "./data/terminal_files.json";
+
+        // Hardcoded Fallback tracks if JSON loading fails
+        const FALLBACK_TRACKS = [
+            { "name": "MARIO LEMIEUXX", "url": "audio/01 Mario Lemieuxx.mp3" },
+            { "name": "A PARTRIDGE & A PEAR TREE", "url": "audio/02. A Partridge & A Pear Tree.mp3" },
+            { "name": "FROMAJ", "url": "audio/02 Fromaj.mp3" }
+        ];
 
         let audioTracks = [];
         let virtualFiles = {};
@@ -483,15 +490,30 @@
 
         async function initializeData() {
             try {
-                const [tracksRes, filesRes] = await Promise.all([
-                    fetch(TRACKS_JSON_URL).then(res => res.json()).catch(() => []),
-                    fetch(FILES_JSON_URL).then(res => res.json()).catch(() => ({}))
-                ]);
-                audioTracks = tracksRes;
+                // Attempt to fetch tracks from JSON
+                const tracksRes = await fetch(TRACKS_JSON_URL).then(res => res.json()).catch(err => {
+                    console.error("Failed to fetch tracks.json, using fallbacks.");
+                    return FALLBACK_TRACKS;
+                });
+                
+                const filesRes = await fetch(FILES_JSON_URL).then(res => res.json()).catch(() => ({}));
+
+                audioTracks = tracksRes && tracksRes.length > 0 ? tracksRes : FALLBACK_TRACKS;
                 virtualFiles = filesRes;
-                if (audioTracks.length > 0) loadTrack(Math.floor(Math.random() * audioTracks.length));
+
+                if (audioTracks.length > 0) {
+                    loadTrack(Math.floor(Math.random() * audioTracks.length));
+                    addDiagLine("AUDIO_BUFFER_LOADED");
+                } else {
+                    trackName.innerText = "NO_TRACKS_FOUND";
+                }
+                
                 addDiagLine("NETWORK_BUFFERS_READY");
-            } catch (e) { addDiagLine("SYNC_ERROR: RECHECK_DATA", "var(--crimson)"); }
+            } catch (e) { 
+                addDiagLine("SYNC_ERROR: USING_FALLBACK", "var(--crimson)"); 
+                audioTracks = FALLBACK_TRACKS;
+                loadTrack(0);
+            }
         }
 
         function loadTrack(index) {
@@ -500,6 +522,7 @@
             if (!track) return;
             mainAudio.src = track.url;
             trackName.innerText = track.name.toUpperCase();
+            progressBar.style.width = '0%';
         }
 
         function writeToConsole(text, color = "#666") {
@@ -546,16 +569,21 @@
 
         function initAudioContext() {
             if (isAudioContextInitialized) return;
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioCtx.createAnalyser();
-            source = audioCtx.createMediaElementSource(mainAudio);
-            source.connect(analyser);
-            analyser.connect(audioCtx.destination);
-            analyser.fftSize = 256; // Increased resolution for better slice selection
-            analyser.smoothingTimeConstant = 0.7; // Snappier response
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
-            isAudioContextInitialized = true;
-            updateVUMeter();
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                source = audioCtx.createMediaElementSource(mainAudio);
+                source.connect(analyser);
+                analyser.connect(audioCtx.destination);
+                analyser.fftSize = 256;
+                analyser.smoothingTimeConstant = 0.7;
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                isAudioContextInitialized = true;
+                updateVUMeter();
+            } catch (e) {
+                console.error("AudioContext blocked or failed:", e);
+                addDiagLine("AUDIO_CRITICAL_ERR", "var(--crimson)");
+            }
         }
 
         const bars = Array.from({length: 16}, () => {
@@ -568,28 +596,21 @@
         function updateVUMeter() {
             if (isAudioContextInitialized && !mainAudio.paused) {
                 analyser.getByteFrequencyData(dataArray);
-                
-                // Overhaul logic: Skip the first few heavy-bass bins where audio is usually "maxed"
-                // and target the range where the melody and percussion live (Bins 8-40)
                 const startOffset = 10;
-                const sampleWidth = 2; // How many frequency bins to group per visual bar
+                const sampleWidth = 2;
 
                 bars.forEach((bar, i) => {
-                    // Average a small cluster of bins for a smoother but diverse look
                     let sum = 0;
                     for(let j = 0; j < sampleWidth; j++) {
                         sum += dataArray[startOffset + (i * sampleWidth) + j] || 0;
                     }
                     let val = sum / sampleWidth;
-
-                    // Apply a sensitivity boost to mid-highs to show more motion
                     val = val * 1.4; 
                     if (val > 255) val = 255;
 
                     const height = Math.max(2, (val/255)*22);
                     bar.style.height = height + 'px';
                     
-                    // Visual feedback for intensity
                     if (val > 180) {
                         bar.classList.add('peak');
                         bar.classList.remove('active');
@@ -601,7 +622,6 @@
                     }
                 });
             } else if (mainAudio.paused) {
-                // Return to idle state
                 bars.forEach(bar => {
                     bar.style.height = '2px';
                     bar.classList.remove('active', 'peak');
@@ -611,10 +631,21 @@
         }
 
         playBtn.onclick = async () => {
+            if (audioTracks.length === 0) return;
             initAudioContext();
-            if (audioCtx.state === 'suspended') await audioCtx.resume();
-            mainAudio.paused ? mainAudio.play() : mainAudio.pause();
-            playBtn.innerText = mainAudio.paused ? "PLAY" : "PAUSE";
+            if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
+            
+            if (mainAudio.paused) {
+                mainAudio.play().then(() => {
+                    playBtn.innerText = "PAUSE";
+                }).catch(err => {
+                    console.error("Playback failed:", err);
+                    addDiagLine("PLAYBACK_BLOCKED", "var(--crimson)");
+                });
+            } else {
+                mainAudio.pause();
+                playBtn.innerText = "PLAY";
+            }
         };
 
         skipBtn.onclick = () => {
@@ -625,9 +656,10 @@
             } while (nextIndex === currentTrackIndex);
             
             loadTrack(nextIndex);
-            mainAudio.play();
-            playBtn.innerText = "PAUSE";
-            initAudioContext(); // Ensure context is ready
+            mainAudio.play().then(() => {
+                playBtn.innerText = "PAUSE";
+                initAudioContext();
+            });
         };
 
         progressArea.onclick = (e) => {
