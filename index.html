@@ -25,15 +25,47 @@
             user-select: none;
         }
 
-        /* CRT Scanline Overlay */
-        .scanline {
+        /* 1. The Scanline Effect (CSS) */
+        body::before {
+            content: " ";
+            display: block;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
-            background-size: 100% 4px;
-            z-index: 100;
-            pointer-events: none;
-            opacity: 0.3;
+            top: 0; 
+            left: 0; 
+            bottom: 0; 
+            right: 0;
+            /* Create horizontal black lines every 2px + subtle RGB vertical bars */
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none; /* Crucial so you can still click things underneath */
+        }
+
+        /* 2. The RGB "Fuzz" Hover (CSS) */
+        .glitch-text {
+            display: inline-block;
+            transition: color 0.2s, text-shadow 0.2s;
+        }
+
+        .glitch-text:hover {
+            color: #ff3e3e !important; /* Turns the text red */
+            /* Adds the green and blue "fuzz" offsets */
+            text-shadow: 2px 0 #00ff41, -2px 0 blue; 
+        }
+
+        /* 3. The Red Border/Text Transition (CSS) */
+        .red-hover {
+            border-bottom: 1px solid #1a1a1a;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .red-hover:hover {
+            color: #ff3e3e !important;
+            border-color: #ff3e3e !important;
+            padding-left: 8px; /* Maintain the movement from previous version */
         }
 
         /* Boot Screen Sequence */
@@ -57,7 +89,6 @@
             font-family: 'Space Mono', monospace;
         }
 
-        /* Animation Classes */
         .typewriter-line {
             overflow: hidden;
             white-space: nowrap;
@@ -75,22 +106,6 @@
             to { width: 100% }
         }
 
-        /* Navigation Links */
-        .link-item {
-            border-bottom: 1px solid #1a1a1a;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            display: inline-block;
-        }
-
-        .link-item:hover {
-            color: var(--crimson);
-            border-bottom-color: var(--crimson);
-            padding-left: 8px;
-            text-shadow: 0 0 5px var(--crimson);
-        }
-
-        /* Sidebar Widgets */
         .widget-box {
             position: fixed;
             background: rgba(10, 10, 10, 0.9);
@@ -130,15 +145,12 @@
 
         .widget-title { color: var(--crimson); font-weight: bold; }
         
-        /* Audio Player Styling */
         .progress-container { width: 100%; height: 4px; background: #1a1a1a; margin: 8px 0; cursor: pointer; position: relative; }
         .progress-bar { height: 100%; background: var(--crimson); width: 0%; transition: width 0.1s linear; pointer-events: none; }
         .audio-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
         .audio-btn { background: none; border: none; color: #444; cursor: pointer; padding: 0; transition: color 0.2s; outline: none; }
         .audio-btn:hover { color: var(--terminal-off-white); }
-        .audio-btn:active { color: var(--crimson); }
 
-        /* Terminal UI Components */
         .terminal-cursor {
             display: inline-block;
             width: 8px;
@@ -190,7 +202,6 @@
             font-family: 'Space Mono', monospace;
         }
 
-        /* Video Player Layer */
         #video-overlay {
             position: fixed;
             inset: 0;
@@ -211,7 +222,6 @@
             padding: 4px;
         }
 
-        /* Audio Visualization */
         .vu-meter-container {
             display: flex;
             gap: 2px;
@@ -230,7 +240,6 @@
         .vu-bar.active { background: #555; }
         .vu-bar.peak { background: var(--crimson); box-shadow: 0 0 4px var(--crimson); }
         
-        /* Pulse Dot class to reuse */
         .status-dot {
             width: 8px;
             height: 8px;
@@ -249,9 +258,7 @@
 <body class="p-8 md:p-24 pb-48 md:pb-24">
 
     <div id="boot-screen"></div>
-    <div class="scanline"></div>
 
-    <!-- Hidden Video Player -->
     <div id="video-overlay">
         <div class="video-window">
             <div class="flex justify-between items-center p-2 text-[10px] bg-zinc-900 border-b border-zinc-800 text-zinc-500">
@@ -262,7 +269,6 @@
         </div>
     </div>
 
-    <!-- Terminal Container -->
     <div id="console-container">
         <div id="console-output"></div>
         <div class="console-input-row">
@@ -271,7 +277,6 @@
         </div>
     </div>
 
-    <!-- Widgets -->
     <div class="widget-box diag-box" id="diag-widget">
         <div class="widget-header">
             <span class="widget-title">SYS_DIAG</span>
@@ -291,52 +296,51 @@
         </div>
         <div class="flex items-center gap-2 mb-1">
             <div class="status-dot flex-shrink-0"></div>
-            <div class="truncate text-white opacity-80" id="track-name">INITIALIZING...</div>
+            <div class="truncate text-white opacity-80 glitch-text" id="track-name">INITIALIZING...</div>
         </div>
         <div class="progress-container" id="progress-area">
             <div class="progress-bar" id="progress-bar"></div>
         </div>
         <div class="audio-controls">
-            <button class="audio-btn font-bold text-white" id="play-btn">PLAY</button>
-            <button class="audio-btn font-bold" id="skip-btn">SKIP</button>
+            <button class="audio-btn font-bold text-white glitch-text" id="play-btn">PLAY</button>
+            <button class="audio-btn font-bold glitch-text" id="skip-btn">SKIP</button>
         </div>
         <div class="vu-meter-container" id="vu-meter"></div>
         <audio id="main-audio" crossorigin="anonymous" preload="auto"></audio>
     </div>
 
-    <!-- Main Navigation Content -->
     <main id="app-content" class="max-w-2xl relative z-20 opacity-0">
         <header class="mb-12 md:mb-20">
             <div class="flex items-center gap-3 mb-4 typewriter-line" data-delay="0">
                 <div class="status-dot"></div>
-                <h1 class="text-white text-xl tracking-tighter glitch-target">ARCHIVE_01</h1>
+                <h1 class="text-white text-xl tracking-tighter glitch-text glitch-target">ARCHIVE_01</h1>
             </div>
         </header>
 
         <section class="space-y-8 md:space-y-12">
             <div class="group typewriter-line" data-delay="1600">
                 <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest glitch-target">01 / Utilities</span>
-                <a href="utilities.html" class="link-item w-full block py-2 text-lg glitch-target">Web Tools</a>
+                <a href="utilities.html" class="red-hover w-full block py-2 text-lg glitch-text glitch-target">Web Tools</a>
             </div>
 
             <div class="group typewriter-line" data-delay="2400">
                 <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest glitch-target">02 / Visuals</span>
-                <a href="galleries.html" class="link-item w-full block py-2 text-lg glitch-target">Gallery</a>
+                <a href="galleries.html" class="red-hover w-full block py-2 text-lg glitch-text glitch-target">Gallery</a>
             </div>
 
             <div class="group typewriter-line" data-delay="3200">
                 <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest glitch-target">03 / Documentation</span>
-                <a href="#" class="link-item w-full block py-2 text-lg glitch-target">Writings</a>
+                <a href="#" class="red-hover w-full block py-2 text-lg glitch-text glitch-target">Writings</a>
             </div>
 
             <div class="group typewriter-line" data-delay="4000">
                 <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest glitch-target">04 / Network</span>
                 <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
-                    <a href="https://csfloat.com/stall/76561198136225158" target="_blank" class="link-item py-2 text-sm glitch-target">CSFloat</a>
-                    <a href="https://www.inaturalist.org/observations?place_id=any&user_id=jiwt&verifiable=any" target="_blank" class="link-item py-2 text-sm glitch-target">iNaturalist</a>
-                    <a href="https://letterboxd.com/Jiwt/" target="_blank" class="link-item py-2 text-sm glitch-target">Letterboxd</a>
-                    <a href="https://lighterpack.com/r/lim3hg" target="_blank" class="link-item py-2 text-sm glitch-target">LighterPack</a>
-                    <a href="https://www.twitch.tv/Jiwt" target="_blank" class="link-item py-2 text-sm glitch-target">Twitch</a>
+                    <a href="https://csfloat.com/stall/76561198136225158" target="_blank" class="red-hover py-2 text-sm glitch-text glitch-target">CSFloat</a>
+                    <a href="https://www.inaturalist.org/observations?place_id=any&user_id=jiwt&verifiable=any" target="_blank" class="red-hover py-2 text-sm glitch-text glitch-target">iNaturalist</a>
+                    <a href="https://letterboxd.com/Jiwt/" target="_blank" class="red-hover py-2 text-sm glitch-text glitch-target">Letterboxd</a>
+                    <a href="https://lighterpack.com/r/lim3hg" target="_blank" class="red-hover py-2 text-sm glitch-text glitch-target">LighterPack</a>
+                    <a href="https://www.twitch.tv/Jiwt" target="_blank" class="red-hover py-2 text-sm glitch-text glitch-target">Twitch</a>
                 </div>
             </div>
         </section>
@@ -357,7 +361,7 @@
         let currentTrackIndex = 0;
         let siteBootTime = Date.now();
         let audioCtx, analyser, source, dataArray, isAudioContextInitialized = false;
-        let userData = { ip: 'CONNECTION_REFUSED', city: 'REDACTED', region: 'REDACTED', isp: 'REDACTED' };
+        let userData = { ip: '?', city: '?', region: '?', isp: '?' };
 
         const mainAudio = document.getElementById('main-audio');
         const playBtn = document.getElementById('play-btn');
@@ -377,7 +381,7 @@
             "MAC_ADDR: 00:1A:2B:3C:4D:5E [ MAPPED ]",
             "INITIALIZING_TCP_IP_STACK_V6...",
             "GATEWAY_HANDSHAKE: 192.168.1.1 [ OK ]",
-            "ESTABLISHING_GITHUB_UPLINK_TLS_1.3...", 
+            "ESTABLISHING_GITHUB_UPLINK...", 
             "SUCCESS: ARCHIVE_OS_ONLINE"
         ];
 
@@ -396,23 +400,9 @@
         ];
 
         function runSystemLog() {
-            let logStep = 0;
             setInterval(() => {
-                if (logStep === 0) {
-                    addDiagLine("FACECAM_ON");
-                    logStep++;
-                } else if (logStep === 1) {
-                    addDiagLine("EYE_TRACKING ENABLED");
-                    logStep++;
-                } else {
-                    if (Math.random() > 0.9) {
-                        addDiagLine("HEARTBEAT_DETECTED", "var(--crimson)");
-                        setTimeout(() => addDiagLine("USER_DETECTED BEHIND YOU", "var(--crimson)"), 500);
-                    } else {
-                        const msg = systemMessages[Math.floor(Math.random() * systemMessages.length)];
-                        addDiagLine(msg);
-                    }
-                }
+                const msg = systemMessages[Math.floor(Math.random() * systemMessages.length)];
+                addDiagLine(msg);
             }, 3000);
         }
 
@@ -448,43 +438,33 @@
             try {
                 const response = await fetch('https://ipapi.co/json/');
                 const data = await response.json();
-                if (data && !data.error) {
-                    userData = { ip: data.ip || 'REFUSED', city: data.city || 'REDACTED', region: data.region || 'REDACTED', isp: data.org || 'REDACTED' };
-                }
+                userData = { ip: data.ip, city: data.city, region: data.region, isp: data.org };
             } catch (e) {}
         }
 
         async function initializeData() {
-            addDiagLine("SYNCING_REMOTE_ASSETS...");
             try {
-                // Defensive fetch wrapper
-                const safeFetch = async (url) => {
-                    const res = await fetch(url, { cache: "no-store" });
-                    if (!res.ok) throw new Error(`HTTP_${res.status}`);
-                    const contentType = res.headers.get("content-type");
-                    if (!contentType || !contentType.includes("application/json")) throw new Error("INVALID_TYPE");
-                    return await res.json();
-                };
-
-                const [tracks, files] = await Promise.all([
-                    safeFetch(TRACKS_JSON_URL).catch(() => []),
-                    safeFetch(FILES_JSON_URL).catch(() => ({}))
+                addDiagLine("FETCHING_RESOURCES...");
+                const [tracksRes, filesRes] = await Promise.all([
+                    fetch(TRACKS_JSON_URL),
+                    fetch(FILES_JSON_URL)
                 ]);
+                
+                audioTracks = await tracksRes.json();
+                virtualFiles = await filesRes.json();
 
-                audioTracks = tracks;
-                virtualFiles = files;
-                if (audioTracks.length > 0) loadTrack(Math.floor(Math.random() * audioTracks.length));
-                addDiagLine("NETWORK_BUFFERS_READY");
-            } catch (e) { 
-                addDiagLine(`SYNC_ERR: ${e.message.toUpperCase()}`, "var(--crimson)");
-                trackName.innerText = "OFFLINE";
+                if (audioTracks.length > 0) {
+                    loadTrack(Math.floor(Math.random() * audioTracks.length));
+                    addDiagLine("ASSETS_LOADED");
+                }
+            } catch (err) {
+                addDiagLine("FETCH_ERROR", "var(--crimson)");
             }
         }
 
         function loadTrack(index) {
             currentTrackIndex = index;
             const track = audioTracks[index];
-            if (!track) return;
             mainAudio.src = track.url;
             trackName.innerText = track.name.toUpperCase();
         }
@@ -510,7 +490,6 @@
                 else if (cmd === 'whoami') {
                     writeToConsole(`REMOTE_IP: ${userData.ip}`, "var(--crimson)");
                     writeToConsole(`LOCATION: ${userData.city.toUpperCase()}, ${userData.region.toUpperCase()}`);
-                    writeToConsole(`STATUS: BEING_WATCHED`, "var(--crimson)");
                 }
                 else if (cmd === 'timewarp') {
                     writeToConsole("ACTIVATING_TIMEWARP", "var(--crimson)");
@@ -524,22 +503,17 @@
             }
         });
 
-        // --- Audio Context & VU Logic (from DAY 4 stable) ---
         function initAudioContext() {
             if (isAudioContextInitialized) return;
-            try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioCtx.createAnalyser();
-                source = audioCtx.createMediaElementSource(mainAudio);
-                source.connect(analyser);
-                analyser.connect(audioCtx.destination);
-                analyser.fftSize = 128;
-                dataArray = new Uint8Array(analyser.frequencyBinCount);
-                isAudioContextInitialized = true;
-                updateVUMeter();
-            } catch (e) {
-                addDiagLine("AUDIO_CTX_BLOCKED", "var(--crimson)");
-            }
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioCtx.createAnalyser();
+            source = audioCtx.createMediaElementSource(mainAudio);
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            analyser.fftSize = 128;
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            isAudioContextInitialized = true;
+            updateVUMeter();
         }
 
         const bars = Array.from({length: 16}, () => {
@@ -567,10 +541,10 @@
 
         playBtn.onclick = async () => {
             initAudioContext();
-            if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
+            if (audioCtx.state === 'suspended') await audioCtx.resume();
             if (mainAudio.paused) {
-                mainAudio.play().then(() => playBtn.innerText = "PAUSE")
-                    .catch(e => addDiagLine("PLAY_DENIED", "var(--crimson)"));
+                mainAudio.play();
+                playBtn.innerText = "PAUSE";
             } else {
                 mainAudio.pause();
                 playBtn.innerText = "PLAY";
@@ -578,9 +552,9 @@
         };
 
         skipBtn.onclick = () => {
-            if (!audioTracks.length) return;
             loadTrack((currentTrackIndex + 1) % audioTracks.length);
-            mainAudio.play().then(() => playBtn.innerText = "PAUSE");
+            mainAudio.play();
+            playBtn.innerText = "PAUSE";
         };
 
         progressArea.onclick = (e) => {
@@ -641,14 +615,14 @@
             }, 80);
         }
 
-        window.addEventListener('keydown', (e) => { 
-            if (e.key === '~' || e.key === '`') { 
-                e.preventDefault(); 
-                const visible = consoleContainer.style.display === 'flex';
-                consoleContainer.style.display = visible ? 'none' : 'flex';
-                if (!visible) setTimeout(() => consoleInput.focus(), 10);
-            } 
-        });
+        function toggleTerminal() {
+            const visible = consoleContainer.style.display === 'flex';
+            consoleContainer.style.display = visible ? 'none' : 'flex';
+            if (!visible) setTimeout(() => consoleInput.focus(), 10);
+        }
+
+        window.addEventListener('keydown', (e) => { if (e.key === '~' || e.key === '`') { e.preventDefault(); toggleTerminal(); } });
+        document.getElementById('terminal-trigger').onclick = toggleTerminal;
 
         window.onload = () => {
             fetchUserLocation();
