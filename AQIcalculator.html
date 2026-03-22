@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Pollution Impact Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-dark: #1e293b;
+        }
+        body {
+            background-color: var(--bg-dark);
+            color: #f1f5f9;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .glass {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(16px);
+            border: 2px solid #06b6d4;
+            width: 100%;
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(6, 182, 212, 0.7); }
+            100% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
+        }
+
+        input[type="range"] {
+            accent-color: #38bdf8;
+        }
+        .risk-gradient {
+            background: linear-gradient(90deg, #22c55e 0%, #eab308 50%, #ef4444 100%);
+        }
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+        details summary {
+            list-style: none;
+        }
+        .formula {
+            font-family: 'Courier New', Courier, monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 4px;
+            border-radius: 4px;
+            color: #38bdf8;
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-2xl w-full space-y-8 my-10">
+        <!-- Header -->
+        <header class="text-center space-y-4 px-4">
+            <h1 class="text-3xl font-bold tracking-tight text-sky-400">Air Pollution Impact Calculator</h1>
+            <p class="text-slate-400 text-sm italic leading-relaxed">
+                For a few days during my thru-hike of the PCT, my brother and I hiked through baaad smoke from the 33,129 acre "Emigrant Fire". We often joked, "well, I've been smoking joints this entire time..."
+            </p>
+        </header>
+
+        <!-- Tool Bubble -->
+        <div class="glass rounded-3xl p-6 md:p-8 shadow-2xl space-y-8">
+            
+            <!-- Inputs Section -->
+            <div class="grid gap-8">
+                <!-- 1. AQI Input -->
+                <div class="input-group space-y-3">
+                    <div class="flex justify-between items-end">
+                        <label class="text-sm font-medium uppercase tracking-wider text-slate-300">1. Current Air Quality (AQI)</label>
+                        <span id="aqi-display" class="text-2xl font-bold text-sky-400">50</span>
+                    </div>
+                    <input type="range" id="aqi-input" min="0" max="500" value="50" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-[10px] text-slate-500 font-bold">
+                        <span>GOOD (0)</span>
+                        <span>HAZARDOUS (500)</span>
+                    </div>
+                </div>
+
+                <!-- 2. Exertion Multiplier Slider -->
+                <div class="input-group space-y-4">
+                    <div class="flex justify-between items-end">
+                        <label class="text-sm font-medium uppercase tracking-wider text-slate-300">2. Exertion Level (Ventilation)</label>
+                        <div class="text-right">
+                            <div id="exertion-label" class="text-xl font-bold text-orange-400 uppercase tracking-tighter">At Rest</div>
+                            <div id="multiplier-display" class="text-[10px] text-slate-500 font-bold">1.0x Intake (6 L/min)</div>
+                        </div>
+                    </div>
+                    <input type="range" id="exertion-input" min="0" max="7" step="1" value="0" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-[10px] sm:text-[11px] text-slate-500 font-bold uppercase overflow-hidden whitespace-nowrap gap-1">
+                        <span>Rest</span>
+                        <span>Jaunt</span>
+                        <span>Walk</span>
+                        <span>Hike</span>
+                        <span>Jog</span>
+                        <span>STEEP HIKE</span>
+                        <span>Run</span>
+                        <span>Sprint</span>
+                    </div>
+                </div>
+
+                <!-- 3. Duration Input -->
+                <div class="input-group space-y-3">
+                    <div class="flex justify-between items-end">
+                        <label class="text-sm font-medium uppercase tracking-wider text-slate-300">3. Exposure Duration (Hours)</label>
+                        <span id="duration-display" class="text-2xl font-bold text-sky-400">1</span>
+                    </div>
+                    <input type="range" id="duration-input" min="0.5" max="12" step="0.5" value="1" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="pt-6 border-t border-slate-700 space-y-6">
+                <!-- Acute Risk Index -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-end">
+                        <h2 class="text-sm font-semibold uppercase tracking-widest text-slate-400">Acute Lung Stress</h2>
+                        <span id="risk-val" class="text-4xl font-black text-white">0</span>
+                    </div>
+                    <div class="h-4 w-full bg-slate-800 rounded-full overflow-hidden flex">
+                        <div id="risk-bar" class="h-full risk-gradient transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <p id="risk-desc" class="text-center text-sm font-medium text-slate-300">Evaluating...</p>
+                </div>
+
+                <!-- Dose Calculation Results -->
+                <div class="bg-slate-900/50 p-8 rounded-2xl border border-slate-800 text-center relative overflow-hidden">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold mb-2 tracking-[0.2em]">Cigarette Equivalent Dose</p>
+                    <div class="flex items-center justify-center gap-3 mb-2">
+                        <span id="cigs-activity" class="text-6xl font-black text-orange-400">0.0</span>
+                        <span class="text-slate-400 text-lg font-bold uppercase tracking-tighter">Cigs</span>
+                    </div>
+                    <div id="mouth-breathing-indicator" class="hidden text-[9px] bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1 rounded-full font-bold uppercase tracking-widest mb-2 inline-block">Mouth Breathing Active (+15% Deposit)</div>
+                </div>
+            </div>
+
+            <!-- Proof of Accuracy (Comprehensive Methodology) -->
+            <details class="group bg-slate-900/30 rounded-xl border border-slate-700 overflow-hidden">
+                <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-800 transition-colors">
+                    <span class="text-xs font-bold uppercase tracking-widest text-sky-400">Proof of Accuracy & Methodology</span>
+                    <span class="text-sky-400 transition-transform group-open:rotate-180">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                    </span>
+                </summary>
+                <div class="p-6 pt-2 space-y-6 text-[12px] leading-relaxed text-slate-400 border-t border-slate-800">
+                    <div>
+                        <h4 class="text-slate-200 font-bold uppercase text-xs mb-2">I. The 2024 EPA Standard ($AQI_{conc}$)</h4>
+                        <p>In May 2024, the EPA lowered the primary annual $PM_{2.5}$ standard from $12.0$ to $9.0 \mu g/m^3$. This tool uses the updated linear interpolation breakpoints.</p>
+                    </div>
+
+                    <div>
+                        <h4 class="text-slate-200 font-bold uppercase text-xs mb-2">II. The Berkeley Earth Constant</h4>
+                        <p>1 Cigarette ≈ 22 μg/m³ per 24 hours.
+                        <br><span class="block mt-1 text-center font-mono bg-black/20 py-2 rounded">Dose = (Conc / 22) * (Hrs / 24)</span></p>
+                    </div>
+
+                    <div>
+                        <h4 class="text-slate-200 font-bold uppercase text-xs mb-2">III. Minute Ventilation Scaling ($M$)</h4>
+                        <p>The baseline for an adult is $6 L/min$. We calculate the multiplier $M$ as:
+                        <br><span class="block mt-1 text-center font-mono bg-black/20 py-2 rounded">M = Activity L/min / 6 L/min</span>
+                        Data for "STEEP HIKE" ($60 L/min$) and "Sprinting" ($150 L/min$) is sourced from clinical CPET standards.</p>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <script>
+        const aqiInput = document.getElementById('aqi-input');
+        const durationInput = document.getElementById('duration-input');
+        const exertionInput = document.getElementById('exertion-input');
+        
+        const aqiDisplay = document.getElementById('aqi-display');
+        const durationDisplay = document.getElementById('duration-display');
+        const exertionLabel = document.getElementById('exertion-label');
+        const multiplierDisplay = document.getElementById('multiplier-display');
+        const mouthBreathingIndicator = document.getElementById('mouth-breathing-indicator');
+        
+        const cigsActivity = document.getElementById('cigs-activity');
+        const riskValDisplay = document.getElementById('risk-val');
+        const riskBar = document.getElementById('risk-bar');
+        const riskDesc = document.getElementById('risk-desc');
+
+        const EXERTION_STEPS = [
+            { name: "At Rest", rate: 6, mult: 1.0 },
+            { name: "Jaunt", rate: 12, mult: 2.0 },
+            { name: "Walking", rate: 21, mult: 3.5 },
+            { name: "HIKING (MODERATE)", rate: 36, mult: 6.0 },
+            { name: "Jogging", rate: 48, mult: 8.0 },
+            { name: "HIKING (HARD)", rate: 60, mult: 10.0 },
+            { name: "Running", rate: 84, mult: 14.0 },
+            { name: "Sprinting", rate: 150, mult: 25.0 }
+        ];
+
+        function aqiToPm25(aqi) {
+            if (aqi <= 50) return (aqi / 50) * 9.0;
+            if (aqi <= 100) return 9.1 + ((aqi - 51) / 49) * 26.3;
+            if (aqi <= 150) return 35.5 + ((aqi - 101) / 49) * 19.9;
+            if (aqi <= 200) return 55.5 + ((aqi - 151) / 49) * 69.9;
+            if (aqi <= 300) return 125.5 + ((aqi - 201) / 99) * 99.9;
+            return 225.5 + ((aqi - 301) / 199) * 274.9;
+        }
+
+        function update() {
+            const aqi = parseInt(aqiInput.value);
+            const hours = parseFloat(durationInput.value);
+            const exertionStep = EXERTION_STEPS[parseInt(exertionInput.value)];
+            const pm25 = aqiToPm25(aqi);
+
+            aqiDisplay.innerText = aqi;
+            durationDisplay.innerText = hours;
+            exertionLabel.innerText = exertionStep.name;
+            multiplierDisplay.innerText = `${exertionStep.mult.toFixed(1)}x Intake (${exertionStep.rate} L/min)`;
+
+            const isMouthBreathing = exertionStep.mult >= 8.0;
+            const depositionFactor = isMouthBreathing ? 1.15 : 1.0;
+            
+            if (isMouthBreathing) {
+                mouthBreathingIndicator.classList.remove('hidden');
+            } else {
+                mouthBreathingIndicator.classList.add('hidden');
+            }
+
+            const baseDailyDose = (pm25 / 22);
+            const fractionalDose = (hours / 24);
+            const activityTotalCigs = baseDailyDose * fractionalDose * exertionStep.mult * depositionFactor;
+
+            cigsActivity.innerText = activityTotalCigs.toFixed(2);
+
+            let riskIndex = Math.pow(aqi / 500, 1.2) * 300;
+            const durationFactor = (0.7 + (hours / 12));
+            const intensityFactor = 1.0 + (exertionStep.mult / 12);
+            
+            riskIndex = Math.min(300, riskIndex * durationFactor * intensityFactor);
+            
+            riskValDisplay.innerText = Math.round(riskIndex);
+            riskBar.style.width = `${(riskIndex / 300) * 100}%`;
+
+            if (riskIndex < 60) {
+                riskDesc.innerText = "Negligible Acute Risk";
+                riskDesc.className = "text-center text-sm font-medium text-green-400";
+            } else if (riskIndex < 140) {
+                riskDesc.innerText = "Moderate Irritation / Nasal Stress";
+                riskDesc.className = "text-center text-sm font-medium text-yellow-400";
+            } else if (riskIndex < 240) {
+                riskDesc.innerText = "High Respiratory Load - Deep Alveolar Deposit";
+                riskDesc.className = "text-center text-sm font-medium text-orange-400";
+            } else {
+                riskDesc.innerText = "Extreme Acute Hazard - Cardiac/Lung Stress";
+                riskDesc.className = "text-center text-sm font-medium text-red-500";
+            }
+        }
+
+        aqiInput.addEventListener('input', update);
+        durationInput.addEventListener('input', update);
+        exertionInput.addEventListener('input', update);
+
+        window.onload = update;
+    </script>
+</body>
+</html>
