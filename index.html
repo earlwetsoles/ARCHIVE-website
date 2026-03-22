@@ -10,9 +10,9 @@
         
         :root {
             --crimson: #991b1b;
+            --glitch-red: #ff3e3e;
             --terminal-gray: #666;
             --terminal-off-white: #eee;
-            --glitch-color: #ff0000;
         }
 
         body { 
@@ -35,6 +35,19 @@
             z-index: 9999;
             background-size: 100% 2px, 3px 100%;
             pointer-events: none;
+        }
+
+        /* Chromatic Aberration Hover Effect */
+        .glitch-hover-effect {
+            display: inline-block;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .glitch-hover-effect:hover {
+            color: var(--glitch-red) !important;
+            text-shadow: 2px 0 #00ff41, -2px 0 blue;
+            border-color: var(--glitch-red) !important;
         }
 
         #boot-screen {
@@ -83,10 +96,7 @@
         
         .progress-container { width: 100%; height: 4px; background: #1a1a1a; margin: 8px 0; cursor: pointer; position: relative; }
         .progress-bar { height: 100%; background: var(--crimson); width: 0%; pointer-events: none; }
-        .audio-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
-        .audio-btn { background: none; border: none; color: #444; cursor: pointer; padding: 0; transition: color 0.2s; }
-        .audio-btn:hover { color: var(--terminal-off-white); }
-
+        
         .terminal-cursor {
             display: inline-block;
             width: 8px;
@@ -95,6 +105,12 @@
             animation: blink 1s step-end infinite;
             vertical-align: middle;
             cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .terminal-cursor:hover {
+            background-color: var(--glitch-red);
+            box-shadow: 2px 0 #00ff41, -2px 0 blue;
         }
         
         @keyframes blink { from, to { opacity: 1; } 50% { opacity: 0; } }
@@ -122,28 +138,8 @@
         
         .status-dot { width: 8px; height: 8px; background-color: var(--crimson); border-radius: 9999px; box-shadow: 0 0 8px var(--crimson); animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
-        .link-item { border-bottom: 1px solid #1a1a1a; display: inline-block; cursor: pointer; transition: all 0.2s; }
-        .link-item:hover { color: #ff3e3e; padding-left: 8px; border-bottom-color: var(--crimson); }
-
-        /* Encrypted Component Styles */
-        .archive-heading {
-            color: #666;
-            opacity: 0.2;
-        }
-        .label-micro {
-            font-size: 10px;
-            display: block;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-        .content-main {
-            display: block;
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-            font-size: 1.125rem;
-            font-style: italic;
-        }
+        
+        .link-item { border-bottom: 1px solid #1a1a1a; display: inline-block; cursor: pointer; }
 
         /* Video Popup Layer */
         #video-overlay {
@@ -182,7 +178,7 @@
         <div class="video-window">
             <div class="video-header">
                 <span id="video-title">STREAMING_LOG...</span>
-                <span onclick="closeVideo()" class="cursor-pointer text-red-700 font-bold">[X] CLOSE</span>
+                <span onclick="closeVideo()" class="cursor-pointer text-red-700 font-bold glitch-hover-effect">[X] CLOSE</span>
             </div>
             <video id="video-player" style="width:100%" controls></video>
         </div>
@@ -220,9 +216,9 @@
         <div class="progress-container" id="progress-area">
             <div class="progress-bar" id="progress-bar"></div>
         </div>
-        <div class="audio-controls">
-            <button class="audio-btn font-bold text-white" id="play-btn">PLAY</button>
-            <button class="audio-btn font-bold" id="skip-btn">SKIP</button>
+        <div class="flex justify-between items-center mt-2">
+            <button class="glitch-hover-effect text-[10px] text-white" id="play-btn">PLAY</button>
+            <button class="glitch-hover-effect text-[10px] text-white" id="skip-btn">SKIP</button>
         </div>
         <div class="vu-meter-container" id="vu-meter"></div>
         <audio id="main-audio" crossorigin="anonymous"></audio>
@@ -232,43 +228,41 @@
         <header class="mb-12 md:mb-20">
             <div class="flex items-center gap-3 mb-4 typewriter-line" data-delay="0">
                 <div class="status-dot"></div>
-                <h1 class="text-white text-xl tracking-tighter glitch-text">ARCHIVE_01</h1>
+                <h1 class="text-white text-xl tracking-tighter">ARCHIVE_01</h1>
             </div>
         </header>
 
         <section class="space-y-8 md:space-y-12">
             <div class="group typewriter-line" data-delay="800">
-                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest glitch-text">01 / Utilities</span>
-                <a href="utilities.html" class="link-item w-full block py-2 text-lg">Web Tools</a>
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">01 / Utilities</span>
+                <a href="utilities.html" class="link-item glitch-hover-effect w-full block py-2 text-lg">Web Tools</a>
             </div>
 
             <div class="group typewriter-line" data-delay="1600">
-                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest glitch-text">02 / Visuals</span>
-                <a href="galleries.html" class="link-item w-full block py-2 text-lg">Gallery</a>
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">02 / Visuals</span>
+                <a href="galleries.html" class="link-item glitch-hover-effect w-full block py-2 text-lg">Gallery</a>
             </div>
 
             <div class="group typewriter-line" data-delay="2400">
-                <div class="archive-heading font-terminal">
-                    <span class="label-micro">ALBUM_XX / PENDING</span>
-                    <span class="content-main">[ENCRYPTED_DATA]</span>
-                </div>
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">ALBUM_XX / PENDING</span>
+                <span class="block py-2 text-lg italic opacity-20">[ENCRYPTED_DATA]</span>
             </div>
 
             <div class="group typewriter-line" data-delay="3200">
-                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest glitch-text">04 / Network</span>
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">04 / Network</span>
                 <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
-                    <a href="https://csfloat.com/stall/76561198136225158" target="_blank" class="link-item py-2 text-sm">CSFloat</a>
-                    <a href="https://www.inaturalist.org/observations?place_id=any&user_id=jiwt&verifiable=any" target="_blank" class="link-item py-2 text-sm">iNaturalist</a>
-                    <a href="https://letterboxd.com/Jiwt/" target="_blank" class="link-item py-2 text-sm">Letterboxd</a>
-                    <a href="https://lighterpack.com/r/lim3hg" target="_blank" class="link-item py-2 text-sm">LighterPack</a>
-                    <a href="https://www.twitch.tv/Jiwt" target="_blank" class="link-item py-2 text-sm">Twitch</a>
+                    <a href="https://csfloat.com/stall/76561198136225158" target="_blank" class="link-item glitch-hover-effect py-2 text-sm">CSFloat</a>
+                    <a href="https://www.inaturalist.org/observations?place_id=any&user_id=jiwt&verifiable=any" target="_blank" class="link-item glitch-hover-effect py-2 text-sm">iNaturalist</a>
+                    <a href="https://letterboxd.com/Jiwt/" target="_blank" class="link-item glitch-hover-effect py-2 text-sm">Letterboxd</a>
+                    <a href="https://lighterpack.com/r/lim3hg" target="_blank" class="link-item glitch-hover-effect py-2 text-sm">LighterPack</a>
+                    <a href="https://www.twitch.tv/Jiwt" target="_blank" class="link-item glitch-hover-effect py-2 text-sm">Twitch</a>
                 </div>
             </div>
         </section>
 
         <footer class="mt-24 md:mt-32 pt-8 border-t border-[#111] typewriter-line" data-delay="4000">
             <div class="terminal-cursor" id="terminal-trigger"></div>
-            <p class="text-[8px] mt-4 opacity-20 glitch-text">PRESS '~' FOR COMMAND INTERFACE</p>
+            <p class="text-[8px] mt-4 opacity-20">PRESS '~' FOR COMMAND INTERFACE</p>
         </footer>
     </main>
 
@@ -307,16 +301,11 @@
             "WIFI_IFACE: 04:D4:C4:F1:8A:BC",
             "ALLOCATING_BUFFER_AT_OFFSET_0XFFFFF80000000000...",
             "SUCCESS: ARCH_MEMORY_MAP_LOADED",
-            "ESTABLISHING_VIRTUAL_NETWORK_INTERFACE...",
             "DHCP_DISCOVERING_ON_ETH0...",
             "KERNEL_PANIC_PREVENTION_ACTIVE",
-            "HANDSHAKE_PROTOCOL: RSA_4096_SHA256",
             "SYNCING_LOCAL_FILESYSTEM...",
             "CHECKING_INTEGRITY_OF_VIRTUAL_DISK...",
-            "V_DISK_SECTOR_7_RECOVERED",
             "PARSING_DATA_TRACKS...",
-            "MODULE_LOAD: CRYPTO_CORE_01",
-            "MODULE_LOAD: TERMINAL_UI_V2",
             "ENTERING_USER_LEVEL_SHELL...",
             "SUCCESS: ARCHIVE_OS_ONLINE"
         ];
@@ -330,29 +319,8 @@
             "PING_LATENCY: 14ms",
             "UPDATING_VIRTUAL_REGISTRY",
             "IDLE_PROCESS_CLEANUP",
-            "SOCKET_04_LISTENING",
             "MEMORY_PAGE_FLUSHED"
         ];
-
-        function applyGlitch() {
-            const targets = document.querySelectorAll('.glitch-text');
-            if (targets.length === 0) return;
-            const target = targets[Math.floor(Math.random() * targets.length)];
-            const originalText = target.innerText;
-            const glitchChars = "!@#$%^&*()_+";
-            let iterations = 0;
-            const interval = setInterval(() => {
-                target.innerText = originalText.split('').map((char) => {
-                    if (char === ' ') return ' ';
-                    return glitchChars[Math.floor(Math.random() * glitchChars.length)];
-                }).join('');
-                if (iterations++ > 8) {
-                    clearInterval(interval);
-                    target.innerText = originalText;
-                }
-            }, 60);
-            setTimeout(applyGlitch, Math.random() * 2000 + 500);
-        }
 
         async function initializeData() {
             try {
@@ -373,7 +341,6 @@
             const track = audioTracks[index];
             if (!track) return;
             trackNameDisplay.innerText = track.name.toUpperCase();
-            // Securely handle audio track URLs
             mainAudio.src = track.url;
             mainAudio.load();
         }
@@ -439,7 +406,7 @@
                 bars.forEach((bar, i) => {
                     const val = dataArray[i * 2] || 0;
                     bar.style.height = Math.max(2, (val / 255) * 18) + 'px';
-                    bar.style.backgroundColor = val > 200 ? 'var(--crimson)' : '#333';
+                    bar.style.backgroundColor = val > 200 ? 'var(--glitch-red)' : '#333';
                 });
             }
             requestAnimationFrame(updateVUMeter);
@@ -471,14 +438,7 @@
                     if (fileObj) {
                         if (fileObj.type === 'video') {
                             videoTitle.innerText = `LOG_STREAM: ${arg.toUpperCase()}`;
-                            
-                            // FIX: Sanitize the URL without double-encoding
-                            // We split the path to encode the filename parts individually
-                            let safeUrl = fileObj.url.split('/').map(segment => encodeURIComponent(segment)).join('/');
-                            // Correct common protocol encoding error if it was a full URL
-                            safeUrl = safeUrl.replace('https%3A//', 'https://');
-                            
-                            videoPlayer.src = safeUrl;
+                            videoPlayer.src = fileObj.url;
                             videoOverlay.style.display = 'flex';
                             videoPlayer.play();
                             mainAudio.pause();
@@ -516,14 +476,10 @@
         }
 
         function startDiagTinker() {
-            addDiagLine("FACECAM_ON");
-            addDiagLine("EYE_TRACKING ENABLED");
-
             setInterval(() => {
                 const now = Date.now();
                 if (Math.random() < 0.1 && (now - lastSpookyMessageTime > 60000)) {
                     addDiagLine("HEARTBEAT_DETECTED", "var(--crimson)");
-                    addDiagLine("USER_DETECTED BEHIND YOU", "var(--crimson)");
                     lastSpookyMessageTime = now;
                 } else {
                     const msg = fakeStatuses[Math.floor(Math.random() * fakeStatuses.length)];
@@ -549,7 +505,6 @@
                         document.getElementById('diag-widget').style.opacity = '1';
                         document.getElementById('audio-widget').style.opacity = '1';
                         document.querySelectorAll('.typewriter-line').forEach(line => line.classList.add('typing'));
-                        applyGlitch();
                         startDiagTinker();
                     }, 500);
                 }
@@ -557,8 +512,8 @@
         }
 
         const toggleConsole = () => {
-            const isVisible = consoleContainer.style.display === 'flex' || consoleContainer.style.display === '';
-            if (consoleContainer.style.display === 'none' || consoleContainer.style.display === '') {
+            const isVisible = consoleContainer.style.display === 'flex';
+            if (!isVisible) {
                 consoleContainer.style.display = 'flex';
                 consoleInput.focus();
             } else {
