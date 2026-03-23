@@ -63,9 +63,27 @@
             overflow-y: auto;
         }
 
-        .typewriter-line { overflow: hidden; white-space: nowrap; width: 0; opacity: 0; }
-        .typing { animation: typing-anim 0.8s steps(30, end) forwards; opacity: 1; }
-        @keyframes typing-anim { from { width: 0 } to { width: 100% } }
+        /* Glitch Effect CSS from Framework */
+        .typewriter-line {
+            overflow: hidden;
+            white-space: nowrap;
+            width: 0;
+            opacity: 0;
+        }
+
+        .typing {
+            animation: typing-anim 0.8s steps(25, end) forwards;
+            opacity: 1;
+        }
+
+        @keyframes typing-anim {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        .glitch-target {
+            transition: color 0.1s ease;
+        }
 
         .widget-box {
             position: fixed;
@@ -141,7 +159,6 @@
         
         .link-item { border-bottom: 1px solid #1a1a1a; display: inline-block; cursor: pointer; }
 
-        /* Video Popup Layer */
         #video-overlay {
             position: fixed;
             inset: 0;
@@ -169,7 +186,6 @@
             margin-bottom: 4px;
         }
 
-        /* Diagnostic Log Fix */
         .diag-entry {
             white-space: nowrap;
             overflow: hidden;
@@ -223,7 +239,7 @@
         </div>
         <div class="flex items-center gap-2 mb-1">
             <div class="status-dot flex-shrink-0"></div>
-            <div class="truncate text-white opacity-80" id="track-name">INITIALIZING...</div>
+            <div class="truncate text-white opacity-80 glitch-target" id="track-name">INITIALIZING...</div>
         </div>
         <div class="progress-container" id="progress-area">
             <div class="progress-bar" id="progress-bar"></div>
@@ -240,41 +256,41 @@
         <header class="mb-12 md:mb-20">
             <div class="flex items-center gap-3 mb-4 typewriter-line" data-delay="0">
                 <div class="status-dot"></div>
-                <h1 class="text-white text-xl tracking-tighter">ARCHIVE_01</h1>
+                <h1 class="text-white text-xl tracking-tighter glitch-target">ARCHIVE_01</h1>
             </div>
         </header>
 
         <section class="space-y-8 md:space-y-12">
             <div class="group typewriter-line" data-delay="800">
-                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">01 / Utilities</span>
-                <a href="utilities.html" class="link-item glitch-hover-effect w-full block py-2 text-lg">Web Tools</a>
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest glitch-target">01 / Utilities</span>
+                <a href="utilities.html" class="link-item glitch-hover-effect w-full block py-2 text-lg glitch-target">Web Tools</a>
             </div>
 
             <div class="group typewriter-line" data-delay="1600">
-                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">02 / Visuals</span>
-                <a href="galleries.html" class="link-item glitch-hover-effect w-full block py-2 text-lg">Gallery</a>
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest glitch-target">02 / Visuals</span>
+                <a href="galleries.html" class="link-item glitch-hover-effect w-full block py-2 text-lg glitch-target">Gallery</a>
             </div>
 
             <div class="group typewriter-line" data-delay="2400">
-                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">ALBUM_XX / PENDING</span>
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest glitch-target">ALBUM_XX / PENDING</span>
                 <span class="block py-2 text-lg italic opacity-20">[ENCRYPTED_DATA]</span>
             </div>
 
             <div class="group typewriter-line" data-delay="3200">
-                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">04 / Network</span>
+                <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest glitch-target">04 / Network</span>
                 <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
-                    <a href="https://csfloat.com/stall/76561198136225158" target="_blank" class="link-item glitch-hover-effect py-2 text-sm">CSFloat</a>
-                    <a href="https://www.inaturalist.org/observations?place_id=any&user_id=jiwt&verifiable=any" target="_blank" class="link-item glitch-hover-effect py-2 text-sm">iNaturalist</a>
-                    <a href="https://letterboxd.com/Jiwt/" target="_blank" class="link-item glitch-hover-effect py-2 text-sm">Letterboxd</a>
-                    <a href="https://lighterpack.com/r/lim3hg" target="_blank" class="link-item glitch-hover-effect py-2 text-sm">LighterPack</a>
-                    <a href="https://www.twitch.tv/Jiwt" target="_blank" class="link-item glitch-hover-effect py-2 text-sm">Twitch</a>
+                    <a href="https://csfloat.com/stall/76561198136225158" target="_blank" class="link-item glitch-hover-effect py-2 text-sm glitch-target">CSFloat</a>
+                    <a href="https://www.inaturalist.org/observations?place_id=any&user_id=jiwt&verifiable=any" target="_blank" class="link-item glitch-hover-effect py-2 text-sm glitch-target">iNaturalist</a>
+                    <a href="https://letterboxd.com/Jiwt/" target="_blank" class="link-item glitch-hover-effect py-2 text-sm glitch-target">Letterboxd</a>
+                    <a href="https://lighterpack.com/r/lim3hg" target="_blank" class="link-item glitch-hover-effect py-2 text-sm glitch-target">LighterPack</a>
+                    <a href="https://www.twitch.tv/Jiwt" target="_blank" class="link-item glitch-hover-effect py-2 text-sm glitch-target">Twitch</a>
                 </div>
             </div>
         </section>
 
         <footer class="mt-24 md:mt-32 pt-8 border-t border-[#111] typewriter-line" data-delay="4000">
             <div class="terminal-cursor" id="terminal-trigger"></div>
-            <p class="text-[8px] mt-4 opacity-20">PRESS '~' FOR COMMAND INTERFACE</p>
+            <p class="text-[8px] mt-4 opacity-20 glitch-target">PRESS '~' FOR COMMAND INTERFACE</p>
         </footer>
     </main>
 
@@ -309,40 +325,70 @@
         const bootData = [
             "INITIALIZING_KERNEL_0.9.4... [OK]",
             "MOUNTING_LOCAL_STORAGE... [OK]",
-            "ETHERNET_IFACE: 48:21:0B:44:E2:A1",
-            "WIFI_IFACE: 04:D4:C4:F1:8A:BC",
             "ALLOCATING_BUFFER_AT_OFFSET_0XFFFFF80000000000...",
-            "SUCCESS: ARCH_MEMORY_MAP_LOADED",
-            "DHCP_DISCOVERING_ON_ETH0...",
             "KERNEL_PANIC_PREVENTION_ACTIVE",
             "SYNCING_LOCAL_FILESYSTEM...",
-            "CHECKING_INTEGRITY_OF_VIRTUAL_DISK...",
-            "PARSING_DATA_TRACKS...",
-            "ENTERING_USER_LEVEL_SHELL...",
             "SUCCESS: ARCHIVE_OS_ONLINE"
         ];
 
         const fakeStatuses = [
-            "PACKET_RECEIVED_FROM_GATEWAY_10.0.0.1",
-            "BACKGROUND_CACHE_PURGE_SUCCESS",
+            "PACKET_RECEIVED_10.0.0.1",
             "TEMP_CORE_0: 42°C",
             "HEARTBEAT_PULSE_SYNCING",
-            "ENCRYPTING_OUTBOUND_BUFFER",
             "PING_LATENCY: 14ms",
-            "UPDATING_VIRTUAL_REGISTRY",
-            "IDLE_PROCESS_CLEANUP",
             "MEMORY_PAGE_FLUSHED"
         ];
 
-        // Shuffle algorithm (Fisher-Yates)
-        function shufflePlaylist(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[array[i]]];
-            }
-            return array;
-        }
+        // --- Glitch Effect Framework Implementation ---
+        const GLITCH_CONFIG = { 
+            className: '.glitch-target',    
+            chars: '!@#$%^&*()_+[]{}<>?/', 
+            frames: 10,                    
+            frameSpeed: 60,                
+            intervalMin: 500,              
+            intervalMax: 3000              
+        }; 
 
+        function runGlitchEffect() { 
+            const targets = document.querySelectorAll(GLITCH_CONFIG.className); 
+            if (targets.length === 0) return; 
+
+            const target = targets[Math.floor(Math.random() * targets.length)]; 
+            const originalText = target.innerText; 
+            let iterations = 0; 
+
+            const interval = setInterval(() => { 
+                target.innerText = originalText 
+                    .split('') 
+                    .map((char) => { 
+                        if (char === ' ' || char === '\n') return char; 
+                        return GLITCH_CONFIG.chars[Math.floor(Math.random() * GLITCH_CONFIG.chars.length)]; 
+                    }) 
+                    .join(''); 
+
+                if (iterations++ > GLITCH_CONFIG.frames) { 
+                    clearInterval(interval); 
+                    target.innerText = originalText; 
+                } 
+            }, GLITCH_CONFIG.frameSpeed); 
+
+            const nextTick = Math.random() * (GLITCH_CONFIG.intervalMax - GLITCH_CONFIG.intervalMin) + GLITCH_CONFIG.intervalMin; 
+            setTimeout(runGlitchEffect, nextTick); 
+        } 
+
+        // Initialized after DOM Content Loaded
+        window.addEventListener('DOMContentLoaded', () => {
+            const lines = document.querySelectorAll('.typewriter-line');
+            lines.forEach(line => {
+                const delay = parseInt(line.getAttribute('data-delay')) || 0;
+                setTimeout(() => { 
+                    line.classList.add('typing'); 
+                }, delay);
+            });
+            setTimeout(runGlitchEffect, 2000);
+        });
+
+        // --- Audio & System Logic ---
         async function initializeData() {
             try {
                 const [tRes, fRes] = await Promise.all([
@@ -351,9 +397,7 @@
                 ]);
                 audioTracks = tRes;
                 virtualFiles = fRes;
-                
                 if (audioTracks.length > 0) {
-                    // Random start on initial load
                     currentTrackIndex = Math.floor(Math.random() * audioTracks.length);
                     loadTrack(currentTrackIndex);
                 }
@@ -386,9 +430,7 @@
                 } catch(e) { console.error("AudioContext init failed", e); }
             }
             if (mainAudio.paused) {
-                mainAudio.play().catch(err => {
-                    addDiagLine("PLAY_ERROR: " + err.name, "bad");
-                });
+                mainAudio.play().catch(err => { addDiagLine("PLAY_ERROR", "bad"); });
                 playBtn.innerText = "PAUSE";
             } else {
                 mainAudio.pause();
@@ -398,13 +440,7 @@
 
         skipBtn.onclick = () => {
             if (audioTracks.length > 1) {
-                // To achieve a "true" random shuffle on skip, we pick any index other than current
-                let nextIndex;
-                do {
-                    nextIndex = Math.floor(Math.random() * audioTracks.length);
-                } while (nextIndex === currentTrackIndex);
-                
-                currentTrackIndex = nextIndex;
+                currentTrackIndex = Math.floor(Math.random() * audioTracks.length);
                 loadTrack(currentTrackIndex);
                 mainAudio.play().catch(() => {});
                 playBtn.innerText = "PAUSE";
@@ -463,11 +499,9 @@
                 const arg = parts.slice(1).join(' ');
                 consoleInput.value = '';
                 writeToConsole(`> ${raw.toUpperCase()}`, "#aaa");
-
                 if (cmd === 'list') {
                     const files = Object.keys(virtualFiles);
-                    if (files.length === 0) writeToConsole("NO FILES DETECTED");
-                    else files.forEach(f => writeToConsole(`- ${f}`));
+                    files.length === 0 ? writeToConsole("NO FILES DETECTED") : files.forEach(f => writeToConsole(`- ${f}`));
                 } else if (cmd === 'open') {
                     const fileObj = virtualFiles[arg] || virtualFiles[arg.toLowerCase()];
                     if (fileObj) {
@@ -479,20 +513,11 @@
                             mainAudio.pause();
                             playBtn.innerText = "PLAY";
                         } else if (fileObj.type === 'external') {
-                            writeToConsole(`OPENING_EXTERNAL_ARCHIVE: ${arg.toUpperCase()}`);
                             window.open(fileObj.url, '_blank');
                         }
-                    } else {
-                        writeToConsole("ERR: FILE_NOT_FOUND");
-                    }
-                } else if (cmd === 'timewarp') {
-                   const warpSeconds = parseInt(arg) || 0;
-                   warpOffset += warpSeconds;
-                   writeToConsole(`TIME_WARP_SUCCESS: OFFSET_${warpOffset}S`, "bad");
+                    } else writeToConsole("ERR: FILE_NOT_FOUND");
                 } else if (cmd === 'help') {
                     writeToConsole("LIST, OPEN [FILE], TIMEWARP");
-                } else if (cmd !== '') {
-                    writeToConsole(`ERR: COMMAND_UNKNOWN '${cmd}'`);
                 }
             }
         });
@@ -511,31 +536,6 @@
             if (diagLogs.children.length > 20) diagLogs.lastChild.remove();
         }
 
-        function startDiagTinker() {
-            setTimeout(() => addDiagLine("FACECAM_ON"), 500);
-            setTimeout(() => addDiagLine("EYE_TRACKING_ENABLED"), 1200);
-            
-            setTimeout(() => {
-                addDiagLine("HEARTBEAT_PULSE_SYNCING");
-                addDiagLine("HEARTBEAT_PULSE_SYNCING");
-            }, 3000);
-
-            setTimeout(() => {
-                addDiagLine("HEARTBEAT_DETECTED");
-            }, 4500);
-
-            setInterval(() => {
-                const now = Date.now();
-                if (Math.random() < 0.1 && (now - lastSpookyMessageTime > 60000)) {
-                    addDiagLine("HEARTBEAT_DETECTED");
-                    lastSpookyMessageTime = now;
-                } else {
-                    const msg = fakeStatuses[Math.floor(Math.random() * fakeStatuses.length)];
-                    addDiagLine(msg);
-                }
-            }, 2500);
-        }
-
         function runBoot() {
             const screen = document.getElementById('boot-screen');
             let i = 0;
@@ -552,8 +552,9 @@
                         document.getElementById('app-content').style.opacity = '1';
                         document.getElementById('diag-widget').style.opacity = '1';
                         document.getElementById('audio-widget').style.opacity = '1';
-                        document.querySelectorAll('.typewriter-line').forEach(line => line.classList.add('typing'));
-                        startDiagTinker();
+                        setInterval(() => {
+                            addDiagLine(fakeStatuses[Math.floor(Math.random() * fakeStatuses.length)]);
+                        }, 2500);
                     }, 500);
                 }
             }, 80);
@@ -561,24 +562,16 @@
 
         const toggleConsole = () => {
             const isVisible = consoleContainer.style.display === 'flex';
-            if (!isVisible) {
-                consoleContainer.style.display = 'flex';
-                consoleInput.focus();
-            } else {
-                consoleContainer.style.display = 'none';
-            }
+            consoleContainer.style.display = isVisible ? 'none' : 'flex';
+            if (!isVisible) consoleInput.focus();
         };
 
         window.addEventListener('keydown', (e) => { 
-            if (e.key === '~' || e.key === '`') { 
-                e.preventDefault(); 
-                toggleConsole();
-            } 
+            if (e.key === '~' || e.key === '`') { e.preventDefault(); toggleConsole(); } 
         });
 
         document.getElementById('terminal-trigger').onclick = (e) => {
-            e.stopPropagation();
-            toggleConsole();
+            e.stopPropagation(); toggleConsole();
         };
 
         window.onload = () => {
