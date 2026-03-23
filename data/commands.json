@@ -1,0 +1,7 @@
+{
+  "list": { "description": "List all accessible directory files" },
+  "open": { "description": "Execute or view a specific file", "usage": "OPEN [FILENAME]" },
+  "timewarp": { "description": "Shift the system uptime clock", "usage": "TIMEWARP [SECONDS]" },
+  "help": { "description": "Display available command protocols" },
+  "clear": { "description": "Flush terminal output buffer" }
+}
