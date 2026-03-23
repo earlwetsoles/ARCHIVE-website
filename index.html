@@ -324,6 +324,8 @@
         const FILES_JSON_URL = "data/terminal_files.json";
 
         let audioTracks = [];
+        let playQueue = []; // Tiny memory list: just integers
+        let queueCursor = 0;
         let siteBootTime = Date.now();
         let warpOffset = 0;
         let audioCtx, analyser, source, dataArray, isAudioCtxInit = false;
@@ -400,6 +402,19 @@
             setTimeout(runGlitchEffect, 1000);
         }
 
+        /**
+         * Low-compute shuffle: Create a lightweight index-only queue.
+         */
+        function generateQueue() {
+            playQueue = Array.from({length: audioTracks.length}, (_, i) => i);
+            for (let i = playQueue.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [playQueue[i], playQueue[j]] = [playQueue[j], playQueue[i]];
+            }
+            queueCursor = 0;
+            addDiagLine("SHUFFLE_SEQUENCE_GENERATED", "good");
+        }
+
         async function initializeData() {
             try {
                 const [tRes, fRes] = await Promise.all([
@@ -410,7 +425,8 @@
                 virtualFiles = fRes;
                 
                 if (audioTracks.length > 0) {
-                    loadTrack(Math.floor(Math.random() * audioTracks.length));
+                    generateQueue();
+                    loadTrack(playQueue[queueCursor]);
                 }
                 addDiagLine("DATA_SYNC_SUCCESS", "good");
             } catch (e) { 
@@ -422,7 +438,7 @@
             const track = audioTracks[index];
             if (!track) return;
             trackNameDisplay.innerText = track.name.toUpperCase();
-            mainAudio.src = track.url;
+            mainAudio.src = track.url; // Load ONLY the current song
             if (track.artwork && track.artwork.trim() !== "") {
                 artImg.src = track.artwork;
                 artImg.style.display = "block";
@@ -466,12 +482,14 @@
 
         skipBtn.onclick = () => {
             if (audioTracks.length > 0) {
-                // Efficiently pick a random track on demand
-                const randomIndex = Math.floor(Math.random() * audioTracks.length);
-                loadTrack(randomIndex);
+                queueCursor++;
+                if (queueCursor >= playQueue.length) {
+                    generateQueue(); // Re-shuffle once list finished
+                }
+                loadTrack(playQueue[queueCursor]);
                 mainAudio.play().catch(() => {});
                 playBtn.innerText = "PAUSE";
-                addDiagLine("SKIPPING_STREAM: RANDOM_PICK");
+                addDiagLine(`QUEUE_STEP: ${queueCursor + 1}/${playQueue.length}`);
             }
         };
 
