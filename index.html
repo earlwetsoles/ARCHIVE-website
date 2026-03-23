@@ -110,7 +110,6 @@
             .art-box { right: 1rem; top: 10rem; }
         }
 
-        /* Initial state for metadata is hidden */
         #art-widget { display: none; }
 
         .widget-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; border-bottom: 1px solid #1a1a1a; padding-bottom: 0.25rem; }
@@ -190,7 +189,6 @@
             margin-bottom: 4px;
         }
 
-        /* Art Display Styles */
         .art-display {
             width: 100%;
             aspect-ratio: 1/1;
@@ -236,7 +234,6 @@
         </div>
     </div>
 
-    <!-- Widgets -->
     <div class="widget-box diag-box" id="diag-widget">
         <div class="widget-header">
             <span class="widget-title">SYS_DIAG</span>
@@ -269,7 +266,6 @@
         <audio id="main-audio" crossorigin="anonymous"></audio>
     </div>
 
-    <!-- Art Widget -->
     <div class="widget-box art-box" id="art-widget">
         <div class="widget-header">
             <span class="widget-title">METADATA</span>
@@ -328,11 +324,11 @@
         const FILES_JSON_URL = "data/terminal_files.json";
 
         let audioTracks = [];
-        let virtualFiles = {};
-        let currentTrackIndex = 0;
         let siteBootTime = Date.now();
+        let warpOffset = 0;
         let audioCtx, analyser, source, dataArray, isAudioCtxInit = false;
         let artworkFirstShow = true;
+        let virtualFiles = {};
 
         const mainAudio = document.getElementById('main-audio');
         const playBtn = document.getElementById('play-btn');
@@ -359,22 +355,14 @@
             "CHECKING_HARDWARE_INTEGRITY... PASS",
             "DETECTING_NETWORK_INTERFACE... [eth0]",
             "MAC_ADDRESS: 00:1A:2B:3C:4D:5E",
-            "IP_V4_STATIC: 192.168.1.104",
-            "DHCP_HANDSHAKE_STARTING...",
-            "GATEWAY_FOUND: 192.168.1.1",
-            "DNS_RESOLVER_PRIORITY: 8.8.8.8",
             "MOUNTING_LOCAL_STORAGE... [OK]",
             "VOLUME_ID: ARCHIVE_ROOT_001",
-            "MNT_POINT: /dev/sda1 -> /sys/root",
             "ALLOCATING_BUFFER_AT_OFFSET_0XFFFFF80000000000...",
             "BUFFER_VERIFIED_CHECK_SUM: 0xDEADBEEF",
             "STARTING_SECURITY_DAEMON... [OK]",
-            "SSH_KEY_FINGERPRINT: SHA256:4K8L9P2M0Q6...",
             "GENERATING_ENTROPY... [DONE]",
-            "KERNEL_PANIC_PREVENTION_ACTIVE",
             "SYNCING_LOCAL_FILESYSTEM...",
             "LOAD_MODULE: SOUND_DRIVER_X64",
-            "LOAD_MODULE: GLITCH_RENDER_V2",
             "SUCCESS: ARCHIVE_OS_ONLINE"
         ];
 
@@ -403,7 +391,6 @@
             setTimeout(runGlitchEffect, Math.random() * (GLITCH_CONFIG.intervalMax - GLITCH_CONFIG.intervalMin) + GLITCH_CONFIG.intervalMin); 
         } 
 
-        // Start Glitch only after boot
         function initAppAnimations() {
             const lines = document.querySelectorAll('.typewriter-line');
             lines.forEach(line => {
@@ -421,23 +408,21 @@
                 ]);
                 audioTracks = tRes;
                 virtualFiles = fRes;
+                
                 if (audioTracks.length > 0) {
-                    currentTrackIndex = Math.floor(Math.random() * audioTracks.length);
-                    loadTrack(currentTrackIndex);
+                    loadTrack(Math.floor(Math.random() * audioTracks.length));
                 }
                 addDiagLine("DATA_SYNC_SUCCESS", "good");
             } catch (e) { 
-                addDiagLine("DATA_SYNC_ERROR: CHECK JSON INTEGRITY", "bad");
+                addDiagLine("DATA_SYNC_ERROR", "bad");
             }
         }
 
         function loadTrack(index) {
             const track = audioTracks[index];
             if (!track) return;
-            
             trackNameDisplay.innerText = track.name.toUpperCase();
             mainAudio.src = track.url;
-            
             if (track.artwork && track.artwork.trim() !== "") {
                 artImg.src = track.artwork;
                 artImg.style.display = "block";
@@ -446,7 +431,6 @@
                 artImg.style.display = "none";
                 artPlaceholder.style.display = "block";
             }
-            
             mainAudio.load();
         }
 
@@ -481,14 +465,17 @@
         };
 
         skipBtn.onclick = () => {
-            if (audioTracks.length > 1) {
-                currentTrackIndex = (currentTrackIndex + 1) % audioTracks.length;
-                loadTrack(currentTrackIndex);
+            if (audioTracks.length > 0) {
+                // Efficiently pick a random track on demand
+                const randomIndex = Math.floor(Math.random() * audioTracks.length);
+                loadTrack(randomIndex);
                 mainAudio.play().catch(() => {});
                 playBtn.innerText = "PAUSE";
-                addDiagLine("SKIPPING_STREAM");
+                addDiagLine("SKIPPING_STREAM: RANDOM_PICK");
             }
         };
+
+        mainAudio.onended = () => { skipBtn.onclick(); };
 
         mainAudio.ontimeupdate = () => {
             if (!mainAudio.duration) return;
@@ -554,8 +541,16 @@
                             window.open(fileObj.url, '_blank');
                         }
                     } else writeToConsole("ERR: FILE_NOT_FOUND");
+                } else if (cmd === 'timewarp') {
+                    const offset = parseInt(arg);
+                    if (!isNaN(offset)) {
+                        warpOffset += offset;
+                        writeToConsole(`TEMPORAL SHIFT: ${offset}s APPLIED`);
+                    } else {
+                        writeToConsole("USAGE: TIMEWARP [SECONDS]");
+                    }
                 } else if (cmd === 'help') {
-                    writeToConsole("LIST, OPEN [FILE], TIMEWARP");
+                    writeToConsole("LIST, OPEN [FILE], TIMEWARP [S]");
                 }
             }
         });
@@ -590,10 +585,7 @@
                         document.getElementById('app-content').style.opacity = '1';
                         document.getElementById('diag-widget').style.opacity = '1';
                         document.getElementById('audio-widget').style.opacity = '1';
-                        
-                        // Begin main app animations here
                         initAppAnimations();
-                        
                         setInterval(() => { addDiagLine(fakeStatuses[Math.floor(Math.random() * fakeStatuses.length)]); }, 3000);
                     }, 500);
                 }
@@ -613,7 +605,7 @@
             initializeData();
             runBoot();
             setInterval(() => {
-                const elapsed = Math.floor((Date.now() - siteBootTime) / 1000);
+                const elapsed = Math.floor((Date.now() - siteBootTime) / 1000) + warpOffset;
                 document.getElementById('uptime').innerText = `UP: ${String(Math.floor(elapsed / 3600)).padStart(2, '0')}:${String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0')}:${String(elapsed % 60).padStart(2, '0')}`;
                 document.getElementById('cpu-load').innerText = `${Math.floor(Math.random() * 5 + 1)}%`;
             }, 1000);
