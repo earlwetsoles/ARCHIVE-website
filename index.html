@@ -25,7 +25,8 @@
             --terminal-green: #00ff41;
             --widget-w: 240px;
             --widget-gap: 10px;
-            --top-row-h: 135px; /* Reverted to original compact height */
+            --top-row-h: 135px; 
+            --art-size: 135px; /* Square size to match top-row-h */
         }
 
         body { 
@@ -113,15 +114,28 @@
             .widget-box { width: var(--widget-w); right: 2rem; }
             .diag-box { top: 2rem; }
             
-            /* TOP ROW: Heights matched and reverted */
-            .audio-box { top: 18rem; right: 2rem; height: var(--top-row-h); }
-            .art-box { top: 18rem; right: calc(2rem + var(--widget-w) + var(--widget-gap)); height: var(--top-row-h); display: none; } 
+            /* AUDIO: Reverted fixed size rectangle */
+            .audio-box { top: 18rem; right: 2rem; height: var(--top-row-h); width: var(--widget-w); }
             
-            /* BOTTOM ROW: Spans both widgets width */
+            /* ART: Borderless Square positioned next to audio */
+            .art-box-borderless { 
+                position: fixed;
+                top: 18rem; 
+                right: calc(2rem + var(--widget-w) + var(--widget-gap)); 
+                width: var(--art-size); 
+                height: var(--art-size); 
+                z-index: 30;
+                opacity: 0;
+                transition: opacity 1s ease;
+                display: none;
+                overflow: hidden;
+            } 
+            
+            /* VIDEO: Width adjusted to align with square art + rectangle audio */
             .video-widget-box { 
                 top: calc(18rem + var(--top-row-h) + var(--widget-gap)); 
                 right: 2rem; 
-                width: calc((var(--widget-w) * 2) + var(--widget-gap));
+                width: calc(var(--widget-w) + var(--art-size) + var(--widget-gap));
             }
         }
 
@@ -129,7 +143,7 @@
             .widget-box { width: 45%; font-size: 8px; padding: 6px; }
             .diag-box { left: 1rem; top: 1rem; height: 110px; }
             .audio-box { right: 1rem; top: 1rem; height: 130px; }
-            .art-box { right: 1rem; top: 10rem; height: 130px; display: none; }
+            .art-box-borderless { position: fixed; right: 1rem; top: 10rem; width: 80px; height: 80px; display: none; }
             .video-widget-box { left: 1rem; top: 18rem; width: 90%; }
         }
 
@@ -216,15 +230,13 @@
             position: relative;
         }
         
-        /* Adjusted heights to fit the 135px overall widget height */
-        .art-display { height: 100px; width: 100%; }
         .video-display { aspect-ratio: 16/9; width: 100%; }
 
         #cover-art-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: grayscale(0.6) contrast(1.1);
+            filter: grayscale(0.4) contrast(1.1);
         }
         #mini-video-player {
             width: 100%;
@@ -273,7 +285,7 @@
         </div>
     </div>
 
-    <!-- AUDIO WIDGET (Reverted Height) -->
+    <!-- AUDIO WIDGET (Maintained Original Rectangle) -->
     <div class="widget-box audio-box" id="audio-widget">
         <div class="widget-header">
             <span class="widget-title">AUDIO</span>
@@ -294,19 +306,13 @@
         <audio id="main-audio" crossorigin="anonymous"></audio>
     </div>
 
-    <!-- METADATA WIDGET (Matched Height) -->
-    <div class="widget-box art-box" id="art-widget">
-        <div class="widget-header">
-            <span class="widget-title">METADATA</span>
-            <span class="opacity-40">IMG_CH</span>
-        </div>
-        <div class="media-container art-display">
-            <img id="cover-art-img" src="" alt="Cover Art" style="display: none;">
-            <div id="art-placeholder" class="text-[8px] opacity-20">NO_IMG_DATA</div>
-        </div>
+    <!-- METADATA WIDGET (Now Borderless & Square) -->
+    <div class="art-box-borderless" id="art-widget">
+        <img id="cover-art-img" src="" alt="Cover Art" style="display: none;">
+        <div id="art-placeholder" class="text-[8px] opacity-20 flex items-center justify-center h-full bg-[#0a0a0a]">NO_IMG</div>
     </div>
 
-    <!-- VIDEO FEED WIDGET (Matched Width of combined top row) -->
+    <!-- VIDEO FEED WIDGET (Width aligned to Audio + Art combined) -->
     <div class="widget-box video-widget-box hidden-widget" id="video-widget">
         <div class="widget-header">
             <span class="widget-title">VIDEO_FEED</span>
