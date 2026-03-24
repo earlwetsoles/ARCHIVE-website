@@ -104,11 +104,14 @@
             transition: opacity 1s ease;
         }
 
+        .hidden-widget { display: none !important; }
+
         @media (min-width: 768px) {
             .widget-box { width: 240px; right: 2rem; }
             .diag-box { top: 2rem; }
             .audio-box { top: 18rem; }
             .art-box { top: 27.5rem; } 
+            .video-widget-box { top: 40.5rem; }
         }
 
         @media (max-width: 767px) {
@@ -116,9 +119,8 @@
             .diag-box { left: 1rem; top: 1rem; height: 110px; }
             .audio-box { right: 1rem; top: 1rem; height: 130px; }
             .art-box { right: 1rem; top: 10rem; }
+            .video-widget-box { left: 1rem; top: 10rem; }
         }
-
-        #art-widget { display: none; }
 
         .widget-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; border-bottom: 1px solid #1a1a1a; padding-bottom: 0.25rem; }
         .widget-title { color: var(--crimson); font-weight: bold; }
@@ -197,21 +199,30 @@
             margin-bottom: 4px;
         }
 
-        .art-display {
+        .media-container {
             width: 100%;
-            aspect-ratio: 1/1;
             background: #000;
             border: 1px solid #1a1a1a;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            position: relative;
         }
+        .art-display { aspect-ratio: 1/1; }
+        .video-display { aspect-ratio: 16/9; }
+
         #cover-art-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             filter: grayscale(0.6) contrast(1.1);
+        }
+        #mini-video-player {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(0.4) contrast(1.2);
         }
 
         .diag-entry { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; width: 100%; }
@@ -230,7 +241,8 @@
                 <span id="video-title">STREAMING_LOG...</span>
                 <span onclick="closeVideo()" class="cursor-pointer text-red-700 font-bold glitch-hover-effect">[X] CLOSE</span>
             </div>
-            <video id="video-player" style="width:100%" controls></video>
+            <!-- Updated: Added 'muted' attribute to the main video player -->
+            <video id="video-player" style="width:100%" controls muted></video>
         </div>
     </div>
 
@@ -279,9 +291,21 @@
             <span class="widget-title">METADATA</span>
             <span class="opacity-40">IMG_CH</span>
         </div>
-        <div class="art-display">
+        <div class="media-container art-display">
             <img id="cover-art-img" src="" alt="Cover Art" style="display: none;">
             <div id="art-placeholder" class="text-[8px] opacity-20">NO_IMG_DATA</div>
+        </div>
+    </div>
+
+    <!-- NEW MINI VIDEO WIDGET -->
+    <div class="widget-box video-widget-box hidden-widget" id="video-widget">
+        <div class="widget-header">
+            <span class="widget-title">VIDEO_FEED</span>
+            <span class="opacity-40">MP4_STREAM</span>
+        </div>
+        <div class="media-container video-display">
+            <video id="mini-video-player" muted playsinline loop style="display: none;"></video>
+            <div id="video-placeholder" class="text-[8px] opacity-20">SIGNAL_LOST</div>
         </div>
     </div>
 
@@ -351,6 +375,7 @@
         let commandRegistry = {};
 
         const mainAudio = document.getElementById('main-audio');
+        const miniVideo = document.getElementById('mini-video-player');
         const playBtn = document.getElementById('play-btn');
         const skipBtn = document.getElementById('skip-btn');
         const trackNameDisplay = document.getElementById('track-name');
@@ -368,6 +393,8 @@
         const artImg = document.getElementById('cover-art-img');
         const artPlaceholder = document.getElementById('art-placeholder');
         const artWidget = document.getElementById('art-widget');
+        const videoWidget = document.getElementById('video-widget');
+        const videoPlaceholder = document.getElementById('video-placeholder');
 
         const GLITCH_CONFIG = { className: '.glitch-target', chars: '!@#$%^&*()_+[]{}<>?/', frames: 10, frameSpeed: 60, intervalMin: 500, intervalMax: 3000 }; 
 
@@ -424,12 +451,10 @@
                     loadTrack(playQueue[queueCursor]);
                 }
                 addDiagLine("DATA_SYNC_SUCCESS", "good");
-                
-                // Start boot screen after data is ready
                 runBoot();
             } catch (e) { 
                 addDiagLine("DATA_SYNC_ERROR", "bad");
-                runBoot(); // Attempt boot anyway
+                runBoot();
             }
         }
 
@@ -438,6 +463,8 @@
             if (!track) return;
             trackNameDisplay.innerText = track.name.toUpperCase();
             mainAudio.src = track.url;
+            
+            // Cover Art Logic
             if (track.artwork && track.artwork.trim() !== "") {
                 artImg.src = track.artwork;
                 artImg.style.display = "block";
@@ -446,6 +473,22 @@
                 artImg.style.display = "none";
                 artPlaceholder.style.display = "block";
             }
+
+            // Video Widget Logic
+            if (track.video && track.video.trim() !== "") {
+                miniVideo.src = track.video;
+                miniVideo.style.display = 'block';
+                videoPlaceholder.style.display = 'none';
+                videoWidget.classList.remove('hidden-widget');
+                videoWidget.style.opacity = '1';
+                if (!mainAudio.paused) miniVideo.play();
+            } else {
+                videoWidget.classList.add('hidden-widget');
+                videoWidget.style.opacity = '0';
+                miniVideo.pause();
+                miniVideo.src = "";
+            }
+
             mainAudio.load();
         }
 
@@ -470,11 +513,14 @@
                     requestAnimationFrame(updateVUMeter);
                 } catch(e) {}
             }
+
             if (mainAudio.paused) {
                 mainAudio.play().catch(() => {});
+                if (miniVideo.src) miniVideo.play();
                 playBtn.innerText = "PAUSE";
             } else {
                 mainAudio.pause();
+                miniVideo.pause();
                 playBtn.innerText = "PLAY";
             }
         };
@@ -485,6 +531,7 @@
                 if (queueCursor >= playQueue.length) generateQueue();
                 loadTrack(playQueue[queueCursor]);
                 mainAudio.play().catch(() => {});
+                if (miniVideo.src) miniVideo.play();
                 playBtn.innerText = "PAUSE";
                 addDiagLine(`QUEUE_STEP: ${queueCursor + 1}/${playQueue.length}`);
             }
@@ -540,13 +587,11 @@
                 consoleInput.value = '';
                 writeToConsole(`> ${raw.toUpperCase()}`, "#aaa");
                 
-                // Check if command exists in JSON registry
                 if (!commandRegistry[cmd]) {
                     writeToConsole(`ERR: COMMAND_${cmd.toUpperCase()}_NOT_RECOGNIZED`);
                     return;
                 }
 
-                // Core command logic
                 switch(cmd) {
                     case 'list':
                         Object.keys(virtualFiles).forEach(f => writeToConsole(`- ${f}`));
@@ -560,6 +605,7 @@
                                 videoOverlay.style.display = 'flex';
                                 videoPlayer.play();
                                 mainAudio.pause();
+                                miniVideo.pause();
                                 playBtn.innerText = "PLAY";
                             } else if (fileObj.type === 'external') {
                                 window.open(fileObj.url, '_blank');
@@ -618,7 +664,6 @@
                         document.getElementById('diag-widget').style.opacity = '1';
                         document.getElementById('audio-widget').style.opacity = '1';
                         initAppAnimations();
-                        // Start status loop
                         setInterval(() => { 
                             if(systemStatusMessages.length) {
                                 addDiagLine(systemStatusMessages[Math.floor(Math.random() * systemStatusMessages.length)]); 
