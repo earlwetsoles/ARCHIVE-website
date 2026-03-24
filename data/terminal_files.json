@@ -11,24 +11,32 @@
 "type": "video",
 "url": "log clips/come%20with.mp4"
 },
-"who_is_he.log": {
+"deer_head.log": {
 "type": "video",
-"url": "log clips/who%20is%20he.mp4"
+"url": "log clips/DONTGETONHERE.mp4"
 },
-"peptides.log": {
-"type": "external",
-"url": "https://www.youtube.com/live/-ncjnYkkCmo?si=j298dVo9jOXjmZrS&t=6280"
+"dont_sleep.log": {
+"type": "video",
+"url": "log clips/DONTSLEEP.mp4"
 },
 "gravedigger_mountain.log": {
 "type": "video",
 "url": "log clips/gravedigger%20mountain.mp4"
 },
-"woody_allen.log": {
-"type": "video",
-"url": "log clips/Woody%20Allen.mp4"
-},
 "king_as_such.log": {
 "type": "video",
 "url": "log clips/BurgerPeterson.mp4"
+},
+"peptides.log": {
+"type": "external",
+"url": "https://www.youtube.com/live/-ncjnYkkCmo?si=j298dVo9jOXjmZrS&t=6280"
+},
+"who_is_he.log": {
+"type": "video",
+"url": "log clips/who%20is%20he.mp4"
+},
+"woody_allen.log": {
+"type": "video",
+"url": "log clips/Woody%20Allen.mp4"
 }
 }
