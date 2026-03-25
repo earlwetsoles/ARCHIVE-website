@@ -614,21 +614,28 @@
                     return;
                 }
 
+                const cmdMeta = commandRegistry[cmd];
+
+                // Global Video Action Support for Main Commands
+                if (cmdMeta.action === 'video') {
+                    videoTitle.innerText = cmdMeta.title || cmd.toUpperCase();
+                    videoPlayer.src = cmdMeta.value;
+                    videoOverlay.style.display = 'flex';
+                    videoPlayer.play().catch(() => {
+                        writeToConsole(`ERR: VIDEO_SOURCE_NOT_FOUND [${cmdMeta.value}]`, "var(--crimson)");
+                        closeVideo();
+                    });
+                    
+                    mainAudio.pause();
+                    if (miniVideo.src) miniVideo.pause();
+                    playBtn.innerText = "PLAY";
+                    
+                    writeToConsole(`EXECUTING_${cmd.toUpperCase()}_SEQUENCE...`, "var(--terminal-green)");
+                    return;
+                }
+
+                // Standard Commands
                 switch(cmd) {
-                    case 'timewarp':
-                        videoTitle.innerText = "TIMEWARP_SEQUENCE";
-                        // Pointing to your specific video in 'log clips'
-                        videoPlayer.src = "log clips/intro_sequence.mp4"; 
-                        videoOverlay.style.display = 'flex';
-                        videoPlayer.play();
-                        
-                        // Pause existing audio/video background feeds
-                        mainAudio.pause();
-                        if (miniVideo.src) miniVideo.pause();
-                        playBtn.innerText = "PLAY";
-                        
-                        writeToConsole("INITIATING_TIMEWARP...", "var(--terminal-green)");
-                        break;
                     case 'list':
                         Object.keys(virtualFiles).forEach(f => writeToConsole(`- ${f}`));
                         break;
@@ -655,6 +662,17 @@
                         Object.entries(commandRegistry).forEach(([name, meta]) => {
                             writeToConsole(`${name.toUpperCase()}: ${meta.description}`);
                         });
+                        break;
+                    case 'timewarp':
+                        // If you haven't assigned an 'action' to timewarp in JSON, 
+                        // it falls back to the original text-based warp logic here
+                        const offset = parseInt(arg);
+                        if (!isNaN(offset)) {
+                            warpOffset += offset;
+                            writeToConsole(`TEMPORAL_SHIFT: ${offset}s_APPLIED`);
+                        } else {
+                            writeToConsole("USAGE: TIMEWARP [seconds]");
+                        }
                         break;
                 }
             }
@@ -711,7 +729,10 @@
             if (!isVisible) consoleInput.focus();
         };
 
-        window.addEventListener('keydown', (e) => { if (e.key === '~' || e.key === '`') { e.preventDefault(); toggleConsole(); } });
+        window.addEventListener('keydown', (e) => { 
+            if (e.key === '~' || e.key === '`') { e.preventDefault(); toggleConsole(); } 
+            if (e.key === 'Escape' && videoOverlay.style.display === 'flex') closeVideo();
+        });
         document.getElementById('terminal-trigger').onclick = (e) => { e.stopPropagation(); toggleConsole(); };
 
         window.onload = () => {
