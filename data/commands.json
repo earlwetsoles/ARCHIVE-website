@@ -12,6 +12,9 @@
     "value": "log clips/oneyear.mp4",
     "title": "TIMEWARP_SEQUENCE"
   },
+  "help": { 
+    "description": "Display available commands" 
+  },
   "clear": { 
     "description": "Clears all lines of text in the prompt" 
   }
