@@ -616,7 +616,7 @@
 
                 const cmdMeta = commandRegistry[cmd];
 
-                // Global Video Action Support for Main Commands
+                // Global Video Action Support for Main Commands (Handles Timewarp if configured in JSON)
                 if (cmdMeta.action === 'video') {
                     videoTitle.innerText = cmdMeta.title || cmd.toUpperCase();
                     videoPlayer.src = cmdMeta.value;
@@ -660,19 +660,11 @@
                         break;
                     case 'help':
                         Object.entries(commandRegistry).forEach(([name, meta]) => {
-                            writeToConsole(`${name.toUpperCase()}: ${meta.description}`);
+                            // Filter out "help" from the displayed list
+                            if (name.toLowerCase() !== 'help') {
+                                writeToConsole(`${name.toUpperCase()}: ${meta.description}`);
+                            }
                         });
-                        break;
-                    case 'timewarp':
-                        // If you haven't assigned an 'action' to timewarp in JSON, 
-                        // it falls back to the original text-based warp logic here
-                        const offset = parseInt(arg);
-                        if (!isNaN(offset)) {
-                            warpOffset += offset;
-                            writeToConsole(`TEMPORAL_SHIFT: ${offset}s_APPLIED`);
-                        } else {
-                            writeToConsole("USAGE: TIMEWARP [seconds]");
-                        }
                         break;
                 }
             }
