@@ -283,5 +283,11 @@
     "url": "audio/DOWNdro.mp3",
     "artwork": "https://i1.sndcdn.com/artworks-C15d2JgxjWRv-0-t500x500.jpg",
     "video": "musicvideos/DOWNdro.mp4"
+  },
+  {
+    "name": "HOW U BOMIN",
+    "url": "audio/HOWuBUMIN.mp3",
+    "artwork": "https://i1.sndcdn.com/artworks-p5hX0N8w5vsGSzPr-pfkYjg-t500x500.jpg",
+    "video": "musicvideos/HOWuBUMIN.mp4"
   }
 ]
