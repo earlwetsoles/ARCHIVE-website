@@ -240,35 +240,13 @@
             filter: grayscale(0.4) contrast(1.2);
         }
 
-        /* Updated: Disables all pointer interaction (clicks, scrubbing) 
-           on the video element itself.
-        */
+        /* Video element is now completely untouchable by the user */
         #video-player {
             width: 100%;
             max-height: 80vh;
             object-fit: contain; 
             background: #000;
             pointer-events: none;
-        }
-
-        /* Interaction Overlay for Autoplay Bypass */
-        #video-play-trigger {
-            position: absolute;
-            inset: 0;
-            z-index: 20001;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0,0,0,0.4);
-            cursor: pointer;
-            color: var(--crimson);
-            font-weight: bold;
-            font-size: 12px;
-            letter-spacing: 2px;
-        }
-        #video-play-trigger:hover {
-            background: rgba(153, 27, 27, 0.1);
-            color: #fff;
         }
 
         .diag-entry { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; width: 100%; }
@@ -283,12 +261,11 @@
 
     <div id="video-overlay">
         <div class="video-window">
-            <div id="video-play-trigger">[ CLICK TO INITIALIZE LOG DECODING ]</div>
             <div class="video-header">
                 <span id="video-title">STREAMING_LOG...</span>
                 <span onclick="closeVideo()" class="cursor-pointer text-red-700 font-bold glitch-hover-effect">[X] CLOSE</span>
             </div>
-            <!-- Removed 'controls' and 'muted' -->
+            <!-- Auto-playing unmuted video with no user controls -->
             <video id="video-player" style="width:100%" playsinline></video>
         </div>
     </div>
@@ -423,7 +400,6 @@
         const videoOverlay = document.getElementById('video-overlay');
         const videoPlayer = document.getElementById('video-player');
         const videoTitle = document.getElementById('video-title');
-        const videoPlayTrigger = document.getElementById('video-play-trigger');
         const artImg = document.getElementById('cover-art-img');
         const artPlaceholder = document.getElementById('art-placeholder');
         const artWidget = document.getElementById('art-widget');
@@ -628,28 +604,25 @@
             consoleOutput.scrollTop = consoleOutput.scrollHeight;
         }
 
-        // Logic for launching unmuted video
+        // Logic for launching unmuted video immediately
         function launchVideo(url, title) {
             videoTitle.innerText = title;
             videoPlayer.src = url;
-            videoPlayer.muted = false;
-            videoPlayer.volume = 1.0;
+            videoPlayer.muted = false; // Unmuted for immediate audio
+            videoPlayer.volume = 1.0;  // Max volume
             videoOverlay.style.display = 'flex';
-            videoPlayTrigger.style.display = 'flex'; // Force gesture overlay
             
             mainAudio.pause();
             if (miniVideo.src) miniVideo.pause();
             playBtn.innerText = "PLAY";
-        }
 
-        // Gesture handler to bypass browser audio block
-        videoPlayTrigger.onclick = () => {
-            videoPlayTrigger.style.display = 'none';
-            videoPlayer.play().catch(() => {
-                writeToConsole(`ERR: DECODING_FAILED`, "var(--crimson)");
-                closeVideo();
+            // Instant playback attempt
+            videoPlayer.play().catch(err => {
+                writeToConsole(`ERR: AUTOPLAY_BLOCKED - INTERACTION_REQUIRED`, "var(--crimson)");
+                // In some cases browsers might still block if the MEI is low, 
+                // but for this specific terminal context it should work fine.
             });
-        };
+        }
 
         consoleInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
@@ -709,7 +682,6 @@
             videoPlayer.pause();
             videoPlayer.src = "";
             videoOverlay.style.display = 'none';
-            videoPlayTrigger.style.display = 'none';
         }
 
         function addDiagLine(text, type = 'normal') {
