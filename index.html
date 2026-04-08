@@ -202,6 +202,7 @@
             background: #000;
             border: 1px solid #222;
             padding: 4px;
+            position: relative;
         }
         .video-header {
             background: #111;
@@ -239,11 +240,35 @@
             filter: grayscale(0.4) contrast(1.2);
         }
 
+        /* Updated: Disables all pointer interaction (clicks, scrubbing) 
+           on the video element itself.
+        */
         #video-player {
             width: 100%;
             max-height: 80vh;
             object-fit: contain; 
             background: #000;
+            pointer-events: none;
+        }
+
+        /* Interaction Overlay for Autoplay Bypass */
+        #video-play-trigger {
+            position: absolute;
+            inset: 0;
+            z-index: 20001;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.4);
+            cursor: pointer;
+            color: var(--crimson);
+            font-weight: bold;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+        #video-play-trigger:hover {
+            background: rgba(153, 27, 27, 0.1);
+            color: #fff;
         }
 
         .diag-entry { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; width: 100%; }
@@ -258,11 +283,13 @@
 
     <div id="video-overlay">
         <div class="video-window">
+            <div id="video-play-trigger">[ CLICK TO INITIALIZE LOG DECODING ]</div>
             <div class="video-header">
                 <span id="video-title">STREAMING_LOG...</span>
                 <span onclick="closeVideo()" class="cursor-pointer text-red-700 font-bold glitch-hover-effect">[X] CLOSE</span>
             </div>
-            <video id="video-player" style="width:100%" controls muted></video>
+            <!-- Removed 'controls' and 'muted' -->
+            <video id="video-player" style="width:100%" playsinline></video>
         </div>
     </div>
 
@@ -396,6 +423,7 @@
         const videoOverlay = document.getElementById('video-overlay');
         const videoPlayer = document.getElementById('video-player');
         const videoTitle = document.getElementById('video-title');
+        const videoPlayTrigger = document.getElementById('video-play-trigger');
         const artImg = document.getElementById('cover-art-img');
         const artPlaceholder = document.getElementById('art-placeholder');
         const artWidget = document.getElementById('art-widget');
@@ -600,6 +628,29 @@
             consoleOutput.scrollTop = consoleOutput.scrollHeight;
         }
 
+        // Logic for launching unmuted video
+        function launchVideo(url, title) {
+            videoTitle.innerText = title;
+            videoPlayer.src = url;
+            videoPlayer.muted = false;
+            videoPlayer.volume = 1.0;
+            videoOverlay.style.display = 'flex';
+            videoPlayTrigger.style.display = 'flex'; // Force gesture overlay
+            
+            mainAudio.pause();
+            if (miniVideo.src) miniVideo.pause();
+            playBtn.innerText = "PLAY";
+        }
+
+        // Gesture handler to bypass browser audio block
+        videoPlayTrigger.onclick = () => {
+            videoPlayTrigger.style.display = 'none';
+            videoPlayer.play().catch(() => {
+                writeToConsole(`ERR: DECODING_FAILED`, "var(--crimson)");
+                closeVideo();
+            });
+        };
+
         consoleInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const raw = consoleInput.value.trim();
@@ -616,25 +667,12 @@
 
                 const cmdMeta = commandRegistry[cmd];
 
-                // Global Video Action Support for Main Commands (Handles Timewarp if configured in JSON)
                 if (cmdMeta.action === 'video') {
-                    videoTitle.innerText = cmdMeta.title || cmd.toUpperCase();
-                    videoPlayer.src = cmdMeta.value;
-                    videoOverlay.style.display = 'flex';
-                    videoPlayer.play().catch(() => {
-                        writeToConsole(`ERR: VIDEO_SOURCE_NOT_FOUND [${cmdMeta.value}]`, "var(--crimson)");
-                        closeVideo();
-                    });
-                    
-                    mainAudio.pause();
-                    if (miniVideo.src) miniVideo.pause();
-                    playBtn.innerText = "PLAY";
-                    
+                    launchVideo(cmdMeta.value, cmdMeta.title || cmd.toUpperCase());
                     writeToConsole(`EXECUTING_${cmd.toUpperCase()}_SEQUENCE...`, "var(--terminal-green)");
                     return;
                 }
 
-                // Standard Commands
                 switch(cmd) {
                     case 'list':
                         Object.keys(virtualFiles).forEach(f => writeToConsole(`- ${f}`));
@@ -643,13 +681,7 @@
                         const fileObj = virtualFiles[arg] || virtualFiles[arg.toLowerCase()];
                         if (fileObj) {
                             if (fileObj.type === 'video') {
-                                videoTitle.innerText = `LOG_STREAM: ${arg.toUpperCase()}`;
-                                videoPlayer.src = fileObj.url;
-                                videoOverlay.style.display = 'flex';
-                                videoPlayer.play();
-                                mainAudio.pause();
-                                miniVideo.pause();
-                                playBtn.innerText = "PLAY";
+                                launchVideo(fileObj.url, `LOG_STREAM: ${arg.toUpperCase()}`);
                             } else if (fileObj.type === 'external') {
                                 window.open(fileObj.url, '_blank');
                             }
@@ -660,7 +692,6 @@
                         break;
                     case 'help':
                         Object.entries(commandRegistry).forEach(([name, meta]) => {
-                            // Filter out "help" from the displayed list
                             if (name.toLowerCase() !== 'help') {
                                 writeToConsole(`${name.toUpperCase()}: ${meta.description}`);
                             }
@@ -678,6 +709,7 @@
             videoPlayer.pause();
             videoPlayer.src = "";
             videoOverlay.style.display = 'none';
+            videoPlayTrigger.style.display = 'none';
         }
 
         function addDiagLine(text, type = 'normal') {
