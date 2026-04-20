@@ -243,7 +243,7 @@
     "isDirtyDozen": false,
     "isCleanFifteen": true,
     "icon": "🍍",
-    "meta": "Save your money. Conventional is fine.",
+    "meta": "Conventional is safe.",
     "description": "The thick, scaly skin of a pineapple provides excellent protection against pesticides.",
     "tidbits": [
       { "label": "Residue testing", "text": "One of the safest non-organic produce items you can buy." }
@@ -261,7 +261,7 @@
     "isDirtyDozen": false,
     "isCleanFifteen": true,
     "icon": "🧅",
-    "meta": "Save your money. Conventional is fine.",
+    "meta": "Conventional is perfectly safe.",
     "description": "Onions are naturally pest-resistant and require very few chemicals during growth.",
     "tidbits": [
       { "label": "Pesticide Load", "text": "Consistently shows the lowest pesticide residues of all produce." }
@@ -279,8 +279,8 @@
     "isDirtyDozen": false,
     "isCleanFifteen": true,
     "icon": "🍈",
-    "meta": "Conventional, organic if you want non-GMO.",
-    "description": "Most Hawaiian papayas are GMO, but pesticide residue is very low. Buy organic if you want non-GMO.",
+    "meta": "Conventional is clean (Mostly).",
+    "description": "Most Hawaiian papayas are GMO, but pesticide residue is very low. Buy Organic if you want Non-GMO.",
     "tidbits": [
       { "label": "Clean Score", "text": "Over 80% of papayas tested had zero pesticide residue." }
     ],
@@ -315,7 +315,7 @@
     "isDirtyDozen": false,
     "isCleanFifteen": true,
     "icon": "🥦",
-    "meta": "Conventional is fine.",
+    "meta": "Conventional is clean. Save your budget.",
     "description": "Asparagus grows quickly and has fewer natural pests, requiring few chemicals.",
     "tidbits": [
       { "label": "Residue testing", "text": "Shows very low levels of pesticide residue compared to other green vegetables." }
