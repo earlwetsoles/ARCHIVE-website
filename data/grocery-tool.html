@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Meta Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .cart-transition { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        [v-cloak] { display: none; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased">
+    <!-- Note: Using Alpine.js for lightweight reactivity without a build step -->
+    <div x-data="shoppingApp()" x-init="init()" x-cloak class="max-w-md mx-auto min-h-screen flex flex-col shadow-2xl relative border-x border-slate-800 bg-slate-950">
+        
+        <header class="p-6 sticky top-0 z-20 bg-slate-950/90 backdrop-blur-md">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-2xl font-black tracking-tight italic">SHOPPING META</h1>
+                    <p class="text-xs uppercase tracking-widest font-bold text-emerald-400">The Efficiency Guide</p>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="relative mb-4">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5"></i>
+                <input 
+                    type="text" 
+                    x-model="search"
+                    placeholder="Search foods, meat, dairy..."
+                    class="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-900 ring-2 ring-slate-800 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"
+                >
+            </div>
+
+            <!-- Filters -->
+            <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                <template x-for="cat in categories" :key="cat">
+                    <button 
+                        @click="activeFilter = cat"
+                        :class="activeFilter === cat ? 'bg-emerald-500 text-slate-950 border-emerald-500' : 'bg-slate-900 text-slate-400 border-slate-800'"
+                        class="whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-bold transition-all border"
+                        x-text="cat"
+                    ></button>
+                </template>
+            </div>
+        </header>
+
+        <main class="flex-1 p-4 pb-32">
+            <template x-if="loading">
+                <div class="flex flex-col items-center justify-center py-20 opacity-50">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mb-4"></div>
+                    <p>Loading Metadata...</p>
+                </div>
+            </template>
+
+            <template x-if="!loading">
+                <div class="space-y-4">
+                    <template x-for="food in filteredData" :key="food.id">
+                        <div class="rounded-3xl overflow-hidden transition-all border border-slate-800 bg-slate-900/40">
+                            <button 
+                                @click="expandedId = (expandedId === food.id ? null : food.id)"
+                                class="w-full p-5 flex items-center justify-between text-left"
+                            >
+                                <div class="flex items-center gap-4">
+                                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-inner bg-slate-950 border border-slate-800" x-text="food.icon"></div>
+                                    <div>
+                                        <h3 class="font-bold text-lg leading-tight" x-text="food.name"></h3>
+                                        <div class="flex flex-wrap gap-2 items-center mt-1">
+                                            <span class="text-[10px] font-black px-2 py-0.5 rounded-full uppercase bg-slate-800 text-slate-400" x-text="food.category"></span>
+                                            <template x-if="food.isDirtyDozen">
+                                                <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-red-500/20 text-red-500 uppercase">Dirty Dozen</span>
+                                            </template>
+                                            <template x-if="food.isCleanFifteen">
+                                                <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-500 uppercase">Clean 15</span>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                                <i :data-lucide="expandedId === food.id ? 'chevron-up' : 'chevron-down'" class="text-slate-500 w-5 h-5"></i>
+                            </button>
+
+                            <div x-show="expandedId === food.id" x-collapse class="px-5 pb-5">
+                                <div class="p-4 rounded-2xl mb-4 bg-emerald-500/5 border border-emerald-500/20 flex gap-3">
+                                    <i data-lucide="leaf" class="text-emerald-500 shrink-0 w-5 h-5 mt-1"></i>
+                                    <div>
+                                        <p class="text-sm font-bold text-emerald-400 uppercase">Shopping Meta:</p>
+                                        <p class="text-sm font-medium leading-relaxed" x-text="food.meta"></p>
+                                    </div>
+                                </div>
+
+                                <p class="text-sm opacity-80 mb-6 leading-relaxed" x-text="food.description"></p>
+
+                                <div class="space-y-4 mb-6">
+                                    <template x-for="t in food.tidbits">
+                                        <div class="flex gap-3">
+                                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0"></div>
+                                            <div>
+                                                <p class="text-xs font-bold uppercase opacity-50 mb-0.5 tracking-tight" x-text="t.label"></p>
+                                                <p class="text-sm leading-relaxed" x-text="t.text"></p>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <div class="space-y-2 mb-6">
+                                    <p class="text-xs font-bold uppercase opacity-50 mb-2 tracking-widest">Variations:</p>
+                                    <template x-for="item in food.items">
+                                        <div class="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-slate-950/50 hover:border-emerald-500/50 transition-colors">
+                                            <div>
+                                                <p class="text-sm font-semibold" x-text="item.name"></p>
+                                                <p class="text-[10px] font-bold text-slate-500" x-text="item.priceType + ' Tier'"></p>
+                                            </div>
+                                            <button @click="addToCart(food.name, item.name)" class="p-2 rounded-lg bg-emerald-500 text-slate-950 hover:bg-emerald-400 active:scale-95 transition-all">
+                                                <i data-lucide="plus" class="w-5 h-5"></i>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <a :href="food.sourceUrl" target="_blank" class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:text-emerald-400 transition-colors">
+                                    Source: <span x-text="food.source"></span>
+                                    <i data-lucide="external-link" class="w-3 h-3"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </main>
+
+        <!-- Cart Panel -->
+        <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-30 cart-transition" :class="isCartOpen ? 'translate-y-0' : 'translate-y-[calc(100%-80px)]'">
+            <div class="mx-4 mb-4 rounded-3xl overflow-hidden shadow-2xl border border-slate-700 bg-slate-900">
+                <button @click="isCartOpen = !isCartOpen" class="w-full flex items-center justify-between p-5 border-b border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <div class="relative p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
+                            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                            <span x-show="cart.length > 0" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center" x-text="cart.length"></span>
+                        </div>
+                        <h2 class="font-black text-sm uppercase tracking-wider">My Grocery List</h2>
+                    </div>
+                    <i :data-lucide="isCartOpen ? 'chevron-down' : 'chevron-up'"></i>
+                </button>
+
+                <div class="max-h-[40vh] overflow-y-auto p-4 space-y-3">
+                    <template x-if="cart.length === 0">
+                        <p class="py-10 text-center opacity-40 italic text-sm">Your list is currently empty.</p>
+                    </template>
+                    <template x-for="(item, index) in cart" :key="index">
+                        <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-950/50">
+                            <div>
+                                <p class="text-[10px] font-bold text-emerald-500 uppercase" x-text="item.foodName"></p>
+                                <p class="text-sm font-semibold" x-text="item.itemName"></p>
+                            </div>
+                            <button @click="removeFromCart(index)" class="p-2 text-red-500 hover:bg-red-500/10 rounded-lg">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </template>
+                </div>
+
+                <div x-show="cart.length > 0" class="p-4 border-t border-slate-800">
+                    <button @click="cart = []" class="w-full py-3 rounded-xl font-bold text-xs uppercase tracking-widest bg-slate-800 text-slate-400 hover:bg-red-500/20 hover:text-red-500 transition-colors">Clear All Items</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripting -->
+    <script src="https://unpkg.com/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        function shoppingApp() {
+            return {
+                loading: true,
+                foodData: [],
+                search: '',
+                activeFilter: 'All',
+                expandedId: null,
+                cart: [],
+                isCartOpen: false,
+                categories: ['All', 'Produce', 'Meat', 'Dairy', 'Pantry', 'Dirty Dozen', 'Clean 15'],
+                
+                async init() {
+                    try {
+                        // EDIT THIS URL to your actual GitHub raw JSON link if hosting separately
+                        const response = await fetch('foodData.json'); 
+                        this.foodData = await response.json();
+                    } catch (e) {
+                        console.error("JSON fetch failed, using fallback empty state", e);
+                    } finally {
+                        this.loading = false;
+                        this.$nextTick(() => lucide.createIcons());
+                    }
+                    
+                    this.$watch('expandedId', () => {
+                        this.$nextTick(() => lucide.createIcons());
+                    });
+                },
+
+                get filteredData() {
+                    if (!this.foodData) return [];
+                    return this.foodData.filter(f => {
+                        const matchesSearch = f.name.toLowerCase().includes(this.search.toLowerCase()) || 
+                                             f.category.toLowerCase().includes(this.search.toLowerCase());
+                        
+                        let matchesFilter = true;
+                        if (this.activeFilter === 'Dirty Dozen') matchesFilter = f.isDirtyDozen;
+                        else if (this.activeFilter === 'Clean 15') matchesFilter = f.isCleanFifteen;
+                        else if (this.activeFilter !== 'All') matchesFilter = f.category === this.activeFilter;
+
+                        return matchesSearch && matchesFilter;
+                    }).sort((a, b) => a.name.localeCompare(b.name));
+                },
+
+                addToCart(foodName, itemName) {
+                    this.cart.push({ foodName, itemName });
+                },
+
+                removeFromCart(index) {
+                    this.cart.splice(index, 1);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
