@@ -1,0 +1,329 @@
+[
+  {
+    "id": "apples",
+    "name": "Apples",
+    "category": "Produce",
+    "isDirtyDozen": true,
+    "isCleanFifteen": false,
+    "icon": "🍎",
+    "meta": "The 'Wash' is a lie. Pesticides are in the wax.",
+    "description": "Apples are often coated in shellac or petroleum-based wax to preserve shelf life, trapping pesticides underneath. Conventional apples are often over a year old.",
+    "tidbits": [
+      { "label": "Storage Life", "text": "Conventional apples can be stored in cold rooms for 9-12 months before hitting shelves." },
+      { "label": "Pesticide Load", "text": "Ranked consistently in the top 5 of the Dirty Dozen." }
+    ],
+    "items": [
+      { "id": "apple-organic", "name": "Organic Apples (Unwaxed)", "priceType": "Mid" },
+      { "id": "apple-conv", "name": "Conventional Apples", "priceType": "Standard" }
+    ],
+    "source": "EWG 2025 Guide",
+    "sourceUrl": "https://www.ewg.org/foodnews/dirty-dozen.php"
+  },
+  {
+    "id": "blueberries",
+    "name": "Blueberries",
+    "category": "Produce",
+    "isDirtyDozen": true,
+    "isCleanFifteen": false,
+    "icon": "🫐",
+    "meta": "The ultimate meta: 'Maine Wild Blueberries'.",
+    "description": "Standard cultivated blueberries are heavily sprayed. Wild ones are nutrient powerhouses and naturally pesticide-free.",
+    "tidbits": [
+      { "label": "Wild vs Cultivated", "text": "Wild blueberries have 2x the antioxidant capacity and 33% more anthocyanins than cultivated." },
+      { "label": "Pesticide Load", "text": "Cultivated berries have a high skin-to-volume ratio, meaning more surface area for chemical residue." }
+    ],
+    "items": [
+      { "id": "blueberries-wild", "name": "Maine Wild Blueberries (Frozen/Fresh)", "priceType": "Premium" },
+      { "id": "blueberries-organic", "name": "Organic Blueberries", "priceType": "Mid" },
+      { "id": "blueberries-conv", "name": "Conventional Blueberries", "priceType": "Standard" }
+    ],
+    "source": "University of Maine Research",
+    "sourceUrl": "https://umaine.edu/blueberries/"
+  },
+  {
+    "id": "strawberries",
+    "name": "Strawberries",
+    "category": "Produce",
+    "isDirtyDozen": true,
+    "isCleanFifteen": false,
+    "icon": "🍓",
+    "meta": "The most sprayed crop in America.",
+    "description": "Strawberries lack a protective skin and are often sprayed right before harvest to prevent mold.",
+    "tidbits": [
+      { "label": "Pesticide Cocktail", "text": "A single sample can contain residues of 20+ different pesticides." }
+    ],
+    "items": [
+      { "id": "strawberry-organic", "name": "Organic Strawberries", "priceType": "Premium" },
+      { "id": "strawberry-conv", "name": "Conventional Strawberries (Avoid)", "priceType": "Standard" }
+    ],
+    "source": "EWG 2025 Dirty Dozen",
+    "sourceUrl": "https://www.ewg.org/foodnews/dirty-dozen.php"
+  },
+  {
+    "id": "avocados",
+    "name": "Avocados",
+    "category": "Produce",
+    "isDirtyDozen": false,
+    "isCleanFifteen": true,
+    "icon": "🥑",
+    "meta": "Save your money. Conventional is fine.",
+    "description": "Avocados consistently top the 'Clean Fifteen' list because their thick skin protects the fruit.",
+    "tidbits": [
+      { "label": "Pesticide Residue", "text": "Fewer than 2% of conventional avocados show any detectable pesticides." }
+    ],
+    "items": [
+      { "id": "avocado-conv", "name": "Conventional Avocado", "priceType": "Standard" },
+      { "id": "avocado-organic", "name": "Organic Avocado", "priceType": "Mid" }
+    ],
+    "source": "EWG 2025 Clean 15",
+    "sourceUrl": "https://www.ewg.org/foodnews/clean-fifteen.php"
+  },
+  {
+    "id": "oats",
+    "name": "Oats / Oatmeal",
+    "category": "Pantry",
+    "isDirtyDozen": false,
+    "isCleanFifteen": false,
+    "icon": "🥣",
+    "meta": "The 'Glyphosate' Meta: Look for 'One Degree'.",
+    "description": "Conventional oats are heavily sprayed with glyphosate as a drying agent. Even Organic oats often test positive due to soil drift.",
+    "tidbits": [
+      { "label": "Glyphosate", "text": "Used as a desiccant right before harvest. Most 'natural' oats are surprisingly high in this chemical." },
+      { "label": "One Degree", "text": "One Degree Organic Foods offers third-party 'Non-Glyphosate Certified' oats." }
+    ],
+    "items": [
+      { "id": "oats-onedegree", "name": "One Degree Sprouted (Non-Glyphosate)", "priceType": "Premium" },
+      { "id": "oats-organic", "name": "Organic Rolled Oats", "priceType": "Mid" }
+    ],
+    "source": "EWG Oat Study",
+    "sourceUrl": "https://www.ewg.org/childrenshealth/glyphosate-hummus-oat-cereals"
+  },
+  {
+    "id": "bars",
+    "name": "Snack / Energy Bars",
+    "category": "Pantry",
+    "isDirtyDozen": false,
+    "isCleanFifteen": false,
+    "icon": "🍫",
+    "meta": "The 'Hidden Glyphosate' Trap.",
+    "description": "Most bars use oats or wheat sprayed with glyphosate. Buying Organic bars significantly reduces risk.",
+    "tidbits": [
+      { "label": "The Solution", "text": "Look for brands that prioritize glyphosate-free sourcing." }
+    ],
+    "items": [
+      { "id": "bars-organic", "name": "Bobo's / CLIF Organic Bars", "priceType": "Mid" },
+      { "id": "bars-conv", "name": "Standard Granola Bars (High Risk)", "priceType": "Standard" }
+    ],
+    "source": "Detox Project",
+    "sourceUrl": "https://detoxproject.org/"
+  },
+  {
+    "id": "milk",
+    "name": "Milk",
+    "category": "Dairy",
+    "isDirtyDozen": false,
+    "isCleanFifteen": false,
+    "icon": "🥛",
+    "meta": "Situational: A2 Milk is the digestive meta.",
+    "description": "Standard milk comes from cows fed GMO/Glyphosate feed. A2 milk comes from heritage breeds and is easier to digest.",
+    "tidbits": [
+      { "label": "A1 vs A2", "text": "Many 'lactose intolerant' people are actually just reacting to the A1 protein in standard milk." },
+      { "label": "Grass-Fed", "text": "Grass-fed milk has a better Omega-3 to Omega-6 ratio." }
+    ],
+    "items": [
+      { "id": "milk-a2", "name": "A2 Grass-Fed Whole Milk", "priceType": "Premium" },
+      { "id": "milk-organic", "name": "Organic Whole Milk", "priceType": "Mid" },
+      { "id": "milk-std", "name": "Standard Holstein Milk", "priceType": "Standard" }
+    ],
+    "source": "Nutrition Journal Studies",
+    "sourceUrl": "https://www.healthline.com/nutrition/a1-vs-a2-milk"
+  },
+  {
+    "id": "eggs",
+    "name": "Eggs",
+    "category": "Dairy",
+    "isDirtyDozen": false,
+    "isCleanFifteen": false,
+    "icon": "🥚",
+    "meta": "Ignore 'Cage-Free'. Look for 'Pasture-Raised'.",
+    "description": "Cage-free is marketing fluff. Birds never see the sun. Pasture-raised get 108sq ft each.",
+    "tidbits": [
+      { "label": "Nutrient Density", "text": "Pasture eggs have 2x more Omega-3s and 3x more Vitamin D from bugs and sunlight." },
+      { "label": "Gold Standard", "text": "Look for 'Pasture-Raised + Certified Humane' logos." }
+    ],
+    "items": [
+      { "id": "eggs-pasture", "name": "Pasture-Raised / Certified Humane Eggs", "priceType": "Premium" },
+      { "id": "eggs-organic", "name": "USDA Organic Eggs", "priceType": "Mid" },
+      { "id": "eggs-cagefree", "name": "Cage-Free / Free-Range (Marketing Fluff)", "priceType": "Standard" }
+    ],
+    "source": "Certified Humane",
+    "sourceUrl": "https://certifiedhumane.org/eggs-explained/"
+  },
+  {
+    "id": "salmon",
+    "name": "Salmon",
+    "category": "Meat",
+    "isDirtyDozen": false,
+    "isCleanFifteen": false,
+    "icon": "🐟",
+    "meta": "'Atlantic' is code for 'Farmed'.",
+    "description": "Farmed salmon are fed synthetic dyes to turn their flesh pink. Wild Alaskan is the only true meta.",
+    "tidbits": [
+      { "label": "Dye Warning", "text": "Farmed fish are naturally grey; they are colored using pellets." },
+      { "label": "Contaminants", "text": "Farmed salmon can have 16x the PCBs of wild caught salmon." }
+    ],
+    "items": [
+      { "id": "salmon-wild", "name": "Wild Caught Alaskan (Sockeye/King)", "priceType": "Premium" },
+      { "id": "salmon-farmed", "name": "Atlantic / Farm-Raised Salmon", "priceType": "Standard" }
+    ],
+    "source": "EWG Fish Guide",
+    "sourceUrl": "https://www.ewg.org/foodnews/farmed-salmon.php"
+  },
+  {
+    "id": "beef",
+    "name": "Beef",
+    "category": "Meat",
+    "isDirtyDozen": false,
+    "isCleanFifteen": false,
+    "icon": "🥩",
+    "meta": "Look for '100% Grass-Fed & Finished'.",
+    "description": "Standard beef is 'Grain-Finished' in feedlots, which spikes inflammatory Omega-6 levels.",
+    "tidbits": [
+      { "label": "Omega Ratio", "text": "Grass-fed has an Omega 3:6 ratio of ~1:3. Grain-fed can be 1:15." }
+    ],
+    "items": [
+      { "id": "beef-grass", "name": "100% Grass-Fed & Finished Beef", "priceType": "Premium" },
+      { "id": "beef-std", "name": "Standard Choice/Prime Beef", "priceType": "Standard" }
+    ],
+    "source": "Journal of Animal Science",
+    "sourceUrl": "https://www.mayoclinic.org"
+  },
+  {
+    "id": "chicken",
+    "name": "Chicken",
+    "category": "Meat",
+    "isDirtyDozen": false,
+    "isCleanFifteen": false,
+    "icon": "🍗",
+    "meta": "Prioritize 'Air-Chilled' over 'Water-Chilled'.",
+    "description": "Water-chilled chicken adds water weight and dilutes flavor. Air-chilled is cleaner.",
+    "tidbits": [
+      { "label": "Water Weight", "text": "Water-chilled chicken can be up to 5% chlorinated water." }
+    ],
+    "items": [
+      { "id": "chicken-pasture", "name": "Pasture-Raised Organic Chicken", "priceType": "Premium" },
+      { "id": "chicken-air", "name": "Air-Chilled Conventional Chicken", "priceType": "Mid" }
+    ],
+    "source": "USDA Poultry Grading",
+    "sourceUrl": "https://www.usda.gov/"
+  },
+  {
+    "id": "sweetcorn",
+    "name": "Sweet Corn",
+    "category": "Produce",
+    "isDirtyDozen": false,
+    "isCleanFifteen": true,
+    "icon": "🌽",
+    "meta": "Conventional is safe, but watch for GMO.",
+    "description": "Corn is protected by its husk, but most conventional corn is genetically modified.",
+    "tidbits": [
+      { "label": "Pesticide Load", "text": "Ranked as one of the cleanest items for pesticide residue." }
+    ],
+    "items": [
+      { "id": "corn-non-gmo", "name": "Organic / Non-GMO Sweet Corn", "priceType": "Mid" },
+      { "id": "corn-conv", "name": "Conventional Sweet Corn", "priceType": "Standard" }
+    ],
+    "source": "EWG Clean 15",
+    "sourceUrl": "https://www.ewg.org/foodnews/clean-fifteen.php"
+  },
+  {
+    "id": "pineapples",
+    "name": "Pineapples",
+    "category": "Produce",
+    "isDirtyDozen": false,
+    "isCleanFifteen": true,
+    "icon": "🍍",
+    "meta": "The armor meta. Conventional is safe.",
+    "description": "The thick, scaly skin of a pineapple provides excellent protection against pesticides.",
+    "tidbits": [
+      { "label": "Residue testing", "text": "One of the safest non-organic produce items you can buy." }
+    ],
+    "items": [
+      { "id": "pineapple-conv", "name": "Conventional Pineapple", "priceType": "Standard" }
+    ],
+    "source": "EWG 2025 Clean 15",
+    "sourceUrl": "https://www.ewg.org/foodnews/clean-fifteen.php"
+  },
+  {
+    "id": "onions",
+    "name": "Onions",
+    "category": "Produce",
+    "isDirtyDozen": false,
+    "isCleanFifteen": true,
+    "icon": "🧅",
+    "meta": "Conventional is perfectly safe.",
+    "description": "Onions are naturally pest-resistant and require very few chemicals during growth.",
+    "tidbits": [
+      { "label": "Pesticide Load", "text": "Consistently shows the lowest pesticide residues of all produce." }
+    ],
+    "items": [
+      { "id": "onion-conv", "name": "Conventional Onions", "priceType": "Standard" }
+    ],
+    "source": "EWG 2025 Clean 15",
+    "sourceUrl": "https://www.ewg.org/foodnews/clean-fifteen.php"
+  },
+  {
+    "id": "papaya",
+    "name": "Papaya",
+    "category": "Produce",
+    "isDirtyDozen": false,
+    "isCleanFifteen": true,
+    "icon": "🍈",
+    "meta": "Conventional is clean (Mostly).",
+    "description": "Most Hawaiian papayas are GMO, but pesticide residue is very low. Buy Organic if you want Non-GMO.",
+    "tidbits": [
+      { "label": "Clean Score", "text": "Over 80% of papayas tested had zero pesticide residue." }
+    ],
+    "items": [
+      { "id": "papaya-conv", "name": "Conventional Papaya", "priceType": "Standard" }
+    ],
+    "source": "EWG 2025 Clean 15",
+    "sourceUrl": "https://www.ewg.org/foodnews/clean-fifteen.php"
+  },
+  {
+    "id": "sweetpeas",
+    "name": "Sweet Peas (Frozen)",
+    "category": "Produce",
+    "isDirtyDozen": false,
+    "isCleanFifteen": true,
+    "icon": "🟢",
+    "meta": "Frozen is the meta for nutrient preservation.",
+    "description": "Peas are flash-frozen at peak ripeness and show very low pesticide residue.",
+    "tidbits": [
+      { "label": "Clean Score", "text": "One of the top Clean Fifteen performers." }
+    ],
+    "items": [
+      { "id": "peas-conv", "name": "Conventional Frozen Peas", "priceType": "Standard" }
+    ],
+    "source": "EWG 2025 Clean 15",
+    "sourceUrl": "https://www.ewg.org/foodnews/clean-fifteen.php"
+  },
+  {
+    "id": "asparagus",
+    "name": "Asparagus",
+    "category": "Produce",
+    "isDirtyDozen": false,
+    "isCleanFifteen": true,
+    "icon": "🥦",
+    "meta": "Conventional is clean. Save your budget.",
+    "description": "Asparagus grows quickly and has fewer natural pests, requiring few chemicals.",
+    "tidbits": [
+      { "label": "Residue testing", "text": "Shows very low levels of pesticide residue compared to other green vegetables." }
+    ],
+    "items": [
+      { "id": "asparagus-conv", "name": "Conventional Asparagus", "priceType": "Standard" }
+    ],
+    "source": "EWG 2025 Clean 15",
+    "sourceUrl": "https://www.ewg.org/foodnews/clean-fifteen.php"
+  }
+]
