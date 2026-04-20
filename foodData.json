@@ -105,8 +105,8 @@
     "isDirtyDozen": false,
     "isCleanFifteen": false,
     "icon": "🍫",
-    "meta": "It's a Hidden Glyphosate trap.",
-    "description": "Most bars contain oats, which contain glyphosate. Buying Organic bars significantly reduces your exposure.",
+    "meta": "The 'Hidden Glyphosate' Trap.",
+    "description": "Most bars use oats or wheat sprayed with glyphosate. Buying Organic bars significantly reduces risk.",
     "tidbits": [
       { "label": "The Solution", "text": "Look for brands that prioritize glyphosate-free sourcing." }
     ],
@@ -124,10 +124,10 @@
     "isDirtyDozen": false,
     "isCleanFifteen": false,
     "icon": "🥛",
-    "meta": "Organic, Grass-Fed",
-    "description": "Standard milk comes from cows that're fed the cheapest, genetically modified feed.",
+    "meta": "Situational: A2 Milk is the digestive meta.",
+    "description": "Standard milk comes from cows fed GMO/Glyphosate feed. A2 milk comes from heritage breeds and is easier to digest.",
     "tidbits": [
-      { "label": "A1 vs A2", "text": "Many 'lactose intolerant' people are actually just reacting to the A1 protein in standard milk. "A2 milk" comes from heritage breeds and is easier to digest." },
+      { "label": "A1 vs A2", "text": "Many 'lactose intolerant' people are actually just reacting to the A1 protein in standard milk." },
       { "label": "Grass-Fed", "text": "Grass-fed milk has a better Omega-3 to Omega-6 ratio." }
     ],
     "items": [
@@ -218,14 +218,14 @@
     "sourceUrl": "https://www.usda.gov/"
   },
   {
-    "id": "corn",
-    "name": "Corn",
+    "id": "sweetcorn",
+    "name": "Sweet Corn",
     "category": "Produce",
     "isDirtyDozen": false,
     "isCleanFifteen": true,
     "icon": "🌽",
-    "meta": "Conventional is safe, but will be GMO. Look for organic (which is sometimes easier found frozen).",
-    "description": "Corn is protected by its husk.",
+    "meta": "Conventional is safe, but watch for GMO.",
+    "description": "Corn is protected by its husk, but most conventional corn is genetically modified.",
     "tidbits": [
       { "label": "Pesticide Load", "text": "Ranked as one of the cleanest items for pesticide residue." }
     ],
@@ -243,7 +243,7 @@
     "isDirtyDozen": false,
     "isCleanFifteen": true,
     "icon": "🍍",
-    "meta": "Conventional is safe.",
+    "meta": "The armor meta. Conventional is safe.",
     "description": "The thick, scaly skin of a pineapple provides excellent protection against pesticides.",
     "tidbits": [
       { "label": "Residue testing", "text": "One of the safest non-organic produce items you can buy." }
