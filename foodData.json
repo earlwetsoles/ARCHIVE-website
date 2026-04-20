@@ -141,20 +141,20 @@
   {
     "id": "eggs",
     "name": "Eggs",
-    "category": "Meat",
+    "category": "Dairy",
     "isDirtyDozen": false,
     "isCleanFifteen": false,
     "icon": "🥚",
-    "meta": "Pasture-Raised.",
-    "description": "Cage-free is marketing fluff. The birds never see the sun. Pasture-raised get 108sq ft each.",
+    "meta": "Ignore 'Cage-Free'. Look for 'Pasture-Raised'.",
+    "description": "Cage-free is marketing fluff. Birds never see the sun. Pasture-raised get 108sq ft each.",
     "tidbits": [
       { "label": "Nutrient Density", "text": "Pasture eggs have 2x more Omega-3s and 3x more Vitamin D from bugs and sunlight." },
       { "label": "Gold Standard", "text": "Look for 'Pasture-Raised + Certified Humane' logos." }
     ],
     "items": [
       { "id": "eggs-pasture", "name": "Pasture-Raised / Certified Humane Eggs", "priceType": "Premium" },
-      { "id": "eggs-organic", "name": "Organic Eggs", "priceType": "Mid" },
-      { "id": "eggs-cagefree", "name": "Cage-Free / Free-Range (Marketing Crap)", "priceType": "Standard" }
+      { "id": "eggs-organic", "name": "USDA Organic Eggs", "priceType": "Mid" },
+      { "id": "eggs-cagefree", "name": "Cage-Free / Free-Range (Marketing Fluff)", "priceType": "Standard" }
     ],
     "source": "Certified Humane",
     "sourceUrl": "https://certifiedhumane.org/eggs-explained/"
@@ -166,11 +166,11 @@
     "isDirtyDozen": false,
     "isCleanFifteen": false,
     "icon": "🐟",
-    "meta": "Wild Alaskan salmon. 'Atlantic' is code for 'farmed'.",
-    "description": "Wild Alaskan salmon is where it's at. Atlantic salmon is all farmed.",
+    "meta": "'Atlantic' is code for 'Farmed'.",
+    "description": "Farmed salmon are fed synthetic dyes to turn their flesh pink. Wild Alaskan is the only true meta.",
     "tidbits": [
-      { "label": "Contaminants", "text": "Farmed salmon can have 16x the PCBs of wild caught salmon. They're fed synthetic dyes to turn their flesh pink." },
-      { "label": "idk", "text": "idk." }
+      { "label": "Dye Warning", "text": "Farmed fish are naturally grey; they are colored using pellets." },
+      { "label": "Contaminants", "text": "Farmed salmon can have 16x the PCBs of wild caught salmon." }
     ],
     "items": [
       { "id": "salmon-wild", "name": "Wild Caught Alaskan (Sockeye/King)", "priceType": "Premium" },
@@ -250,24 +250,6 @@
     ],
     "items": [
       { "id": "pineapple-conv", "name": "Conventional Pineapple", "priceType": "Standard" }
-    ],
-    "source": "EWG 2025 Clean 15",
-    "sourceUrl": "https://www.ewg.org/foodnews/clean-fifteen.php"
-  },
-  {
-    "id": "bananas",
-    "name": "Bananas",
-    "category": "Produce",
-    "isDirtyDozen": false,
-    "isCleanFifteen": true,
-    "icon": "🍌",
-    "meta": "Save your money. Conventional is fine.",
-    "description": "Bananas are one of the safest fruits to buy conventional because the thick skin is discarded.",
-    "tidbits": [
-      { "label": "Residue testing", "text": "One of the safest non-organic produce items you can buy." }
-    ],
-    "items": [
-      { "id": "banana-conv", "name": "Conventional Banana", "priceType": "Standard" }
     ],
     "source": "EWG 2025 Clean 15",
     "sourceUrl": "https://www.ewg.org/foodnews/clean-fifteen.php"
