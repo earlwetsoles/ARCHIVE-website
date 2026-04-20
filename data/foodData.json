@@ -1,0 +1,61 @@
+[
+  {
+    "id": "apples",
+    "name": "Apples",
+    "category": "Produce",
+    "isDirtyDozen": true,
+    "isCleanFifteen": false,
+    "icon": "🍎",
+    "meta": "The 'Wash' is a lie. Pesticides are in the wax.",
+    "description": "Apples are often coated in shellac or petroleum-based wax to preserve shelf life, trapping pesticides underneath.",
+    "tidbits": [
+      { "label": "Storage Life", "text": "Conventional apples can be stored in cold rooms for 9-12 months." },
+      { "label": "Pesticide Load", "text": "Ranked consistently in the top 5 of the Dirty Dozen." }
+    ],
+    "items": [
+      { "id": "apple-organic", "name": "Organic Apples (Unwaxed)", "priceType": "Mid" },
+      { "id": "apple-conv", "name": "Conventional Apples", "priceType": "Standard" }
+    ],
+    "source": "EWG 2025 Guide",
+    "sourceUrl": "https://www.ewg.org/foodnews/dirty-dozen.php"
+  },
+  {
+    "id": "beef",
+    "name": "Beef",
+    "category": "Meat",
+    "isDirtyDozen": false,
+    "isCleanFifteen": false,
+    "icon": "🥩",
+    "meta": "Look for '100% Grass-Fed & Finished'.",
+    "description": "Standard beef is 'Grain-Finished' in feedlots, which spikes inflammatory Omega-6 levels.",
+    "tidbits": [
+      { "label": "CLA Content", "text": "Grass-fed beef contains 3-5x more Conjugated Linoleic Acid (CLA)." },
+      { "label": "Omega Ratio", "text": "Grass-fed has an Omega 3:6 ratio of ~1:3." }
+    ],
+    "items": [
+      { "id": "beef-grass", "name": "100% Grass-Fed & Finished Beef", "priceType": "Premium" },
+      { "id": "beef-organic", "name": "Organic Grain-Fed Beef", "priceType": "Mid" }
+    ],
+    "source": "Journal of Animal Science",
+    "sourceUrl": "https://www.mayoclinic.org"
+  },
+  {
+    "id": "eggs",
+    "name": "Eggs",
+    "category": "Dairy",
+    "isDirtyDozen": false,
+    "isCleanFifteen": false,
+    "icon": "🥚",
+    "meta": "Ignore 'Cage-Free'. Look for 'Pasture-Raised'.",
+    "description": "Cage-free birds often never see the sun. Pasture-raised get 108sq ft each.",
+    "tidbits": [
+      { "label": "Nutrient Density", "text": "Pasture eggs have 2x more Omega-3s and 3x more Vitamin D." }
+    ],
+    "items": [
+      { "id": "eggs-pasture", "name": "Pasture-Raised Eggs", "priceType": "Premium" },
+      { "id": "eggs-std", "name": "Standard Cage-Free", "priceType": "Standard" }
+    ],
+    "source": "Certified Humane",
+    "sourceUrl": "https://certifiedhumane.org"
+  }
+]
