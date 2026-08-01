@@ -604,11 +604,11 @@
             consoleOutput.scrollTop = consoleOutput.scrollHeight;
         }
 
-        // Logic for launching unmuted video immediately
+        // Logic for launching video immediately with automatic playback fallback
         function launchVideo(url, title) {
             videoTitle.innerText = title;
             videoPlayer.src = url;
-            videoPlayer.muted = false; // Unmuted for immediate audio
+            videoPlayer.muted = false; // Attempt unmuted audio first
             videoPlayer.volume = 1.0;  // Max volume
             videoOverlay.style.display = 'flex';
             
@@ -616,11 +616,14 @@
             if (miniVideo.src) miniVideo.pause();
             playBtn.innerText = "PLAY";
 
-            // Instant playback attempt
-            videoPlayer.play().catch(err => {
-                writeToConsole(`ERR: AUTOPLAY_BLOCKED - INTERACTION_REQUIRED`, "var(--crimson)");
-                // In some cases browsers might still block if the MEI is low, 
-                // but for this specific terminal context it should work fine.
+            // Attempt playback; if browser blocks unmuted autoplay for a specific media file, fallback seamlessly to muted playback start
+            videoPlayer.play().catch(() => {
+                videoPlayer.muted = true;
+                videoPlayer.play().then(() => {
+                    videoPlayer.muted = false;
+                }).catch(() => {
+                    writeToConsole(`ERR: MEDIA_STREAM_FAILED`, "var(--crimson)");
+                });
             });
         }
 
