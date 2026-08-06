@@ -1,0 +1,22 @@
+{
+  "categories": {
+    "fruit": "General Fruit Tip: Conventionally grown fruit with thin, edible skins usually carry higher pesticide loads. Opt for organic when possible.",
+    "beef": "General Beef Tip: Look for '100% grass-fed and finished' for optimal omega fatty acid ratios."
+  },
+  "foods": [
+    {
+      "name": "Apples",
+      "category": "fruit",
+      "season": "Late Summer / Fall",
+      "meta": "High in pectin and fiber. A great source of antioxidants if the skin is consumed.",
+      "avoid": "Conventionally grown apples (frequently top the dirty dozen list). Avoid wax-coated varieties."
+    },
+    {
+      "name": "Avocados",
+      "category": "fruit",
+      "season": "Spring / Summer",
+      "meta": "Packed with monounsaturated fats and potassium.",
+      "avoid": "Avocados that feel mushy or have air pockets under the skin."
+    }
+  ]
+}
