@@ -27,6 +27,10 @@
 "type": "video",
 "url": "log clips/gravedigger%20mountain.mp4"
 },
+"HML.log": {
+"type": "video",
+"url": "log clips/HML.mp4"
+},
 "king_as_such.log": {
 "type": "video",
 "url": "log clips/BurgerPeterson.mp4"
@@ -39,9 +43,9 @@
 "type": "external",
 "url": "https://www.youtube.com/live/-ncjnYkkCmo?si=j298dVo9jOXjmZrS&t=6280"
 },
-"HML.log": {
-"type": "video",
-"url": "log clips/HML.mp4"
+"saylor.log": {
+"type": "external",
+"url": "https://youtu.be/6sDXdJdZi1A?si=ihQXoMkSrp6VfCcl&t=498"
 },
 "who_is_he.log": {
 "type": "video",
