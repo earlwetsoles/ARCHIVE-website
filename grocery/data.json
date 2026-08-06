@@ -1,22 +1,222 @@
 {
   "categories": {
-    "fruit": "General Fruit Tip: Conventionally grown fruit with thin, edible skins usually carry higher pesticide loads. Opt for organic when possible.",
-    "beef": "General Beef Tip: Look for '100% grass-fed and finished' for optimal omega fatty acid ratios."
+    "dairy": "A2 milk is a great situational preference if you have digestive sensitivities, rather than just a trendy bio-hack."
   },
   "foods": [
     {
       "name": "Apples",
       "category": "fruit",
-      "season": "Late Summer / Fall",
-      "meta": "High in pectin and fiber. A great source of antioxidants if the skin is consumed.",
-      "avoid": "Conventionally grown apples (frequently top the dirty dozen list). Avoid wax-coated varieties."
+      "recommendation": "Organic",
+      "meta": "Doused with post-harvest chemicals; consistently on the EWG Dirty Dozen list."
+    },
+    {
+      "name": "Pears",
+      "category": "fruit",
+      "recommendation": "Organic",
+      "meta": "Thin skin retains high pesticide residues; EWG Dirty Dozen."
+    },
+    {
+      "name": "Peaches & Nectarines",
+      "category": "fruit",
+      "recommendation": "Organic",
+      "meta": "Soft, porous skin absorbs pesticides easily; EWG Dirty Dozen."
+    },
+    {
+      "name": "Cherries",
+      "category": "fruit",
+      "recommendation": "Organic",
+      "meta": "Thin skin retains heavy pesticide loads; EWG Dirty Dozen."
+    },
+    {
+      "name": "Bananas",
+      "category": "fruit",
+      "recommendation": "Conventional",
+      "meta": "Thick peel blocks pesticide transfer."
+    },
+    {
+      "name": "Wild Blueberries",
+      "category": "fruit",
+      "recommendation": "Wild Organic",
+      "meta": "Contains 2x the antioxidant capacity of cultivated varieties."
+    },
+    {
+      "name": "Cultivated Blueberries",
+      "category": "fruit",
+      "recommendation": "Organic",
+      "meta": "Frequently test positive for toxic pesticides; EWG Dirty Dozen."
+    },
+    {
+      "name": "Strawberries & Blackberries",
+      "category": "fruit",
+      "recommendation": "Organic",
+      "meta": "Porous structure retains heavy pesticide sprays; EWG Dirty Dozen."
+    },
+    {
+      "name": "Grapes",
+      "category": "fruit",
+      "recommendation": "Organic",
+      "meta": "Thin skin easily absorbs pesticide sprays; EWG Dirty Dozen."
+    },
+    {
+      "name": "Watermelon",
+      "category": "fruit",
+      "recommendation": "Conventional",
+      "meta": "Thick rind acts as a natural barrier. Cheaper during the summer.",
+      "appearance": "Look for a creamy yellow spot, dull finish, and it should be heavy for its size."
+    },
+    {
+      "name": "Cantaloupe & Honeydew",
+      "category": "fruit",
+      "recommendation": "Conventional",
+      "meta": "Thick outer rinds block pesticides; EWG Clean Fifteen."
     },
     {
       "name": "Avocados",
       "category": "fruit",
-      "season": "Spring / Summer",
-      "meta": "Packed with monounsaturated fats and potassium.",
-      "avoid": "Avocados that feel mushy or have air pockets under the skin."
+      "recommendation": "Conventional",
+      "meta": "Thick skin blocks pesticide transfer; EWG Clean Fifteen."
+    },
+    {
+      "name": "Pineapple",
+      "category": "fruit",
+      "recommendation": "Conventional",
+      "meta": "Thick skin blocks pesticide transfer.",
+      "appearance": "Should smell sweet at the base, have a slight give, and be a golden color."
+    },
+    {
+      "name": "Broccoli & Kale Sprouts",
+      "category": "vegetable",
+      "recommendation": "Organic",
+      "meta": "Microgreens have up to 40x the nutrient density of mature greens."
+    },
+    {
+      "name": "Spinach",
+      "category": "vegetable",
+      "recommendation": "Organic",
+      "meta": "Highest pesticide residue by weight of all produce; EWG Dirty Dozen."
+    },
+    {
+      "name": "Kale & Collard Greens",
+      "category": "vegetable",
+      "recommendation": "Organic",
+      "meta": "Can carry up to 20 different pesticides; EWG Dirty Dozen."
+    },
+    {
+      "name": "Romaine & Leafy Lettuce",
+      "category": "vegetable",
+      "recommendation": "Organic",
+      "meta": "Large surface area catches chemical sprays."
+    },
+    {
+      "name": "Potatoes",
+      "category": "vegetable",
+      "recommendation": "Organic",
+      "meta": "90% of conventional carry post-harvest chemical sprout inhibitors; EWG Dirty Dozen.",
+      "storage": "Can often be stored for months in a cool, dark place."
+    },
+    {
+      "name": "Sweet Potatoes",
+      "category": "vegetable",
+      "recommendation": "Organic",
+      "meta": "Directly absorb soil chemicals during growth."
+    },
+    {
+      "name": "Carrots",
+      "category": "vegetable",
+      "recommendation": "Conventional",
+      "meta": "Grown underground with low residue; EWG Clean Fifteen.",
+      "storage": "Can often be stored for months."
+    },
+    {
+      "name": "Bell & Hot Peppers",
+      "category": "vegetable",
+      "recommendation": "Organic",
+      "meta": "Thin skin retains heavy pesticide loads; EWG Dirty Dozen."
+    },
+    {
+      "name": "Onions",
+      "category": "vegetable",
+      "recommendation": "Conventional",
+      "meta": "Sulfur compounds and underground bulbs resist pesticide buildup; EWG Clean Fifteen.",
+      "storage": "Can often be stored for months."
+    },
+    {
+      "name": "Garlic",
+      "category": "vegetable",
+      "recommendation": "Conventional",
+      "meta": "Sulfur compounds and underground bulbs resist pesticide buildup; EWG Clean Fifteen."
+    },
+    {
+      "name": "Broccoli & Cauliflower",
+      "category": "vegetable",
+      "recommendation": "Conventional",
+      "meta": "Minimal pesticide retention; EWG Clean Fifteen."
+    },
+    {
+      "name": "Cabbage",
+      "category": "vegetable",
+      "recommendation": "Conventional",
+      "meta": "Protective outer leaves limit chemical absorption; EWG Clean Fifteen."
+    },
+    {
+      "name": "Eggs",
+      "category": "animal",
+      "recommendation": "Pasture-Raised",
+      "meta": "Deep orange yolks; outdoor foraging boosts omega-3s and lutein.",
+      "avoid": "\"Cage-Free\" & \"Vegetarian-Fed\" (birds remain crammed indoors on soy/corn feed)."
+    },
+    {
+      "name": "Beef",
+      "category": "animal",
+      "recommendation": "100% Grass-Fed & Finished",
+      "meta": "5x the omega-3s, higher CLA, and robust antioxidants.",
+      "avoid": "Plain \"Grass-Fed\" (animals are still fattened on feedlot grain during final months)."
+    },
+    {
+      "name": "Poultry",
+      "category": "animal",
+      "recommendation": "Pasture-Raised",
+      "meta": "Outdoor foraging optimizes healthy fat ratios and vitamin E.",
+      "avoid": "\"Free-Range\" & \"Natural\" (often means minimal access to a small outdoor porch)."
+    },
+    {
+      "name": "Salmon",
+      "category": "animal",
+      "recommendation": "Wild-Caught Alaskan",
+      "meta": "Rich in natural astaxanthin antioxidants and clean omega-3s.",
+      "avoid": "\"Farm-Raised\" / \"Atlantic\" (higher PCB contaminants and synthetic color additives)."
+    },
+    {
+      "name": "Shrimp",
+      "category": "animal",
+      "recommendation": "Wild-Caught USA",
+      "meta": "Cleaner ocean sourcing.",
+      "avoid": "Imported Farmed (notorious for heavy antibiotic use in farm water)."
+    },
+    {
+      "name": "Milk & Cream",
+      "category": "dairy",
+      "recommendation": "100% Grass-Fed Whole Milk",
+      "meta": "Preserves vital vitamin K2 and fat-soluble vitamins.",
+      "avoid": "\"Skim / Fat-Free\" (strips away essential fat-soluble vitamins A, D, E, and K)."
+    },
+    {
+      "name": "Butter",
+      "category": "dairy",
+      "recommendation": "Grass-Fed Whole Milk",
+      "meta": "Significantly higher omega-3s and CLA content."
+    },
+    {
+      "name": "White Rice",
+      "category": "grain",
+      "meta": "Generally lower in naturally occurring arsenic than brown rice.",
+      "storage": "Stores for years."
+    },
+    {
+      "name": "Brown Rice",
+      "category": "grain",
+      "avoid": "Contains higher levels of arsenic than white rice.",
+      "storage": "Contains more natural oils and goes rancid much sooner than white rice."
     }
   ]
 }
