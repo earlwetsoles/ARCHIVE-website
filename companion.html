@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f7f2">
+  <meta name="description" content="A mobile-friendly grocery shopping companion.">
+  <title>Grocery Companion</title>
+  <link rel="stylesheet" href="./grocery-companion/styles.css">
+  <script src="./grocery-companion/app.js" defer></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-line">
+        <div class="brand-mark" aria-hidden="true">GC</div>
+        <div class="brand-copy">
+          <p class="eyebrow">YOUR SHOPPING SIDEKICK</p>
+          <h1>Grocery Companion</h1>
+        </div>
+      </div>
+      <p class="intro">Clear, practical notes for making better choices in the grocery aisle.</p>
+
+      <div class="search-wrap">
+        <label class="sr-only" for="food-search">Search foods</label>
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input
+          id="food-search"
+          type="search"
+          inputmode="search"
+          enterkeyhint="search"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="Search for a food…"
+        >
+        <button id="clear-search" class="clear-search" type="button" aria-label="Clear search" hidden>×</button>
+      </div>
+
+      <nav id="category-filters" class="category-filters" aria-label="Filter by food category"></nav>
+      <div class="results-line">
+        <p id="result-count" class="result-count" aria-live="polite">Loading your guide…</p>
+        <button id="collapse-all" class="text-button" type="button" hidden>Collapse all</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div id="notice" class="notice" role="status" hidden></div>
+    <section id="food-list" class="food-list" aria-label="Foods"></section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Your guide, your data. Food notes are supplied and maintained by you.</p>
+  </footer>
+</body>
+</html>
