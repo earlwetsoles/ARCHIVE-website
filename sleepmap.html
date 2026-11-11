@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive_01 // Sleep Map</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+        
+        :root {
+            --crimson: #991b1b;
+            --bright-red: #ff3e3e;
+            --terminal-gray: #666;
+            --terminal-off-white: #eee;
+        }
+
+        body { 
+            font-family: 'Space Mono', monospace; 
+            background-color: #050505;
+            color: var(--terminal-gray);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* CRT Scanline Overlay */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .glitch-text {
+            display: inline-block;
+            transition: color 0.2s;
+        }
+
+        .glitch-text:hover {
+            color: var(--bright-red) !important;
+            text-shadow: 2px 0 #00ff41, -2px 0 blue; 
+        }
+
+        .typewriter-line {
+            overflow: hidden;
+            white-space: nowrap;
+            width: 0;
+            opacity: 0;
+        }
+
+        .typing {
+            animation: typing-anim 0.8s steps(25, end) forwards;
+            opacity: 1;
+        }
+
+        @keyframes typing-anim {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        .back-btn {
+            color: var(--crimson);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="p-8 md:p-16">
+    <main class="max-w-6xl mx-auto relative z-20">
+        <!-- Return Link -->
+        <a href="index.html" class="back-btn typewriter-line glitch-text glitch-target" data-delay="100"><- RETURN_TO_ROOT</a>
+
+        <!-- Header -->
+        <header class="mb-12">
+            <div class="flex items-center gap-3 mb-4 typewriter-line" data-delay="300">
+                <div class="w-2 h-2 bg-red-800 rounded-full shadow-[0_0_8px_#991b1b] animate-pulse"></div>
+                <h1 class="text-white text-xl tracking-tighter glitch-target">MEDIA_ARCHIVE // SLEEP_MAP</h1>
+            </div>
+            <p class="text-sm leading-relaxed max-w-xl italic typewriter-line" data-delay="600">
+                Geospatial sleep coordinate trajectory & chronological location telemetry log.
+            </p>
+        </header>
+
+        <!-- Metadata Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 border-y border-[#1a1a1a] py-4 text-xs typewriter-line" data-delay="800">
+            <div>
+                <span class="block opacity-40 uppercase">ENGINE</span>
+                <span class="text-white">Kepler.gl / WebGL</span>
+            </div>
+            <div>
+                <span class="block opacity-40 uppercase">DATASET</span>
+                <span class="text-white">Sleep Telemetry</span>
+            </div>
+            <div>
+                <span class="block opacity-40 uppercase">BASEMAP</span>
+                <span class="text-white">Dark / Mapbox</span>
+            </div>
+            <div>
+                <span class="block opacity-40 uppercase">SYNC_STATUS</span>
+                <span class="text-emerald-500">LIVE / ONLINE</span>
+            </div>
+        </div>
+
+        <!-- Embedded Kepler.gl Map Section -->
+        <section class="mb-16 typewriter-line" data-delay="1000">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xs uppercase tracking-widest text-white/50">// KEPLER_GEOSPATIAL_VISUALIZATION</h2>
+                <span class="text-[10px] text-white/30 uppercase tracking-widest">[ INTERACTIVE ]</span>
+            </div>
+            <div class="w-full h-[650px] bg-[#0c0c0c] border border-[#1a1a1a] rounded overflow-hidden relative shadow-2xl">
+                <!-- 
+                    Embed your Kepler.gl HTML map file here.
+                    Default src points to 'kepler.gl.html'. Ensure the file is saved in the same root directory.
+                -->
+                <iframe 
+                    src="kepler.gl.html" 
+                    class="w-full h-full border-0 opacity-90 hover:opacity-100 transition-opacity" 
+                    title="Kepler.gl Sleep Map Visualization"
+                    loading="lazy">
+                </iframe>
+            </div>
+            <p class="text-[10px] mt-2 opacity-40 uppercase tracking-widest">
+                Tip: Interact with the map controls to filter date ranges, playback trajectories, or adjust layer rendering.
+            </p>
+        </section>
+
+        <!-- Technical Telemetry Notes -->
+        <section class="space-y-6 mb-16 typewriter-line" data-delay="1200">
+            <h2 class="text-xs uppercase tracking-widest text-white/50">// LOG_NOTES_&_OBSERVATION</h2>
+            <div class="text-sm leading-relaxed space-y-4 text-gray-400 bg-[#0a0a0a] border border-[#141414] p-6 rounded">
+                <p>
+                    <span class="text-white font-bold">[ENTRY_01]</span> Trajectory coordinates mapped via long-term GPS positional recordings. Color gradations indicate chronological movement over extended observation periods.
+                </p>
+                <p>
+                    <span class="text-white font-bold">[ENTRY_02]</span> High node density highlights primary dwell points and static locations.
+                </p>
+            </div>
+        </section>
+
+        <footer class="mt-24 pt-8 border-t border-[#111] typewriter-line" data-delay="1400">
+            <p class="text-[10px] uppercase tracking-widest opacity-20 glitch-target">
+                Geospatial Stream Sync Complete.
+            </p>
+        </footer>
+    </main>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const lines = document.querySelectorAll('.typewriter-line');
+            lines.forEach(line => {
+                const delay = parseInt(line.getAttribute('data-delay')) || 0;
+                setTimeout(() => { line.classList.add('typing'); }, delay);
+            });
+
+            setTimeout(runGlitchEffect, 2500);
+        });
+
+        const GLITCH_CONFIG = {
+            className: '.glitch-target', 
+            chars: '!@#$%^&*()_+[]{}<>?/', 
+            frames: 10,                   
+            frameSpeed: 60,               
+            intervalMin: 1500,             
+            intervalMax: 4000              
+        };
+
+        function runGlitchEffect() {
+            const targets = document.querySelectorAll(GLITCH_CONFIG.className);
+            if (targets.length === 0) return;
+
+            const target = targets[Math.floor(Math.random() * targets.length)];
+            const originalText = target.innerText;
+            let iterations = 0;
+
+            const interval = setInterval(() => {
+                target.innerText = originalText
+                    .split('')
+                    .map((char) => {
+                        if (char === ' ' || char === '/' || char === '<' || char === '-') return char;
+                        return GLITCH_CONFIG.chars[Math.floor(Math.random() * GLITCH_CONFIG.chars.length)];
+                    })
+                    .join('');
+
+                if (iterations++ > GLITCH_CONFIG.frames) {
+                    clearInterval(interval);
+                    target.innerText = originalText; 
+                }
+            }, GLITCH_CONFIG.frameSpeed);
+
+            const nextTick = Math.random() * (GLITCH_CONFIG.intervalMax - GLITCH_CONFIG.intervalMin) + GLITCH_CONFIG.intervalMin;
+            setTimeout(runGlitchEffect, nextTick);
+        }
+    </script>
+</body>
+</html>
