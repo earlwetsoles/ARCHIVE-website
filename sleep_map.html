@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive_01 // Sleep Map</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Kepler.gl Uber & Map CSS dependencies -->
+    <link rel="stylesheet" href="https://d1a3f4spazzrp4.cloudfront.net/kepler.gl/uber-fonts/4.0.0/superfine.css">
+    <link href="https://unpkg.com/kepler.gl@3.3.0-alpha.20/umd/keplergl.min.css" rel="stylesheet">
+    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.1.1/mapbox-gl.css" rel="stylesheet">
+    <link href="https://unpkg.com/maplibre-gl@^3/dist/maplibre-gl.css" rel="stylesheet">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+        
+        :root {
+            --crimson: #991b1b;
+            --bright-red: #ff3e3e;
+            --terminal-gray: #666;
+            --terminal-off-white: #eee;
+        }
+
+        body { 
+            font-family: 'Space Mono', monospace; 
+            background-color: #050505;
+            color: var(--terminal-gray);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* CRT Scanline Overlay */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9999;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .glitch-text {
+            display: inline-block;
+            transition: color 0.2s;
+        }
+
+        .glitch-text:hover {
+            color: var(--bright-red) !important;
+            text-shadow: 2px 0 #00ff41, -2px 0 blue; 
+        }
+
+        .typewriter-line {
+            overflow: hidden;
+            white-space: nowrap;
+            width: 0;
+            opacity: 0;
+        }
+
+        .typing {
+            animation: typing-anim 0.8s steps(25, end) forwards;
+            opacity: 1;
+        }
+
+        @keyframes typing-anim {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        .back-btn {
+            color: var(--crimson);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+            display: inline-block;
+        }
+
+        /* Container styles for inline map */
+        #kepler-map-frame {
+            position: relative;
+            width: 100%;
+            height: 650px;
+            background-color: #0c0c0c;
+        }
+
+        #kepler-load-screen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #09090b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            z-index: 50;
+            font-family: 'Space Mono', monospace;
+            color: #666;
+        }
+        #kepler-load-screen .kepler-spinner {
+            width: 36px; height: 36px;
+            border: 3px solid rgba(255,255,255,0.08);
+            border-top-color: #ff3e3e;
+            border-radius: 50%;
+            animation: kepler-spin 0.8s linear infinite;
+        }
+        @keyframes kepler-spin { to { transform: rotate(360deg); } }
+    </style>
+
+    <!-- ES Module Shims for React 19 / Redux / Kepler execution -->
+    <script>window.esmsInitOptions = {shimMode: true};</script>
+    <script src="https://unpkg.com/es-module-shims@2.8.1/dist/es-module-shims.js" crossorigin="anonymous"></script>
+    
+    <script type="importmap-shim">
+      {
+        "imports": {
+          "react": "https://esm.sh/react@19.1.0",
+          "react/jsx-runtime": "https://esm.sh/react@19.1.0/jsx-runtime",
+          "react-dom": "https://esm.sh/react-dom@19.1.0?external=react",
+          "react-dom/client": "https://esm.sh/react-dom@19.1.0/client?external=react",
+          "redux": "https://esm.sh/redux@5.0.1",
+          "react-redux": "https://esm.sh/react-redux@9.3.0?external=react,react-dom,redux",
+          "styled-components": "https://esm.sh/styled-components@6.1.19?external=react,react-dom"
+        }
+      }
+    </script>
+
+    <script>
+      // SAFE TOKEN CONFIGURATION
+      // Replace with your Mapbox Public Token (pk.eyJ1...) or leave blank if using public basemaps
+      window.MAPBOX_TOKEN = localStorage.getItem('MAPBOX_TOKEN') || "YOUR_MAPBOX_PUBLIC_TOKEN_HERE";
+    </script>
+
+    <!-- Module Loader script for initializing Kepler engine -->
+    <script type="module-shim">
+      import * as React from 'react';
+      import * as ReactDOM from 'react-dom';
+      import * as ReactDOMClient from 'react-dom/client';
+      import * as Redux from 'redux';
+      import * as ReactRedux from 'react-redux';
+      import * as StyledComponents from 'styled-components';
+
+      window.React = React.default || React;
+      window.ReactDOM = Object.assign({}, ReactDOM.default || ReactDOM, ReactDOMClient);
+      window.Redux = Redux.default || Redux;
+      window.ReactRedux = ReactRedux.default || ReactRedux;
+      window.styled = Object.assign(StyledComponents.default, StyledComponents);
+
+      function loadScript(src) {
+        return new Promise(function(resolve, reject) {
+          var script = document.createElement('script');
+          script.src = src;
+          script.crossOrigin = 'anonymous';
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+
+      loadScript("https://unpkg.com/kepler.gl@3.3.0-alpha.20/umd/keplergl.min.js")
+        .then(function() {
+          var bootstraps = document.querySelectorAll('script[type="text/kepler-bootstrap"]');
+          bootstraps.forEach(function(node) {
+            var script = document.createElement('script');
+            script.text = node.textContent;
+            document.body.appendChild(script);
+          });
+        })
+        .catch(function(error) {
+          console.error('kepler.gl: failed to load UMD bundle', error);
+        });
+    </script>
+</head>
+<body class="p-8 md:p-16">
+    <main class="max-w-6xl mx-auto relative z-20">
+        <!-- Return Link -->
+        <a href="index.html" class="back-btn typewriter-line glitch-text glitch-target" data-delay="100"><- RETURN_TO_ROOT</a>
+
+        <!-- Header -->
+        <header class="mb-12">
+            <div class="flex items-center gap-3 mb-4 typewriter-line" data-delay="300">
+                <div class="w-2 h-2 bg-red-800 rounded-full shadow-[0_0_8px_#991b1b] animate-pulse"></div>
+                <h1 class="text-white text-xl tracking-tighter glitch-target">MEDIA_ARCHIVE // SLEEP_MAP</h1>
+            </div>
+            <p class="text-sm leading-relaxed max-w-xl italic typewriter-line" data-delay="600">
+                Geospatial sleep coordinate trajectory & chronological location telemetry log.
+            </p>
+        </header>
+
+        <!-- Metadata Telemetry Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 border-y border-[#1a1a1a] py-4 text-xs typewriter-line" data-delay="800">
+            <div>
+                <span class="block opacity-40 uppercase">ENGINE</span>
+                <span class="text-white">Kepler.gl / WebGL</span>
+            </div>
+            <div>
+                <span class="block opacity-40 uppercase">DATASET</span>
+                <span class="text-white">Sleep Telemetry</span>
+            </div>
+            <div>
+                <span class="block opacity-40 uppercase">BASEMAP</span>
+                <span class="text-white">Dark / Mapbox</span>
+            </div>
+            <div>
+                <span class="block opacity-40 uppercase">SYNC_STATUS</span>
+                <span class="text-emerald-500">LIVE / ONLINE</span>
+            </div>
+        </div>
+
+        <!-- Embedded Standalone Kepler Map Container -->
+        <section class="mb-16 typewriter-line" data-delay="1000">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xs uppercase tracking-widest text-white/50">// KEPLER_GEOSPATIAL_VISUALIZATION</h2>
+                <span class="text-[10px] text-white/30 uppercase tracking-widest">[ INTERACTIVE ]</span>
+            </div>
+            
+            <div class="w-full h-[650px] bg-[#0c0c0c] border border-[#1a1a1a] rounded overflow-hidden relative shadow-2xl" id="kepler-map-frame">
+                <div id="app" class="w-full h-full relative">
+                    <div id="kepler-load-screen">
+                        <div class="kepler-spinner"></div>
+                        <div class="text-xs uppercase tracking-widest">LOADING_SPATIAL_DATA…</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Telemetry Notes -->
+        <section class="space-y-6 mb-16 typewriter-line" data-delay="1200">
+            <h2 class="text-xs uppercase tracking-widest text-white/50">// LOG_NOTES_&_OBSERVATION</h2>
+            <div class="text-sm leading-relaxed space-y-4 text-gray-400 bg-[#0a0a0a] border border-[#141414] p-6 rounded">
+                <p>
+                    <span class="text-white font-bold">[ENTRY_01]</span> Trajectory coordinates mapped via positional recordings. Color gradations indicate chronological movement over extended observation periods.
+                </p>
+                <p>
+                    <span class="text-white font-bold">[ENTRY_02]</span> High node density highlights primary dwell points and static locations.
+                </p>
+            </div>
+        </section>
+
+        <footer class="mt-24 pt-8 border-t border-[#111] typewriter-line" data-delay="1400">
+            <p class="text-[10px] uppercase tracking-widest opacity-20 glitch-target">
+                Geospatial Stream Sync Complete.
+            </p>
+        </footer>
+    </main>
+
+    <!-- Kepler Bootstrap & Data Injection -->
+    <script type="text/kepler-bootstrap">
+      const branding = {"appName":"kepler.gl","appWebsite":"http://kepler.gl/","appIcon":null,"appNameColor":"#1FBAD6"};
+      const savedStyleType = "dark";
+
+      const reducers = (function createReducers(redux, keplerGl, styleType) {
+        return redux.combineReducers({
+          keplerGl: keplerGl.keplerGlReducer.initialState({
+            uiState: {
+              readOnly: true,
+              currentModal: null,
+              exportMap: Object.assign({}, keplerGl.INITIAL_UI_STATE.exportMap, branding)
+            },
+            ...(styleType ? {mapStyle: {styleType}} : {})
+          })
+        });
+      }(Redux, KeplerGl, savedStyleType));
+
+      const middleWares = keplerGl.enhanceReduxMiddleware([]);
+      const store = Redux.createStore(reducers, {}, Redux.compose(Redux.applyMiddleware(...middleWares)));
+
+      function KeplerElement() {
+        const parentContainer = document.getElementById('kepler-map-frame');
+        const [dim, setDim] = React.useState({
+          width: parentContainer ? parentContainer.clientWidth : window.innerWidth,
+          height: parentContainer ? parentContainer.clientHeight : 650
+        });
+
+        React.useEffect(() => {
+          function handleResize() {
+            if (parentContainer) {
+              setDim({ width: parentContainer.clientWidth, height: parentContainer.clientHeight });
+            }
+          }
+          window.addEventListener('resize', handleResize);
+          return () => window.removeEventListener('resize', handleResize);
+        }, []);
+
+        React.useEffect(() => {
+          const loadScreen = document.getElementById('kepler-load-screen');
+          if (loadScreen) loadScreen.remove();
+        }, []);
+
+        return React.createElement(
+          'div',
+          { style: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' } },
+          React.createElement(KeplerGl.KeplerGl, {
+            mapboxApiAccessToken: window.MAPBOX_TOKEN,
+            id: "map",
+            width: dim.width,
+            height: dim.height,
+            appName: branding.appName,
+            appWebsite: branding.appWebsite
+          })
+        );
+      }
+
+      const app = React.createElement(ReactRedux.Provider, { store }, React.createElement(KeplerElement, null));
+      const container = document.getElementById('app');
+      const root = ReactDOM.createRoot(container);
+      root.render(app);
+
+      /* Injected CSV Coordinates Data */
+      (function customize(keplerGl, store) {
+        const datasets = [{"version":"v1","data":{"id":"sleep_data","label":"coordinates_merged.csv","color":[143,47,191],"allData":[["2000-04-20",27.32755,-82.50249],["2000-04-21",27.32755,-82.50249],["2000-04-22",27.32755,-82.50249],["2000-04-23",27.32755,-82.50249],["2000-04-24",27.32755,-82.50249],["2000-04-25",27.32755,-82.50249],["2000-04-26",27.32755,-82.50249],["2000-04-27",27.32755,-82.50249],["2000-04-28",27.32755,-82.50249],["2000-04-29",27.32755,-82.50249],["2000-04-30",27.32755,-82.50249]],"fields":[{"name":"date","format":"YYYY-MM-DD","type":"timestamp"},{"name":"latitude","format":"","type":"real"},{"name":"longitude","format":"","type":"real"}]}}];
+        const loadedData = keplerGl.KeplerGlSchema.load(datasets);
+        store.dispatch(keplerGl.addDataToMap(loadedData));
+      }(KeplerGl, store));
+    </script>
+
+    <!-- Site Interaction Script -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const lines = document.querySelectorAll('.typewriter-line');
+            lines.forEach(line => {
+                const delay = parseInt(line.getAttribute('data-delay')) || 0;
+                setTimeout(() => { line.classList.add('typing'); }, delay);
+            });
+
+            setTimeout(runGlitchEffect, 2500);
+        });
+
+        const GLITCH_CONFIG = {
+            className: '.glitch-target', 
+            chars: '!@#$%^&*()_+[]{}<>?/', 
+            frames: 10,                   
+            frameSpeed: 60,               
+            intervalMin: 1500,             
+            intervalMax: 4000              
+        };
+
+        function runGlitchEffect() {
+            const targets = document.querySelectorAll(GLITCH_CONFIG.className);
+            if (targets.length === 0) return;
+
+            const target = targets[Math.floor(Math.random() * targets.length)];
+            const originalText = target.innerText;
+            let iterations = 0;
+
+            const interval = setInterval(() => {
+                target.innerText = originalText
+                    .split('')
+                    .map((char) => {
+                        if (char === ' ' || char === '/' || char === '<' || char === '-') return char;
+                        return GLITCH_CONFIG.chars[Math.floor(Math.random() * GLITCH_CONFIG.chars.length)];
+                    })
+                    .join('');
+
+                if (iterations++ > GLITCH_CONFIG.frames) {
+                    clearInterval(interval);
+                    target.innerText = originalText; 
+                }
+            }, GLITCH_CONFIG.frameSpeed);
+
+            const nextTick = Math.random() * (GLITCH_CONFIG.intervalMax - GLITCH_CONFIG.intervalMin) + GLITCH_CONFIG.intervalMin;
+            setTimeout(runGlitchEffect, nextTick);
+        }
+    </script>
+</body>
+</html>
