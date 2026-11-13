@@ -110,31 +110,87 @@
                     </p>
                 </header>
 
-                <!-- Subheadings Section (At the top like normal projects) -->
-                <section class="space-y-12 mb-16">
-                    <!-- ENTRY 01 -->
+                <!-- Subheadings Section: 9 Stock Thoughts -->
+                <section class="space-y-6 mb-16" id="stock-subheadings">
+                    <!-- THOUGHT 01: AMZN -->
+                    <div class="group typewriter-line" data-delay="700">
+                        <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_01 / EQUITIES</span>
+                        <button onclick="openThoughtModal('amzn')" 
+                                class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
+                           Thoughts on AMZN
+                        </button>
+                    </div>
+
+                    <!-- THOUGHT 02: APP -->
                     <div class="group typewriter-line" data-delay="800">
-                        <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">ASSET_01 / LATEST</span>
-                        <a href="https://docs.google.com/spreadsheets/d/10iJlqdCA_12-RTFQWaXGKTvthX5fcsgeZ6alcdSnTFA/edit?usp=drivesdk" 
-                           target="_blank"
-                           class="link-item link-item-full block py-2 text-lg glitch-text red-hover glitch-target">
-                           Jiwt Asset Management
-                        </a>
+                        <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_02 / EQUITIES</span>
+                        <button onclick="openThoughtModal('app')" 
+                                class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
+                           Thoughts on AppLovin
+                        </button>
                     </div>
 
-                    <!-- ENTRY 02 -->
+                    <!-- THOUGHT 03: ASML -->
+                    <div class="group typewriter-line" data-delay="900">
+                        <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_03 / EQUITIES</span>
+                        <button onclick="openThoughtModal('asml')" 
+                                class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
+                           Thoughts on ASML
+                        </button>
+                    </div>
+
+                    <!-- THOUGHT 04: BN -->
                     <div class="group typewriter-line" data-delay="1000">
-                        <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest">ENTRY_02 / ARCHIVE</span>
-                        <a href="#" 
-                           class="link-item link-item-full block py-2 text-lg glitch-text red-hover glitch-target">
-                           Written Thoughts & Essays
-                        </a>
+                        <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_04 / EQUITIES</span>
+                        <button onclick="openThoughtModal('bn')" 
+                                class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
+                           Thoughts on BN
+                        </button>
                     </div>
 
-                    <!-- ENTRY XX PENDING -->
-                    <div class="group typewriter-line opacity-20" data-delay="1200">
-                        <span class="text-[10px] block mb-2 uppercase tracking-widest">ENTRY_XX / PENDING</span>
-                        <span class="block py-2 text-lg italic">[ENCRYPTED_DATA]</span>
+                    <!-- THOUGHT 05: GOOGL -->
+                    <div class="group typewriter-line" data-delay="1100">
+                        <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_05 / EQUITIES</span>
+                        <button onclick="openThoughtModal('googl')" 
+                                class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
+                           Thoughts on Google
+                        </button>
+                    </div>
+
+                    <!-- THOUGHT 06: MA -->
+                    <div class="group typewriter-line" data-delay="1200">
+                        <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_06 / EQUITIES</span>
+                        <button onclick="openThoughtModal('ma')" 
+                                class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
+                           Thoughts on Mastercard
+                        </button>
+                    </div>
+
+                    <!-- THOUGHT 07: META -->
+                    <div class="group typewriter-line" data-delay="1300">
+                        <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_07 / EQUITIES</span>
+                        <button onclick="openThoughtModal('meta')" 
+                                class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
+                           Thoughts on Meta
+                        </button>
+                    </div>
+
+                    <!-- THOUGHT 08: NFLX -->
+                    <div class="group typewriter-line" data-delay="1400">
+                        <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_08 / EQUITIES</span>
+                        <button onclick="openThoughtModal('nflx')" 
+                                class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
+                           Thoughts on Netflix
+                        </button>
+                    </div>
+
+                    <!-- THOUGHT 09: UBER -->
+                    <div class="group typewriter-line" data-delay="1500">
+                        <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_09 / EQUITIES</span>
+                        <button onclick="openThoughtModal('uber')" 
+                                class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
+                           Thoughts on Uber
+                        </button>
                     </div>
                 </section>
             </div>
@@ -203,7 +259,101 @@
         </footer>
     </main>
 
+    <!-- Sticky Note Popup Modal Component -->
+    <div id="thought-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden p-4">
+        <div class="bg-[#0c0c0c] border border-red-900/60 rounded-md w-full max-w-lg shadow-[0_0_30px_rgba(153,27,27,0.2)] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <!-- Modal Header -->
+            <div class="px-4 py-3 bg-[#110505] border-b border-red-900/40 flex justify-between items-center">
+                <span id="modal-title" class="text-xs uppercase tracking-widest text-red-400 font-bold">// THOUGHTS // AMZN</span>
+                <button onclick="closeThoughtModal()" class="text-xs uppercase tracking-widest text-gray-400 hover:text-white px-2 py-1 border border-transparent hover:border-red-800 transition-colors">
+                    [CLOSE X]
+                </button>
+            </div>
+            <!-- Modal Body (Auto-sizing with max height and scroll for huge walls of text) -->
+            <div id="modal-content" class="p-6 text-sm text-gray-300 leading-relaxed max-h-[60vh] overflow-y-auto space-y-4">
+                <!-- Dynamic text gets inserted here -->
+            </div>
+        </div>
+    </div>
+
     <script>
+        // EDIT YOUR THOUGHTS DIRECTLY BELOW IN THIS OBJECT:
+        const STOCK_THOUGHTS = {
+            amzn: {
+                title: "AMZN // AMAZON",
+                text: "Type your thoughts on Amazon here. This box will automatically size itself if it's short, or become scrollable if you write a massive wall of text. You can edit this text directly in your code file without needing to consult anyone."
+            },
+            app: {
+                title: "APPLOVIN // APP",
+                text: "Type your thoughts on AppLovin here. Add paragraphs, bullet points, or thesis points as needed."
+            },
+            asml: {
+                title: "ASML // ASML HOLDING",
+                text: "Type your thoughts on ASML here. Lithography monopoly notes and semiconductor equipment cycle thoughts."
+            },
+            bn: {
+                title: "BN // BROOKFIELD CORP",
+                text: "Type your thoughts on Brookfield here. Alternative asset management, infrastructure, and compounding cash flows."
+            },
+            googl: {
+                title: "GOOGL // ALPHABET",
+                text: "Type your thoughts on Google here. Search moat, AI integration, cloud margins, and capital allocation."
+            },
+            ma: {
+                title: "MA // MASTERCARD",
+                text: "Type your thoughts on Mastercard here. Tollbooth business model, cross-border volume trends, and network effects."
+            },
+            meta: {
+                title: "META // META PLATFORMS",
+                text: "Type your thoughts on Meta here. Ad pricing strength, engagement metrics, and infrastructure spending discipline."
+            },
+            nflx: {
+                title: "NFLX // NETFLIX",
+                text: "Type your thoughts on Netflix here. Streaming dominance, pricing power, ad-tier scaling, and content ROI."
+            },
+            uber: {
+                title: "UBER // UBER TECHNOLOGIES",
+                text: "Type your thoughts on Uber here. Mobility/delivery network effects, free cash flow conversion, and autonomous vehicle positioning."
+            }
+        };
+
+        function openThoughtModal(key) {
+            const data = STOCK_THOUGHTS[key];
+            if (!data) return;
+
+            document.getElementById('modal-title').innerText = "// THOUGHTS // " + data.title;
+            
+            // Format text with paragraphs if newline separated
+            const formattedText = data.text
+                .split('\n')
+                .filter(p => p.trim() !== '')
+                .map(p => `<p>${p}</p>`)
+                .join('');
+
+            document.getElementById('modal-content').innerHTML = formattedText || '<p class="italic text-gray-500">[No notes recorded for this asset yet.]</p>';
+            
+            const modal = document.getElementById('thought-modal');
+            modal.classList.remove('hidden');
+        }
+
+        function closeThoughtModal() {
+            document.getElementById('thought-modal').classList.add('hidden');
+        }
+
+        // Close modal when clicking outside of the box
+        document.getElementById('thought-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'thought-modal') {
+                closeThoughtModal();
+            }
+        });
+
+        // Close modal on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeThoughtModal();
+            }
+        });
+
         window.addEventListener('DOMContentLoaded', () => {
             const lines = document.querySelectorAll('.typewriter-line');
             lines.forEach(line => {
