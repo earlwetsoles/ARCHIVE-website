@@ -90,7 +90,7 @@
     </style>
 </head>
 <body class="p-8 md:p-16">
-    <main class="max-w-4xl mx-auto relative z-20">
+    <main class="max-w-5xl mx-auto relative z-20">
         <!-- Return Button -->
         <a href="index.html" class="back-btn typewriter-line glitch-text glitch-target" data-delay="100"><- RETURN_TO_ROOT</a>
 
@@ -107,14 +107,39 @@
 
         <!-- Embedded Google Spreadsheet Section -->
         <section class="mb-16 typewriter-line" data-delay="800">
-            <h2 class="text-xs uppercase tracking-widest text-white/50 mb-4">// PORTFOLIO_LIVE_METRICS</h2>
-            <div class="w-full h-[500px] bg-[#0c0c0c] border border-[#1a1a1a] rounded overflow-hidden relative">
-                <iframe 
-                    src="https://docs.google.com/spreadsheets/d/e/2PACX-1vS8I3tVSW989f5cnQzzECKFcaJNZkF7cZosrlmO5qBU_qsHioF625xqIQVWdEk2iesgkJeZRBV1Ks0a/pubhtml?gid=0&amp;single=true&amp;widget=true&amp;headers=false"
-                    class="w-full h-full border-0 bg-white opacity-90 hover:opacity-100 transition-opacity" 
-                    title="Portfolio Spreadsheet"
-                    loading="lazy">
-                </iframe>
+            <div class="w-full md:w-2/3 flex justify-between items-center mb-4">
+                <h2 class="text-xs uppercase tracking-widest text-white/50">// PORTFOLIO_LIVE_METRICS</h2>
+                <span class="text-[10px] text-white/30 uppercase tracking-widest">[ DUAL_FEED ]</span>
+            </div>
+            
+            <div class="flex flex-col space-y-8">
+                <!-- Sheet Tab 01 (Overview - Skinnier Top Window) -->
+                <div class="w-full md:w-2/3 h-[565px] bg-[#0c0c0c] border border-[#1a1a1a] rounded overflow-hidden relative flex flex-col">
+                    <div class="px-3 py-2 border-b border-[#1a1a1a] bg-[#080808] flex justify-between items-center">
+                        <span class="text-[10px] uppercase tracking-widest text-white/40">TAB_01 // OVERVIEW</span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500/80"></span>
+                    </div>
+                    <iframe 
+                        src="https://docs.google.com/spreadsheets/d/e/2PACX-1vS8I3tVSW989f5cnQzzECKFcaJNZkF7cZosrlmO5qBU_qsHioF625xqIQVWdEk2iesgkJeZRBV1Ks0a/pubhtml?gid=0&amp;single=true&amp;widget=true&amp;headers=false"
+                        class="w-full flex-1 border-0 bg-white opacity-90 hover:opacity-100 transition-opacity" 
+                        title="Portfolio Spreadsheet Overview"
+                        loading="lazy">
+                    </iframe>
+                </div>
+
+                <!-- Sheet Tab 02 (Allocation - 20% Wider and Taller Bottom Window) -->
+                <div class="w-full max-w-[792px] h-[516px] bg-[#0c0c0c] border border-[#1a1a1a] rounded overflow-hidden relative flex flex-col">
+                    <div class="px-3 py-2 border-b border-[#1a1a1a] bg-[#080808] flex justify-between items-center">
+                        <span class="text-[10px] uppercase tracking-widest text-white/40">TAB_02 // ALLOCATION</span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500/80"></span>
+                    </div>
+                    <iframe 
+                        src="https://docs.google.com/spreadsheets/d/e/2PACX-1vS8I3tVSW989f5cnQzzECKFcaJNZkF7cZosrlmO5qBU_qsHioF625xqIQVWdEk2iesgkJeZRBV1Ks0a/pubhtml?gid=246871839&amp;single=true&amp;widget=true&amp;headers=false"
+                        class="w-full flex-1 border-0 bg-white opacity-90 hover:opacity-100 transition-opacity" 
+                        title="Portfolio Spreadsheet Secondary Tab"
+                        loading="lazy">
+                    </iframe>
+                </div>
             </div>
         </section>
 
