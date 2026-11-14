@@ -87,9 +87,85 @@
             margin-bottom: 2rem;
             display: inline-block;
         }
+
+        /* Interactive Terminal Console Overlay */
+        #console-container {
+            position: fixed;
+            bottom: 0; left: 0; width: 100%;
+            background: #000;
+            border-top: 1px solid var(--crimson);
+            padding: 10px 20px;
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            font-size: 12px;
+            color: var(--terminal-off-white);
+            max-height: 50vh;
+        }
+
+        #console-output { overflow-y: auto; margin-bottom: 5px; font-size: 10px; color: #666; max-height: 250px; }
+        .console-input-row { display: flex; align-items: center; }
+        #console-input { background: transparent; border: none; outline: none; color: var(--terminal-off-white); flex-grow: 1; margin-left: 10px; font-family: 'Space Mono', monospace; }
+
+        /* Video Player Overlay */
+        #video-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 20000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        .video-window {
+            width: 90%;
+            max-width: 900px;
+            background: #000;
+            border: 1px solid #222;
+            padding: 4px;
+            position: relative;
+        }
+        .video-header {
+            background: #111;
+            padding: 5px 10px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            border-bottom: 1px solid #222;
+            margin-bottom: 4px;
+        }
+        #video-player {
+            width: 100%;
+            max-height: 80vh;
+            object-fit: contain; 
+            background: #000;
+            pointer-events: none;
+        }
     </style>
 </head>
-<body class="p-6 md:p-12 lg:px-14">
+<body class="p-6 md:p-12 lg:px-14 pb-40">
+
+    <!-- Video Playback Overlay -->
+    <div id="video-overlay">
+        <div class="video-window">
+            <div class="video-header">
+                <span id="video-title">STREAMING_LOG...</span>
+                <span onclick="closeVideo()" class="cursor-pointer text-red-700 font-bold glitch-text">[X] CLOSE</span>
+            </div>
+            <video id="video-player" style="width:100%" playsinline></video>
+        </div>
+    </div>
+
+    <!-- Terminal Console Overlay -->
+    <div id="console-container">
+        <div id="console-output"></div>
+        <div class="console-input-row">
+            <span>ARCH_OS:</span>
+            <input type="text" id="console-input" spellcheck="false" autocomplete="off" placeholder="type 'help'...">
+        </div>
+    </div>
+
     <main class="w-full max-w-[1800px] mx-auto relative z-20">
         <!-- Return Button -->
         <a href="index.html" class="back-btn typewriter-line glitch-text glitch-target" data-delay="100"><- RETURN_TO_ROOT</a>
@@ -117,7 +193,7 @@
                         <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_01 / EQUITIES</span>
                         <button onclick="openThoughtModal('amzn')" 
                                 class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
-                           Thoughts on AMZN
+                            Thoughts on AMZN
                         </button>
                     </div>
 
@@ -126,7 +202,7 @@
                         <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_02 / EQUITIES</span>
                         <button onclick="openThoughtModal('app')" 
                                 class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
-                           Thoughts on AppLovin
+                            Thoughts on AppLovin
                         </button>
                     </div>
 
@@ -135,7 +211,7 @@
                         <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_03 / EQUITIES</span>
                         <button onclick="openThoughtModal('asml')" 
                                 class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
-                           Thoughts on ASML
+                            Thoughts on ASML
                         </button>
                     </div>
 
@@ -144,7 +220,7 @@
                         <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_04 / EQUITIES</span>
                         <button onclick="openThoughtModal('bn')" 
                                 class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
-                           Thoughts on BN
+                            Thoughts on BN
                         </button>
                     </div>
 
@@ -153,7 +229,7 @@
                         <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_05 / EQUITIES</span>
                         <button onclick="openThoughtModal('googl')" 
                                 class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
-                           Thoughts on Google
+                            Thoughts on Google
                         </button>
                     </div>
 
@@ -162,7 +238,7 @@
                         <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_06 / EQUITIES</span>
                         <button onclick="openThoughtModal('ma')" 
                                 class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
-                           Thoughts on Mastercard
+                            Thoughts on Mastercard
                         </button>
                     </div>
 
@@ -171,7 +247,7 @@
                         <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_07 / EQUITIES</span>
                         <button onclick="openThoughtModal('meta')" 
                                 class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
-                           Thoughts on Meta
+                            Thoughts on Meta
                         </button>
                     </div>
 
@@ -180,7 +256,7 @@
                         <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_08 / EQUITIES</span>
                         <button onclick="openThoughtModal('nflx')" 
                                 class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
-                           Thoughts on Netflix
+                            Thoughts on Netflix
                         </button>
                     </div>
 
@@ -189,7 +265,7 @@
                         <span class="text-[10px] block mb-1 opacity-40 uppercase tracking-widest">POSITION_09 / EQUITIES</span>
                         <button onclick="openThoughtModal('uber')" 
                                 class="link-item link-item-full text-left block py-2 text-base glitch-text red-hover glitch-target">
-                           Thoughts on Uber
+                            Thoughts on Uber
                         </button>
                     </div>
                 </section>
@@ -206,7 +282,7 @@
                 <div class="flex flex-col lg:flex-row items-stretch gap-8">
                     <!-- Left Sub-Column: Stacked Tab 01 & Tab 02 (Aligned Width: 660px) -->
                     <div class="flex flex-col space-y-8 w-full lg:w-[660px] shrink-0">
-                        <!-- Sheet Tab 01 (Overview - Widened halfway from 528px to 660px) -->
+                        <!-- Sheet Tab 01 (Overview) -->
                         <div class="w-full h-[565px] bg-[#0c0c0c] border border-[#1a1a1a] rounded overflow-hidden relative flex flex-col">
                             <div class="px-3 py-2 border-b border-[#1a1a1a] bg-[#080808] flex justify-between items-center">
                                 <span class="text-[10px] uppercase tracking-widest text-white/40">TAB_01 // OVERVIEW</span>
@@ -220,7 +296,7 @@
                             </iframe>
                         </div>
 
-                        <!-- Sheet Tab 02 (Allocation - Narrowed halfway from 792px to 660px) -->
+                        <!-- Sheet Tab 02 (Allocation) -->
                         <div class="w-full h-[516px] bg-[#0c0c0c] border border-[#1a1a1a] rounded overflow-hidden relative flex flex-col">
                             <div class="px-3 py-2 border-b border-[#1a1a1a] bg-[#080808] flex justify-between items-center">
                                 <span class="text-[10px] uppercase tracking-widest text-white/40">TAB_02 // ALLOCATION</span>
@@ -235,7 +311,7 @@
                         </div>
                     </div>
 
-                    <!-- Right Sub-Column: Tall Skinny Tab 03 (Aligned top-to-bottom: 565 + 32 + 516 = 1113px) -->
+                    <!-- Right Sub-Column: Tall Skinny Tab 03 -->
                     <div class="w-full lg:w-[320px] h-[600px] lg:h-[1113px] shrink-0 bg-[#0c0c0c] border border-[#1a1a1a] rounded overflow-hidden relative flex flex-col">
                         <div class="px-3 py-2 border-b border-[#1a1a1a] bg-[#080808] flex justify-between items-center">
                             <span class="text-[10px] uppercase tracking-widest text-white/40">TAB_03 // LEDGER</span>
@@ -254,14 +330,14 @@
 
         <footer class="mt-24 pt-8 border-t border-[#111] typewriter-line" data-delay="1600">
             <p class="text-[10px] uppercase tracking-widest opacity-20 glitch-target">
-                Data Sync Complete.
+                PRESS '~' FOR COMMAND INTERFACE
             </p>
         </footer>
     </main>
 
     <!-- Sticky Note Popup Modal Component -->
     <div id="thought-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden p-4">
-        <div class="bg-[#0c0c0c] border border-red-900/60 rounded-md w-full max-w-lg shadow-[0_0_30px_rgba(153,27,27,0.2)] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div class="bg-[#0c0c0c] border border-red-900/60 rounded-md w-full max-w-lg shadow-[0_0_30px_rgba(153,27,27,0.2)] flex flex-col overflow-hidden">
             <!-- Modal Header -->
             <div class="px-4 py-3 bg-[#110505] border-b border-red-900/40 flex justify-between items-center">
                 <span id="modal-title" class="text-xs uppercase tracking-widest text-red-400 font-bold">// THOUGHTS // AMZN</span>
@@ -269,87 +345,157 @@
                     [CLOSE X]
                 </button>
             </div>
-            <!-- Modal Body (Auto-sizing with max height and scroll for huge walls of text) -->
-            <div id="modal-content" class="p-6 text-sm text-gray-300 leading-relaxed max-h-[60vh] overflow-y-auto space-y-4">
-                <!-- Dynamic text gets inserted here -->
-            </div>
+            <!-- Modal Body -->
+            <div id="modal-content" class="p-6 text-sm text-gray-300 leading-relaxed max-h-[60vh] overflow-y-auto space-y-4"></div>
         </div>
     </div>
 
     <script>
-        // EDIT YOUR THOUGHTS DIRECTLY BELOW IN THIS OBJECT:
+        // Data Registry Fetched from Repository Root
+        const FILES_JSON_URL = "data/terminal_files.json";
+        const COMMANDS_JSON_URL = "data/commands.json";
+        let virtualFiles = {};
+        let commandRegistry = {};
+
+        const consoleContainer = document.getElementById('console-container');
+        const consoleInput = document.getElementById('console-input');
+        const consoleOutput = document.getElementById('console-output');
+        const videoOverlay = document.getElementById('video-overlay');
+        const videoPlayer = document.getElementById('video-player');
+        const videoTitle = document.getElementById('video-title');
+
+        async function initTerminalData() {
+            try {
+                const [fRes, cRes] = await Promise.all([
+                    fetch(FILES_JSON_URL).then(r => r.json()).catch(() => ({})),
+                    fetch(COMMANDS_JSON_URL).then(r => r.json()).catch(() => ({}))
+                ]);
+                virtualFiles = fRes;
+                commandRegistry = cRes;
+            } catch (e) {
+                console.error("Terminal configuration sync failed.");
+            }
+        }
+
+        function writeToConsole(text, color = "#666") {
+            const line = document.createElement('div');
+            line.style.color = color;
+            line.innerText = text;
+            consoleOutput.appendChild(line);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        function launchVideo(url, title) {
+            videoTitle.innerText = title;
+            videoPlayer.src = url;
+            videoPlayer.muted = false;
+            videoPlayer.volume = 1.0;
+            videoOverlay.style.display = 'flex';
+            videoPlayer.play().catch(() => {
+                writeToConsole(`ERR: AUTOPLAY_BLOCKED`, "var(--crimson)");
+            });
+        }
+
+        consoleInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const raw = consoleInput.value.trim();
+                const parts = raw.split(' ');
+                const cmd = parts[0].toLowerCase();
+                const arg = parts.slice(1).join(' ');
+                consoleInput.value = '';
+                writeToConsole(`> ${raw.toUpperCase()}`, "#aaa");
+                
+                if (!commandRegistry[cmd]) {
+                    writeToConsole(`ERR: COMMAND_${cmd.toUpperCase()}_NOT_RECOGNIZED`);
+                    return;
+                }
+
+                const cmdMeta = commandRegistry[cmd];
+                if (cmdMeta.action === 'video') {
+                    launchVideo(cmdMeta.value, cmdMeta.title || cmd.toUpperCase());
+                    writeToConsole(`EXECUTING_${cmd.toUpperCase()}_SEQUENCE...`, "var(--terminal-green)");
+                    return;
+                }
+
+                switch(cmd) {
+                    case 'list':
+                        Object.keys(virtualFiles).forEach(f => writeToConsole(`- ${f}`));
+                        break;
+                    case 'open':
+                        const fileObj = virtualFiles[arg] || virtualFiles[arg.toLowerCase()];
+                        if (fileObj) {
+                            if (fileObj.type === 'video') {
+                                launchVideo(fileObj.url, `LOG_STREAM: ${arg.toUpperCase()}`);
+                            } else if (fileObj.type === 'external') {
+                                window.open(fileObj.url, '_blank');
+                            }
+                        } else writeToConsole("ERR: FILE_NOT_FOUND");
+                        break;
+                    case 'clear':
+                        consoleOutput.innerHTML = '';
+                        break;
+                    case 'help':
+                        Object.entries(commandRegistry).forEach(([name, meta]) => {
+                            if (name.toLowerCase() !== 'help') {
+                                writeToConsole(`${name.toUpperCase()}: ${meta.description}`);
+                            }
+                        });
+                        break;
+                }
+            }
+        });
+
+        videoPlayer.onended = () => { closeVideo(); };
+        function closeVideo() {
+            videoPlayer.pause();
+            videoPlayer.src = "";
+            videoOverlay.style.display = 'none';
+        }
+
+        const toggleConsole = () => {
+            const isVisible = consoleContainer.style.display === 'flex';
+            consoleContainer.style.display = isVisible ? 'none' : 'flex';
+            if (!isVisible) consoleInput.focus();
+        };
+
+        window.addEventListener('keydown', (e) => { 
+            if (e.key === '~' || e.key === '`') { e.preventDefault(); toggleConsole(); } 
+            if (e.key === 'Escape' && videoOverlay.style.display === 'flex') closeVideo();
+        });
+
+        // Stock Thoughts Data & Modal Handlers
         const STOCK_THOUGHTS = {
             amzn: {
                 title: "AMZN // AMAZON",
                 text: `Amazon’s share price increased 3% year-to-date as of June 30, 2026. As with our other hyperscaler investments, we believe investor concerns around the magnitude of capital expenditures behind the datacenter buildout at Amazon Web Services (AWS) continue to weigh on the stock. These concerns understate the resiliency of Amazon’s business and its significant growth runway, as evidenced by the company’s robust operating momentum. Increasing AI adoption has materially accelerated AWS’s revenue growth profile from 20% growth in 2024 and 2025 to more than 30% this year. Likewise, Amazon’s retail segment continues to take market share, with unit volumes up 15% in Q1 2026, the fastest pace since 2021. Longer term, we believe Amazon can compound earnings at a 20%-plus rate, driven by secular tailwinds from AI and rising e-commerce penetration alongside substantial retail margin expansion.`,
                 source: "- Pershing Square Capital's Letter to Shareholders"
             },
-            app: {
-                title: "APPLOVIN // APP",
-                text: "Type your thoughts on AppLovin here. Add paragraphs, bullet points, or thesis points as needed.",
-                source: ""
-            },
-            asml: {
-                title: "ASML // ASML HOLDING",
-                text: "Type your thoughts on ASML here. Lithography monopoly notes and semiconductor equipment cycle thoughts.",
-                source: ""
-            },
+            app: { title: "APPLOVIN // APP", text: "Type your thoughts on AppLovin here.", source: "" },
+            asml: { title: "ASML // ASML HOLDING", text: "Type your thoughts on ASML here.", source: "" },
             bn: {
                 title: "BN // BROOKFIELD CORP",
-                text: `BN’s share price decreased 7% year-to-date as of June 30, 2026. Strong company performance has been overshadowed by sector-wide concerns including the durability of business development companies as a growth vector, and the risk to asset managers who have high investment allocations to private credit and/or software companies which may be at risk for disintermediation. Importantly, Brookfield has immaterial exposure to these risks and has accordingly outperformed peers year-to-date. We believe Brookfield remains on track for mid-teens-or-better distributable EPS growth this year, dependent on the exact pace of BN’s carried interest realizations which should meaningfully accelerate over the next several quarters. BN trades at 14 times our earnings estimate, a low multiple given our views on growth and business quality.`,
+                text: `BN’s share price decreased 7% year-to-date as of June 30, 2026. Strong company performance has been overshadowed by sector-wide concerns...`,
                 source: "- Pershing Square Capital's Letter to Shareholders"
             },
-            googl: {
-                title: "GOOGL // ALPHABET",
-                text: "Type your thoughts on Google here. Search moat, AI integration, cloud margins, and capital allocation.",
-                source: ""
-            },
+            googl: { title: "GOOGL // ALPHABET", text: "Type your thoughts on Google here.", source: "" },
             ma: {
                 title: "MA // MASTERCARD",
-                text: `In our view, Visa and Mastercard are among the highest-quality businesses in the world. Both are capital-light toll-takers that earn a nominal fee on each transaction without taking any material risk and are natural beneficiaries of higher inflation. Their networks, built over decades, connect billions of consumers with hundreds of millions of merchants and thousands of financial institutions. Each new member and transaction further strengthens the networks and deepens their data advantage.
-
-Visa and Mastercard receive approximately 20 basis points of a typical transaction in exchange for 24/7/365 reliability, instant authorization, global acceptance, fraud protection, and dispute resolution. Card volumes are still approximately half of addressable consumer spending globally and have a long runway of growth as cards continue to take share from legacy payment methods and e-commerce continues to grow at a rapid rate. Even in countries with high card usage, the card networks continue to outgrow consumer spending, and agentic AI is likely to further accelerate the growth of e-commerce and create significant new use cases.
-
-Value-added services now represent approximately 30% and 40% of revenues at Visa and Mastercard, respectively, and are growing at two to three times the rate of the payments business, a mix shift that will accelerate overall revenue growth. These characteristics produce a highly attractive financial profile of double-digit revenue growth with high operating margins, minimal incremental cost per transaction, and 100%+ cash flow conversion.
-
-Despite these attributes, Visa and Mastercard recently de-rated to 22 times next twelve months’ earnings. We attribute this to investor concerns around stablecoin disruption, agentic commerce, and proposed U.S. regulation, each of which we believe is misplaced.
-
-We believe stablecoins represent an opportunity for the card networks rather than a threat. They are most relevant where cards are not the incumbent: cross-border business-to-business payments, high-cost remittance corridors, and dollar savings in countries with volatile currencies. Adoption in these areas should grow in parallel with, not at the expense of, card volumes. In consumer payments, cards offer near-universal merchant acceptance, fraud protection, access to credit, and rewards, advantages that stablecoins, whose transactions are typically final and harder to reverse, cannot replicate. The card networks are also embracing the technology: Visa and Mastercard are key members of Open USD that recently announced OUSD, a new stablecoin. The card networks also offer hundreds of stablecoin-linked card programs, are modernizing settlement with stablecoins, and are testing use cases that allow issuers to mint, burn, and transfer fiat-backed tokens.
-
-Similarly, we believe agentic commerce is more likely to expand the payments ecosystem than to erode the networks’ moats, as agents reduce friction, enable more frequent purchases, and accelerate the digitization of commerce. Agents should adopt, not replace, consumers’ existing payment preferences. Agent-initiated transactions make the networks’ core strengths more valuable, as confirming that purchases reflect user intent, enforcing delegation and spending limits, and providing recourse for fraud are complex problems best solved by the networks’ infrastructure. If agent-to-agent microtransactions reach scale, the networks can introduce alternative pricing structures to capture them. As proof points, the card networks are working with other technology leaders to build agentic commerce protocols and enabling agent cards, which give each AI agent its own credential with programmable limits, rules, and policies.
-
-Finally, the U.S. regulatory proposals that unnerved investors earlier this year, which would cap interest rates and mandate routing competition on credit cards, have both stalled amid broad opposition. Even if routing legislation were enacted, we estimate it would have a minimal impact on Visa and Mastercard.
-
-The card networks have a long history of consistent growth despite periodic fears of disruption, the most recent of which created the opportunity for our purchase of shares in the companies. While Visa and Mastercard shares have appreciated from our cost as the S&P 500 has remained flat, they remain attractively valued at 23 and 24 times forward earnings. With a multi-year runway of double-digit revenue, low-to-mid-teens operating income, and mid-to-high-teens EPS growth, we expect both businesses to generate attractive returns for years to come.`,
+                text: `In our view, Visa and Mastercard are among the highest-quality businesses in the world...`,
                 source: "- Pershing Square Capital's Letter to Shareholders"
             },
             meta: {
                 title: "META // META PLATFORMS",
-                text: `Meta’s share price declined 15% year-to-date as of June 30, 2026. The company’s share price remains pressured by its substantial ramp in operating expenses and capital expenditures funding its AI initiatives.
-
-We view Meta as one of the clearest beneficiaries of AI, which is driving higher engagement through better content recommendation, greater ad monetization through improved targeting, and meaningful product innovation in consumer and business agents. Though still in the early days, these benefits are already visible in greater revenue acceleration in Meta’s core advertising business, which is growing at its fastest quarterly pace since 2021.
-
-Meta’s compute investment also affords downside protection as capacity not consumed internally can be profitably monetized in a highly supply-constrained compute market. Following this year’s elevated investment, we expect Meta to grow earnings at a 20%-plus rate over the next few years. Against this growth backdrop, we view Meta’s 18 times forward earnings multiple as a highly discounted valuation for a dominant consumer internet franchise with a stable user base of 3.6 billion daily active users.`,
+                text: `Meta’s share price declined 15% year-to-date as of June 30, 2026...`,
                 source: "- Pershing Square Capital's Letter to Shareholders"
             },
             nflx: {
                 title: "NFLX // NETFLIX",
-                text: `We acquired a position in Netflix, a business we briefly owned in 2022 and have followed closely ever since. Netflix is the dominant global streaming platform with over 325 million subscribers, nearly double the combined base of its two closest competitors, Disney+ and HBO Max. When we first invested in early 2022, investors feared an escalating content arms race among a crowded field of streaming entrants. At the same time, cash content spend substantially exceeded content amortization, weighing on free cash flow. The launch of a previously disavowed advertising tier added further uncertainty.
-
-Netflix has since effectively won the streaming wars. Its subscriber base now exceeds any competitor’s by a wide margin, and that scale is self-reinforcing. Netflix can outspend rivals on content while spreading the cost across the industry’s largest user base, improving both the value proposition for subscribers and profitability for the company. Content discipline has followed, with cash content spend growing at just a 2% annual rate since 2021 and EBIT margins expanding from 21% to approximately 31.5% today. Netflix now converts approximately 90% of earnings into free cash flow, primarily redeployed into share buybacks. Advertising has scaled rapidly toward $3 billion of revenue this year and its lower-priced ad-supported tier broadens the addressable market among price-conscious consumers, particularly in international markets. Over the last five years, Netflix has grown revenue 12%, operating profit 21%, and EPS 27% annually.
-
-Our opportunity arose after Netflix’s share price fell ~50% from its June 2025 high of $134, de-rating from over 40 times forward earnings per share to 21 times. The decline began with prolonged uncertainty around the company’s bid for Warner Bros. Discovery, which it ultimately lost in February 2026, enabling it to collect a $2.8 billion termination fee. Investor focus has since shifted to plateauing engagement trends and the longer-term risk AI-generated video poses to content creation.
-
-With respect to engagement, investors have been intently focused on watch time metrics without appropriately considering the quality of that watch time or the impact of geographic mix shifts. Live programming, for example, represents a small fraction of watch time yet is instrumental in driving sign-ups and retention. Investors are similarly concerned about competition from short-form video, but we view short-form video as a distinct offering from scripted content rather than a direct competitor.
-
-In our view, time reallocated toward short-form video is far more likely to come from share donors like linear TV or lower-quality streaming services than from a utility-like service such as Netflix. To that end, the ramp up in short-form video consumption has been most acute over the past two years yet has had no discernible impact on the company’s results. On AI, we believe concerns understate the cost of generating long-form, high-quality video, which remains among the most compute-intensive AI tasks. If compute costs remain elevated, Netflix’s ability to amortize content investment across the largest user base in the industry remains a highly valuable competitive advantage. Moreover, AI should meaningfully enhance the company’s content recommendation engine and ad targeting capabilities.
-
-Looking forward, we expect Netflix to compound revenue at a double-digit growth rate, with content costs growing more slowly than revenue driving continued margin expansion. Combined with a robust buyback program, we estimate earnings should compound at close to 20% annually. We believe the company’s current valuation multiple represents a substantial discount for a business with such a strong growth profile and dominant market position.`,
+                text: `We acquired a position in Netflix, a business we briefly owned in 2022...`,
                 source: "- Pershing Square Capital's Letter to Shareholders"
             },
             uber: {
                 title: "UBER // UBER TECHNOLOGIES",
-                text: `Uber’s share price was down 12% year-to-date as of June 30, 2026. Broad investor concern regarding the potential long-term impact of autonomous vehicles (AVs) continues to negatively weigh on Uber’s stock, punctuated this year by evidence of an increasingly fraught relationship with its partner, Waymo. Offsetting these concerns, the company continues to make significant progress with its many other strategic partners, with AV launches planned in multiple new cities later this year. Against this backdrop, Uber continues to demonstrate very strong operating and financial performance, with earnings on pace to grow approximately 35% this year. Valuation is increasingly disconnected from its fundamentals. It now trades at 19 times earnings, near its lowest-ever valuation.`,
+                text: `Uber’s share price was down 12% year-to-date as of June 30, 2026...`,
                 source: "- Pershing Square Capital's Letter to Shareholders"
             }
         };
@@ -357,103 +503,29 @@ Looking forward, we expect Netflix to compound revenue at a double-digit growth 
         function openThoughtModal(key) {
             const data = STOCK_THOUGHTS[key];
             if (!data) return;
-
             document.getElementById('modal-title').innerText = "// THOUGHTS // " + data.title;
-            
-            // Format text with paragraphs if newline separated
-            const paragraphs = data.text
-                .split('\n')
-                .filter(p => p.trim() !== '')
-                .map(p => `<p>${p.trim()}</p>`)
-                .join('');
-
-            let contentHtml = '';
-            if (paragraphs) {
-                if (data.source) {
-                    contentHtml = `
-                        <blockquote class="border-l-2 border-red-800/80 pl-4 italic text-gray-300 space-y-4">
-                            ${paragraphs}
-                        </blockquote>
-                        <div class="pt-3 border-t border-[#1a1a1a] text-xs text-red-400/90 tracking-wide font-semibold">
-                            ${data.source}
-                        </div>
-                    `;
-                } else {
-                    contentHtml = paragraphs;
-                }
-            } else {
-                contentHtml = '<p class="italic text-gray-500">[No notes recorded for this asset yet.]</p>';
-            }
-
+            const paragraphs = data.text.split('\n').filter(p => p.trim() !== '').map(p => `<p>${p.trim()}</p>`).join('');
+            let contentHtml = data.source ? `<blockquote class="border-l-2 border-red-800/80 pl-4 italic text-gray-300 space-y-4">${paragraphs}</blockquote><div class="pt-3 border-t border-[#1a1a1a] text-xs text-red-400/90 tracking-wide font-semibold">${data.source}</div>` : paragraphs;
             document.getElementById('modal-content').innerHTML = contentHtml;
-            
-            const modal = document.getElementById('thought-modal');
-            modal.classList.remove('hidden');
+            document.getElementById('thought-modal').classList.remove('hidden');
         }
 
         function closeThoughtModal() {
             document.getElementById('thought-modal').classList.add('hidden');
         }
 
-        // Close modal when clicking outside of the box
         document.getElementById('thought-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'thought-modal') {
-                closeThoughtModal();
-            }
-        });
-
-        // Close modal on ESC key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeThoughtModal();
-            }
+            if (e.target.id === 'thought-modal') closeThoughtModal();
         });
 
         window.addEventListener('DOMContentLoaded', () => {
+            initTerminalData();
             const lines = document.querySelectorAll('.typewriter-line');
             lines.forEach(line => {
                 const delay = parseInt(line.getAttribute('data-delay')) || 0;
                 setTimeout(() => { line.classList.add('typing'); }, delay);
             });
-
-            setTimeout(runGlitchEffect, 2500);
         });
-
-        const GLITCH_CONFIG = {
-            className: '.glitch-target', 
-            chars: '!@#$%^&*()_+[]{}<>?/', 
-            frames: 10,                   
-            frameSpeed: 60,               
-            intervalMin: 1500,             
-            intervalMax: 4000              
-        };
-
-        function runGlitchEffect() {
-            const targets = document.querySelectorAll(GLITCH_CONFIG.className);
-            if (targets.length === 0) return;
-
-            const target = targets[Math.floor(Math.random() * targets.length)];
-            const originalText = target.innerText;
-            let iterations = 0;
-
-            const interval = setInterval(() => {
-                target.innerText = originalText
-                    .split('')
-                    .map((char) => {
-                        if (char === ' ' || char === '/' || char === '<' || char === '-') return char;
-                        return GLITCH_CONFIG.chars[Math.floor(Math.random() * GLITCH_CONFIG.chars.length)];
-                    })
-                    .join('');
-
-                if (iterations++ > GLITCH_CONFIG.frames) {
-                    clearInterval(interval);
-                    target.innerText = originalText; 
-                }
-            }, GLITCH_CONFIG.frameSpeed);
-
-            const nextTick = Math.random() * (GLITCH_CONFIG.intervalMax - GLITCH_CONFIG.intervalMin) + GLITCH_CONFIG.intervalMin;
-            setTimeout(runGlitchEffect, nextTick);
-        }
     </script>
 </body>
 </html>
