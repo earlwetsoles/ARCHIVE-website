@@ -13,6 +13,7 @@
             --bright-red: #ff3e3e;
             --terminal-gray: #666;
             --terminal-off-white: #eee;
+            --terminal-green: #00ff41;
         }
 
         body { 
@@ -93,9 +94,85 @@
             margin-bottom: 2rem;
             display: inline-block;
         }
+
+        /* Interactive Terminal Console Overlay */
+        #console-container {
+            position: fixed;
+            bottom: 0; left: 0; width: 100%;
+            background: #000;
+            border-top: 1px solid var(--crimson);
+            padding: 10px 20px;
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            font-size: 12px;
+            color: var(--terminal-off-white);
+            max-height: 50vh;
+        }
+
+        #console-output { overflow-y: auto; margin-bottom: 5px; font-size: 10px; color: #666; max-height: 250px; }
+        .console-input-row { display: flex; align-items: center; }
+        #console-input { background: transparent; border: none; outline: none; color: var(--terminal-off-white); flex-grow: 1; margin-left: 10px; font-family: 'Space Mono', monospace; }
+
+        /* Video Player Overlay */
+        #video-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 20000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        .video-window {
+            width: 90%;
+            max-width: 900px;
+            background: #000;
+            border: 1px solid #222;
+            padding: 4px;
+            position: relative;
+        }
+        .video-header {
+            background: #111;
+            padding: 5px 10px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            border-bottom: 1px solid #222;
+            margin-bottom: 4px;
+        }
+        #video-player {
+            width: 100%;
+            max-height: 80vh;
+            object-fit: contain; 
+            background: #000;
+            pointer-events: none;
+        }
     </style>
 </head>
-<body class="p-8 md:p-24">
+<body class="p-8 md:p-24 pb-40">
+
+    <!-- Video Playback Overlay -->
+    <div id="video-overlay">
+        <div class="video-window">
+            <div class="video-header">
+                <span id="video-title">STREAMING_LOG...</span>
+                <span onclick="closeVideo()" class="cursor-pointer text-red-700 font-bold glitch-text">[X] CLOSE</span>
+            </div>
+            <video id="video-player" style="width:100%" playsinline></video>
+        </div>
+    </div>
+
+    <!-- Terminal Console Overlay -->
+    <div id="console-container">
+        <div id="console-output"></div>
+        <div class="console-input-row">
+            <span>ARCH_OS:</span>
+            <input type="text" id="console-input" spellcheck="false" autocomplete="off" placeholder="type 'help'...">
+        </div>
+    </div>
+
     <main class="max-w-2xl relative z-20">
         <a href="index.html" class="back-btn typewriter-line glitch-text glitch-target" data-delay="100"><- RETURN_TO_ROOT</a>
 
@@ -146,14 +223,127 @@
 
         <footer class="mt-32 pt-8 border-t border-[#111] typewriter-line" data-delay="2000">
             <p class="text-[10px] uppercase tracking-widest opacity-20 glitch-target">
-                Data Sync Complete.
+                PRESS '~' FOR COMMAND INTERFACE
             </p>
         </footer>
     </main>
 
     <script>
-        // 1. Typewriter Animation Trigger
+        // Terminal Data Registry Fetched from Repository Root
+        const FILES_JSON_URL = "data/terminal_files.json";
+        const COMMANDS_JSON_URL = "data/commands.json";
+        let virtualFiles = {};
+        let commandRegistry = {};
+
+        const consoleContainer = document.getElementById('console-container');
+        const consoleInput = document.getElementById('console-input');
+        const consoleOutput = document.getElementById('console-output');
+        const videoOverlay = document.getElementById('video-overlay');
+        const videoPlayer = document.getElementById('video-player');
+        const videoTitle = document.getElementById('video-title');
+
+        async function initTerminalData() {
+            try {
+                const [fRes, cRes] = await Promise.all([
+                    fetch(FILES_JSON_URL).then(r => r.json()).catch(() => ({})),
+                    fetch(COMMANDS_JSON_URL).then(r => r.json()).catch(() => ({}))
+                ]);
+                virtualFiles = fRes;
+                commandRegistry = cRes;
+            } catch (e) {
+                console.error("Terminal configuration sync failed.");
+            }
+        }
+
+        function writeToConsole(text, color = "#666") {
+            const line = document.createElement('div');
+            line.style.color = color;
+            line.innerText = text;
+            consoleOutput.appendChild(line);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        function launchVideo(url, title) {
+            videoTitle.innerText = title;
+            videoPlayer.src = url;
+            videoPlayer.muted = false;
+            videoPlayer.volume = 1.0;
+            videoOverlay.style.display = 'flex';
+            videoPlayer.play().catch(() => {
+                writeToConsole(`ERR: AUTOPLAY_BLOCKED`, "var(--crimson)");
+            });
+        }
+
+        consoleInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const raw = consoleInput.value.trim();
+                const parts = raw.split(' ');
+                const cmd = parts[0].toLowerCase();
+                const arg = parts.slice(1).join(' ');
+                consoleInput.value = '';
+                writeToConsole(`> ${raw.toUpperCase()}`, "#aaa");
+                
+                if (!commandRegistry[cmd]) {
+                    writeToConsole(`ERR: COMMAND_${cmd.toUpperCase()}_NOT_RECOGNIZED`);
+                    return;
+                }
+
+                const cmdMeta = commandRegistry[cmd];
+                if (cmdMeta.action === 'video') {
+                    launchVideo(cmdMeta.value, cmdMeta.title || cmd.toUpperCase());
+                    writeToConsole(`EXECUTING_${cmd.toUpperCase()}_SEQUENCE...`, "var(--terminal-green)");
+                    return;
+                }
+
+                switch(cmd) {
+                    case 'list':
+                        Object.keys(virtualFiles).forEach(f => writeToConsole(`- ${f}`));
+                        break;
+                    case 'open':
+                        const fileObj = virtualFiles[arg] || virtualFiles[arg.toLowerCase()];
+                        if (fileObj) {
+                            if (fileObj.type === 'video') {
+                                launchVideo(fileObj.url, `LOG_STREAM: ${arg.toUpperCase()}`);
+                            } else if (fileObj.type === 'external') {
+                                window.open(fileObj.url, '_blank');
+                            }
+                        } else writeToConsole("ERR: FILE_NOT_FOUND");
+                        break;
+                    case 'clear':
+                        consoleOutput.innerHTML = '';
+                        break;
+                    case 'help':
+                        Object.entries(commandRegistry).forEach(([name, meta]) => {
+                            if (name.toLowerCase() !== 'help') {
+                                writeToConsole(`${name.toUpperCase()}: ${meta.description}`);
+                            }
+                        });
+                        break;
+                }
+            }
+        });
+
+        videoPlayer.onended = () => { closeVideo(); };
+        function closeVideo() {
+            videoPlayer.pause();
+            videoPlayer.src = "";
+            videoOverlay.style.display = 'none';
+        }
+
+        const toggleConsole = () => {
+            const isVisible = consoleContainer.style.display === 'flex';
+            consoleContainer.style.display = isVisible ? 'none' : 'flex';
+            if (!isVisible) consoleInput.focus();
+        };
+
+        window.addEventListener('keydown', (e) => { 
+            if (e.key === '~' || e.key === '`') { e.preventDefault(); toggleConsole(); } 
+            if (e.key === 'Escape' && videoOverlay.style.display === 'flex') closeVideo();
+        });
+
+        // 1. Typewriter Animation Trigger & Glitch Initialization
         window.addEventListener('DOMContentLoaded', () => {
+            initTerminalData();
             const lines = document.querySelectorAll('.typewriter-line');
             lines.forEach(line => {
                 const delay = parseInt(line.getAttribute('data-delay'));
@@ -164,12 +354,12 @@
             setTimeout(runGlitchEffect, 2500);
         });
 
-        // 2. Random Character Glitch Effect Logic
+        // 2. Random Character Glitch Effect Logic with immutable attribute caching to prevent sticky states
         const GLITCH_CONFIG = {
             className: '.glitch-target', 
             chars: '!@#$%^&*()_+[]{}<>?/', 
-            frames: 10,                   
-            frameSpeed: 60,               
+            frames: 10,                    
+            frameSpeed: 60,                
             intervalMin: 1500,             
             intervalMax: 4000              
         };
@@ -179,7 +369,12 @@
             if (targets.length === 0) return;
 
             const target = targets[Math.floor(Math.random() * targets.length)];
-            const originalText = target.innerText;
+            
+            // Cache pristine text string in a data attribute so it never gets permanently stuck on randomized garbage
+            if (!target.getAttribute('data-original-text')) {
+                target.setAttribute('data-original-text', target.innerText);
+            }
+            const originalText = target.getAttribute('data-original-text');
             let iterations = 0;
 
             const interval = setInterval(() => {
@@ -193,7 +388,7 @@
 
                 if (iterations++ > GLITCH_CONFIG.frames) {
                     clearInterval(interval);
-                    target.innerText = originalText; 
+                    target.innerText = originalText; // Guarantee pristine restoration every cycle
                 }
             }, GLITCH_CONFIG.frameSpeed);
 
