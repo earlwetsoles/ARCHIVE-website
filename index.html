@@ -182,40 +182,61 @@
         #os-window-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(5, 5, 5, 0.85);
+            background: transparent;
+            pointer-events: none;
             z-index: 4000;
             display: none;
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(8px);
             padding: 1rem;
         }
         .os-window-frame {
-            width: 100%;
-            max-width: 1300px;
-            height: 90vh;
-            background: #070707;
-            border: 1px solid #991b1b;
-            box-shadow: 0 0 40px rgba(153, 27, 27, 0.25);
+            position: absolute;
+            pointer-events: auto;
+            width: 96%;
+            max-width: 1650px;
+            height: 92vh;
+            min-width: 320px;
+            min-height: 300px;
+            resize: both;
+            background: #0c0c0c;
+            border: 1px solid #333;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
             display: flex;
             flex-direction: column;
             border-radius: 4px;
             overflow: hidden;
-            animation: window-pop 0.2s ease-out forwards;
+            animation: window-pop 0.15s ease-out forwards;
         }
         @keyframes window-pop {
-            from { opacity: 0; transform: scale(0.96); }
+            from { opacity: 0; transform: scale(0.97); }
             to { opacity: 1; transform: scale(1); }
         }
         .os-window-header {
-            background: #110505;
-            padding: 8px 16px;
-            border-bottom: 1px solid #1a1a1a;
+            background: #141414;
+            padding: 8px 12px;
+            border-bottom: 1px solid #222;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 11px;
-            color: #ff3e3e;
+            color: #aaa;
+            cursor: move;
+            user-select: none;
+        }
+        .win-close-btn {
+            background: transparent;
+            border: none;
+            color: #888;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            padding: 4px 12px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+        .win-close-btn:hover {
+            background: #e81123;
+            color: #ffffff;
         }
         .os-window-body {
             flex: 1;
@@ -312,11 +333,11 @@
 
     <!-- Retro OS Window Frame Modal -->
     <div id="os-window-overlay">
-        <div class="os-window-frame">
-            <div class="os-window-header">
+        <div class="os-window-frame" id="os-window-frame">
+            <div class="os-window-header" id="os-window-header">
                 <span id="os-window-title">// ARCHIVE_OS // ACTIVE_PROCESS</span>
-                <button onclick="closeOSWindow()" class="cursor-pointer text-red-400 hover:text-white font-bold px-2 py-0.5 border border-red-900/50 hover:bg-red-950 transition-colors">
-                    [CLOSE X]
+                <button onclick="closeOSWindow()" class="win-close-btn" title="Close">
+                    ✕
                 </button>
             </div>
             <div class="os-window-body">
@@ -482,8 +503,47 @@
         const videoPlaceholder = document.getElementById('video-placeholder');
 
         const osWindowOverlay = document.getElementById('os-window-overlay');
+        const osWindowFrame = document.getElementById('os-window-frame');
+        const osWindowHeader = document.getElementById('os-window-header');
         const osWindowIframe = document.getElementById('os-window-iframe');
         const osWindowTitle = document.getElementById('os-window-title');
+
+        // Window Dragging Logic
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+
+        osWindowHeader.addEventListener('mousedown', (e) => {
+            if (e.target.tagName === 'BUTTON') return;
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            const rect = osWindowFrame.getBoundingClientRect();
+            initialLeft = rect.left;
+            initialTop = rect.top;
+            
+            // Switch from flex centering to absolute positioning on drag start
+            osWindowFrame.style.left = `${initialLeft}px`;
+            osWindowFrame.style.top = `${initialTop}px`;
+            osWindowOverlay.style.justifyContent = 'flex-start';
+            osWindowOverlay.style.alignItems = 'flex-start';
+            
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        function onMouseMove(e) {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            osWindowFrame.style.left = `${initialLeft + dx}px`;
+            osWindowFrame.style.top = `${initialTop + dy}px`;
+        }
+
+        function onMouseUp() {
+            isDragging = false;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
 
         // Route mapping for OS Windows
         const OS_ROUTES = {
@@ -501,6 +561,13 @@
             osWindowTitle.innerText = route.title;
             osWindowIframe.src = route.file;
             osWindowOverlay.style.display = 'flex';
+            
+            // Reset position to center on open
+            osWindowOverlay.style.justifyContent = 'center';
+            osWindowOverlay.style.alignItems = 'center';
+            osWindowFrame.style.left = '';
+            osWindowFrame.style.top = '';
+
             window.location.hash = '#' + routeKey;
         }
 
