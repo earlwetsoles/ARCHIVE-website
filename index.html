@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARCHIVE_01</title>
+    <title>ARCHIVE_01 // OS</title>
     
     <!-- FAVICON SETTINGS -->
     <link rel="apple-touch-icon" sizes="180x180" href="data/icons/apple-touch-icon.png">
@@ -178,6 +178,58 @@
         .console-input-row { display: flex; align-items: center; }
         #console-input { background: transparent; border: none; outline: none; color: var(--terminal-off-white); flex-grow: 1; margin-left: 10px; font-family: 'Space Mono', monospace; }
 
+        /* OS Window Overlay Styles */
+        #os-window-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 5, 5, 0.85);
+            z-index: 4000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+            padding: 1rem;
+        }
+        .os-window-frame {
+            width: 100%;
+            max-width: 1300px;
+            height: 90vh;
+            background: #070707;
+            border: 1px solid #991b1b;
+            box-shadow: 0 0 40px rgba(153, 27, 27, 0.25);
+            display: flex;
+            flex-direction: column;
+            border-radius: 4px;
+            overflow: hidden;
+            animation: window-pop 0.2s ease-out forwards;
+        }
+        @keyframes window-pop {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .os-window-header {
+            background: #110505;
+            padding: 8px 16px;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #ff3e3e;
+        }
+        .os-window-body {
+            flex: 1;
+            width: 100%;
+            background: #050505;
+            overflow: hidden;
+            position: relative;
+        }
+        .os-window-body iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
         .vu-meter-container { display: flex; gap: 2px; height: 32px; align-items: flex-end; margin-top: 8px; padding-top: 4px; border-top: 1px solid #111; }
         .vu-bar { flex: 1; background: #1a1a1a; height: 2px; transition: height 0.08s ease-out; }
         
@@ -258,6 +310,21 @@
 
     <div id="boot-screen"></div>
 
+    <!-- Retro OS Window Frame Modal -->
+    <div id="os-window-overlay">
+        <div class="os-window-frame">
+            <div class="os-window-header">
+                <span id="os-window-title">// ARCHIVE_OS // ACTIVE_PROCESS</span>
+                <button onclick="closeOSWindow()" class="cursor-pointer text-red-400 hover:text-white font-bold px-2 py-0.5 border border-red-900/50 hover:bg-red-950 transition-colors">
+                    [CLOSE X]
+                </button>
+            </div>
+            <div class="os-window-body">
+                <iframe id="os-window-iframe" src="" title="Archive OS Sub-Process"></iframe>
+            </div>
+        </div>
+    </div>
+
     <div id="video-overlay">
         <div class="video-window">
             <div class="video-header">
@@ -335,22 +402,22 @@
         <section class="space-y-8 md:space-y-12">
             <div class="group typewriter-line" data-delay="800">
                 <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest glitch-target">01 / Utilities</span>
-                <a href="utilities.html" target="_blank" rel="noopener noreferrer" class="link-item glitch-hover-effect w-full block py-2 text-lg glitch-target">Web Tools</a>
+                <a href="#utilities" onclick="openOSWindow('utilities', event)" class="link-item glitch-hover-effect w-full block py-2 text-lg glitch-target">Web Tools</a>
             </div>
 
             <div class="group typewriter-line" data-delay="1600">
                 <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest glitch-target">02 / Visuals</span>
-                <a href="galleries.html" target="_blank" rel="noopener noreferrer" class="link-item glitch-hover-effect w-full block py-2 text-lg glitch-target">Gallery</a>
+                <a href="#galleries" onclick="openOSWindow('galleries', event)" class="link-item glitch-hover-effect w-full block py-2 text-lg glitch-target">Gallery</a>
             </div>
 
             <div class="group typewriter-line" data-delay="2400">
                 <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest glitch-target">03 / TRAVERSAL</span>
-                <a href="hiking.html" target="_blank" rel="noopener noreferrer" class="link-item glitch-hover-effect w-full block py-2 text-lg glitch-target">Hiking</a>
+                <a href="#hiking" onclick="openOSWindow('hiking', event)" class="link-item glitch-hover-effect w-full block py-2 text-lg glitch-target">Hiking</a>
             </div>
 
             <div class="group typewriter-line" data-delay="3200">
                 <span class="text-[10px] block mb-2 opacity-40 uppercase tracking-widest glitch-target">04 / ASSET MANAGEMENT</span>
-                <a href="investing.html" target="_blank" rel="noopener noreferrer" class="link-item glitch-hover-effect w-full block py-2 text-lg glitch-target">Investing</a>
+                <a href="#investing" onclick="openOSWindow('investing', event)" class="link-item glitch-hover-effect w-full block py-2 text-lg glitch-target">Investing</a>
             </div>
 
             <div class="group typewriter-line" data-delay="4000">
@@ -414,17 +481,74 @@
         const videoWidget = document.getElementById('video-widget');
         const videoPlaceholder = document.getElementById('video-placeholder');
 
+        const osWindowOverlay = document.getElementById('os-window-overlay');
+        const osWindowIframe = document.getElementById('os-window-iframe');
+        const osWindowTitle = document.getElementById('os-window-title');
+
+        // Route mapping for OS Windows
+        const OS_ROUTES = {
+            'utilities': { file: 'utilities.html', title: '// ARCHIVE_OS // UTILITIES_DIRECTORY' },
+            'galleries': { file: 'galleries.html', title: '// ARCHIVE_OS // VISUALS_GALLERY' },
+            'hiking': { file: 'hiking.html', title: '// ARCHIVE_OS // TRAVERSAL_LOGS' },
+            'investing': { file: 'investing.html', title: '// ARCHIVE_OS // ASSET_MANAGEMENT' }
+        };
+
+        function openOSWindow(routeKey, event) {
+            if (event) event.preventDefault();
+            const route = OS_ROUTES[routeKey];
+            if (!route) return;
+
+            osWindowTitle.innerText = route.title;
+            osWindowIframe.src = route.file;
+            osWindowOverlay.style.display = 'flex';
+            window.location.hash = '#' + routeKey;
+        }
+
+        function closeOSWindow() {
+            osWindowIframe.src = '';
+            osWindowOverlay.style.display = 'none';
+            // Clear hash without scrolling
+            if (history.pushState) {
+                history.pushState("", document.title, window.location.pathname + window.location.search);
+            } else {
+                window.location.hash = '';
+            }
+        }
+
+        function checkHashRoute() {
+            const hash = window.location.hash.replace('#', '').toLowerCase();
+            if (OS_ROUTES[hash]) {
+                const route = OS_ROUTES[hash];
+                osWindowTitle.innerText = route.title;
+                osWindowIframe.src = route.file;
+                osWindowOverlay.style.display = 'flex';
+            } else {
+                osWindowOverlay.style.display = 'none';
+                osWindowIframe.src = '';
+            }
+        }
+
+        window.addEventListener('hashchange', checkHashRoute);
+
         const GLITCH_CONFIG = { className: '.glitch-target', chars: '!@#$%^&*()_+[]{}<>?/', frames: 10, frameSpeed: 60, intervalMin: 500, intervalMax: 3000 }; 
 
         function runGlitchEffect() { 
             const targets = document.querySelectorAll(GLITCH_CONFIG.className); 
             if (targets.length === 0) return; 
             const target = targets[Math.floor(Math.random() * targets.length)]; 
-            const originalText = target.innerText; 
+            
+            if (!target.getAttribute('data-original-text')) {
+                target.setAttribute('data-original-text', target.innerText);
+            }
+            const originalText = target.getAttribute('data-original-text'); 
+            
             let iterations = 0; 
             const interval = setInterval(() => { 
                 target.innerText = originalText.split('').map(char => (char === ' ' || char === '\n') ? char : GLITCH_CONFIG.chars[Math.floor(Math.random() * GLITCH_CONFIG.chars.length)]).join(''); 
-                if (iterations++ > GLITCH_CONFIG.frames) { clearInterval(interval); target.innerText = originalText; } 
+                if (iterations++ > GLITCH_CONFIG.frames) { 
+                    clearInterval(interval); 
+                    target.innerText = originalText;
+                } 
             }, GLITCH_CONFIG.frameSpeed); 
             setTimeout(runGlitchEffect, Math.random() * (GLITCH_CONFIG.intervalMax - GLITCH_CONFIG.intervalMin) + GLITCH_CONFIG.intervalMin); 
         } 
@@ -713,6 +837,7 @@
                         document.getElementById('diag-widget').style.opacity = '1';
                         document.getElementById('audio-widget').style.opacity = '1';
                         initAppAnimations();
+                        checkHashRoute(); // Check if URL has hash route on boot
                         setInterval(() => { 
                             if(systemStatusMessages.length) {
                                 addDiagLine(systemStatusMessages[Math.floor(Math.random() * systemStatusMessages.length)]); 
@@ -731,7 +856,10 @@
 
         window.addEventListener('keydown', (e) => { 
             if (e.key === '~' || e.key === '`') { e.preventDefault(); toggleConsole(); } 
-            if (e.key === 'Escape' && videoOverlay.style.display === 'flex') closeVideo();
+            if (e.key === 'Escape') {
+                if (videoOverlay.style.display === 'flex') closeVideo();
+                if (osWindowOverlay.style.display === 'flex') closeOSWindow();
+            }
         });
         document.getElementById('terminal-trigger').onclick = (e) => { e.stopPropagation(); toggleConsole(); };
 
